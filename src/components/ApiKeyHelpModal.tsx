@@ -42,7 +42,8 @@ export const ApiKeyHelpModal: React.FC<ApiKeyHelpModalProps> = ({ isOpen, onClos
                 </div>
               </div>
               <button 
-                onClick={onClose} 
+                onClick={onClose}
+                aria-label="Close"
                 className="text-white/70 hover:text-white p-1 hover:bg-white/10 rounded-full transition-colors"
               >
                 <X className="w-5 h-5" />
