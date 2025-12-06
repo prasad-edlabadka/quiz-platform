@@ -4,7 +4,8 @@ import { QuizRenderer } from './components/QuizRenderer';
 import { ConfirmationModal } from './components/ConfirmationModal';
 import { SchemaHelpModal } from './components/SchemaHelpModal';
 import { sampleQuiz } from './data/sampleQuiz';
-import { Upload, Play, Trash2, FileText, HelpCircle } from 'lucide-react';
+import { Upload, Play, Trash2, FileText, HelpCircle, BrainCircuit } from 'lucide-react';
+import { SyllabusInput } from './components/SyllabusInput';
 import type { QuizConfig } from './types/quiz';
 
 function App() {
@@ -13,6 +14,7 @@ function App() {
   const [error, setError] = useState<string | null>(null);
   const [isResetModalOpen, setIsResetModalOpen] = useState(false);
   const [isSchemaModalOpen, setIsSchemaModalOpen] = useState(false);
+  const [isSyllabusMode, setIsSyllabusMode] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleLoadSample = () => {
@@ -145,6 +147,15 @@ function App() {
       ) : (
         <div className="min-h-screen flex flex-col justify-center items-center p-4">
           {/* ... existing loading screen content ... */}
+          {isSyllabusMode ? (
+            <SyllabusInput 
+                onQuizGenerated={(config) => {
+                    setConfig(config);
+                    setIsSyllabusMode(false);
+                }}
+                onCancel={() => setIsSyllabusMode(false)}
+            />
+          ) : (
           <div className="max-w-xl w-full bg-white rounded-2xl shadow-xl p-8 md:p-12 relative">
             <button 
                 onClick={() => setIsSchemaModalOpen(true)}
@@ -223,8 +234,26 @@ function App() {
                 <Play className="w-5 h-5 mr-2 text-green-600" />
                 Load Sample Math Quiz
               </button>
+
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-200"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-2 bg-white text-gray-500">Or generate with AI</span>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setIsSyllabusMode(true)}
+                className="w-full flex justify-center items-center px-4 py-3 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white rounded-lg font-medium hover:opacity-90 transition-all shadow-md"
+              >
+                <BrainCircuit className="w-5 h-5 mr-2" />
+                Generate from Syllabus
+              </button>
             </div>
           </div>
+          )}
         </div>
       )}
 
