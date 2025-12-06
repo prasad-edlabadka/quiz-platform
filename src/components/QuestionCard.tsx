@@ -74,6 +74,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({ question }) => {
           selectedOptionIds={selectedOptions}
           type={question.type}
           onSelectionChange={handleSelectionChange}
+          disabled={question.timeLimit !== undefined && timeRemaining !== undefined && timeRemaining <= 0}
         />
       </div>{/* End of content */}
     </motion.div>

@@ -29,9 +29,14 @@ export const useQuizStore = create<QuizState>()(
 
       startQuiz: () => set({ status: 'active' }),
 
-      answerQuestion: (questionId, optionIds) => set((state) => ({
-        answers: { ...state.answers, [questionId]: optionIds }
-      })),
+      answerQuestion: (questionId, optionIds) => set((state) => {
+        // Enforce timer: Cannot answer if time runs out for this question
+        const qTime = state.questionTimeRemaining[questionId];
+        if (qTime !== undefined && qTime <= 0) {
+            return {}; // No op
+        }
+        return { answers: { ...state.answers, [questionId]: optionIds } };
+      }),
 
       toggleFlag: (questionId) => set((state) => ({
         flaggedQuestions: state.flaggedQuestions.includes(questionId) 
@@ -90,16 +95,6 @@ export const useQuizStore = create<QuizState>()(
                      ...state.questionTimeRemaining,
                      [currentQ.id]: newTime
                  };
-                 // Auto advance if time runs out? or just stop? 
-                 // Requirement: "Each question ... timed". Usually implies auto-advance.
-                 if (newTime === 0) {
-                      // Logic to auto advance
-                      if (state.currentQuestionIndex < state.config.questions.length - 1) {
-                          updates.currentQuestionIndex = state.currentQuestionIndex + 1;
-                      } else {
-                          updates.status = 'completed';
-                      }
-                 }
              }
         }
 
