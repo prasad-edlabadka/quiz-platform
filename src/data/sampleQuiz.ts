@@ -17,14 +17,15 @@ export const sampleQuiz: QuizConfig = {
         { id: 'opt4', content: '$x^2$', isCorrect: false },
       ],
       timeLimit: 30,
-      justification: 'The power rule states that $\\frac{d}{dx}x^n = nx^{n-1}$. Here $n=2$, so the derivative is $2x^{2-1} = 2x$.'
+      justification: 'Power rule: $d/dx(x^n) = nx^{n-1}$',
+      imageUrl: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?auto=format&fit=crop&q=80&w=600' // Calculus/Math generic image
     },
     {
       id: 'q2',
       type: 'multiple_choice',
-      content: 'Which of the following are prime numbers?',
+      content: 'Which of the following are prime numbers?\n\n![Prime Numbers Grid](https://images.unsplash.com/photo-1611348586804-61bf6c080437?auto=format&fit=crop&q=80&w=600)',
       options: [
-        { id: 'opt1', content: '2', isCorrect: true },
+        { id: 'opt1', content: '$17$', isCorrect: true },
         { id: 'opt2', content: '4', isCorrect: false },
         { id: 'opt3', content: '17', isCorrect: true },
         { id: 'opt4', content: '1', isCorrect: false },
