@@ -64,7 +64,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({ question }) => {
           
           {question.imageUrl && (
             <div className="mt-4 rounded-lg overflow-hidden border border-gray-100">
-               <img src={question.imageUrl} alt="Question Reference" className="w-full h-auto object-cover max-h-96" />
+               <img src={question.imageUrl} alt="Question Reference" className="max-w-full h-auto w-auto object-contain max-h-96 rounded-lg" />
             </div>
           )}
         </div>

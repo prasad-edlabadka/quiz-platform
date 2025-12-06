@@ -112,7 +112,7 @@ export const ResultsView: React.FC = () => {
                             <MarkdownRenderer content={q.content} />
                             {q.imageUrl && (
                                 <div className="mt-3 rounded-lg overflow-hidden border border-gray-100 max-w-sm">
-                                    <img src={q.imageUrl} alt={`Question ${idx + 1}`} className="w-full h-auto object-cover" />
+                                    <img src={q.imageUrl} alt={`Question ${idx + 1}`} className="max-w-full h-auto w-auto object-contain" />
                                 </div>
                             )}
                           </div>
