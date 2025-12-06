@@ -20,16 +20,71 @@ function App() {
   };
 
   const processQuizData = (data: string) => {
-      try {
-        const parsed = JSON.parse(data) as QuizConfig;
-        if (!parsed.questions || !Array.isArray(parsed.questions)) {
-          throw new Error('Invalid quiz format: missing questions array');
-        }
-        setConfig(parsed);
-        setError(null);
-      } catch (e: any) {
-        setError(e.message || 'Invalid JSON');
+    try {
+      const parsed = JSON.parse(data);
+      
+      // Basic validation
+      if (!parsed || typeof parsed !== 'object') {
+        throw new Error('Invalid JSON: Must be an object');
       }
+
+      // Handle questions array
+      if (!parsed.questions || !Array.isArray(parsed.questions)) {
+        throw new Error('Invalid quiz format: missing "questions" array');
+      }
+
+      if (parsed.questions.length === 0) {
+        throw new Error('Quiz must have at least one question');
+      }
+
+      // Normalize and validate questions
+      const normalizedQuestions = parsed.questions.map((q: any, qIndex: number) => {
+        // Handle ID mapping: preferred 'id', fallback 'questionId', fallback generated
+        const id = q.id || q.questionId || `q-${qIndex + 1}`;
+        
+        if (!q.content) {
+          throw new Error(`Question ${qIndex + 1} is missing "content"`);
+        }
+
+        // Handle options
+        if (!q.options || !Array.isArray(q.options) || q.options.length === 0) {
+          throw new Error(`Question "${q.content.substring(0, 20)}..." is missing options`);
+        }
+
+        const normalizedOptions = q.options.map((opt: any, optIndex: number) => ({
+          id: opt.id || `opt-${id}-${optIndex + 1}`,
+          content: opt.content || '',
+          isCorrect: !!opt.isCorrect
+        }));
+
+        return {
+          ...q,
+          id,
+          type: q.type || 'single_choice', // Default to single choice if missing
+          options: normalizedOptions,
+          // Ensure points is a number if present, default to 1
+          points: typeof q.points === 'number' ? q.points : 1
+        };
+      });
+
+      // Construct final config
+      const cleanConfig: QuizConfig = {
+        id: parsed.id || `quiz-${Date.now()}`,
+        title: parsed.title || 'Untitled Quiz',
+        description: parsed.description || '',
+        globalTimeLimit: parsed.globalTimeLimit,
+        shuffleQuestions: !!parsed.shuffleQuestions,
+        theme: parsed.theme,
+        questions: normalizedQuestions
+      };
+
+      setConfig(cleanConfig);
+      setError(null);
+      setJsonInput(JSON.stringify(cleanConfig, null, 2)); // Update input to show cleaned version
+    } catch (e: any) {
+      console.error('Quiz processing error:', e);
+      setError(e.message || 'Invalid JSON format');
+    }
   };
 
   const handleLoadJson = () => {
