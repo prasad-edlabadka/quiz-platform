@@ -96,6 +96,11 @@ export const ResultsView: React.FC = () => {
                       <div className="ml-9">
                           <div className="text-gray-800 text-sm mb-4">
                             <MarkdownRenderer content={q.content} />
+                            {q.imageUrl && (
+                                <div className="mt-3 rounded-lg overflow-hidden border border-gray-100 max-w-sm">
+                                    <img src={q.imageUrl} alt={`Question ${idx + 1}`} className="w-full h-auto object-cover" />
+                                </div>
+                            )}
                           </div>
 
                           {!isCorrect && (

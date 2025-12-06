@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
 import { useQuizStore } from './store/quizStore';
 import { QuizRenderer } from './components/QuizRenderer';
+import { ConfirmationModal } from './components/ConfirmationModal';
 import { sampleQuiz } from './data/sampleQuiz';
-import { Upload, Play } from 'lucide-react';
+import { Upload, Play, Trash2 } from 'lucide-react';
 import type { QuizConfig } from './types/quiz';
 
 function App() {
-  const { config, setConfig } = useQuizStore();
+  const { config, setConfig, clearState } = useQuizStore();
   const [jsonInput, setJsonInput] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [isResetModalOpen, setIsResetModalOpen] = useState(false);
 
   const handleLoadSample = () => {
     setConfig(sampleQuiz);
@@ -46,9 +48,21 @@ function App() {
       )}
 
       {config ? (
-        <QuizRenderer />
+        <>
+          <div className="absolute top-4 right-4 z-10 print:hidden">
+            <button
+              onClick={() => setIsResetModalOpen(true)}
+              className="p-2 bg-white/80 backdrop-blur-sm border border-red-200 text-red-500 rounded-full hover:bg-red-50 shadow-sm transition-all"
+              title="Reset App / Clear Data"
+            >
+              <Trash2 className="w-5 h-5" />
+            </button>
+          </div>
+          <QuizRenderer />
+        </>
       ) : (
         <div className="min-h-screen flex flex-col justify-center items-center p-4">
+          {/* ... existing loading screen content ... */}
           <div className="max-w-xl w-full bg-white rounded-2xl shadow-xl p-8 md:p-12">
             <div className="text-center mb-10">
               <h1 className="text-3xl font-extrabold text-gray-900 mb-2">Quiz Platform</h1>
@@ -98,6 +112,16 @@ function App() {
           </div>
         </div>
       )}
+
+      <ConfirmationModal
+        isOpen={isResetModalOpen}
+        onClose={() => setIsResetModalOpen(false)}
+        onConfirm={clearState}
+        title="Reset Application?"
+        description="This will clear all your current quiz progress, answers, and the loaded quiz configuration. You will be returned to the loading screen. This action cannot be undone."
+        confirmLabel="Reset Everything"
+        variant="danger"
+      />
     </div>
   );
 }

@@ -46,5 +46,7 @@ export interface QuizState {
   nextQuestion: () => void;
   prevQuestion: () => void;
   tick: () => void; // Called every second
+  tick: () => void; // Called every second
   resetQuiz: () => void;
+  clearState: () => void; // Reset everything including config
 }

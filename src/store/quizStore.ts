@@ -121,6 +121,17 @@ export const useQuizStore = create<QuizState>()(
             }, {} as Record<string, number>)
          }
       }),
+
+       clearState: () => set({
+          config: null,
+          status: 'idle',
+          currentQuestionIndex: 0,
+          answers: {},
+          flaggedQuestions: [],
+          questionTimeRemaining: {},
+          questionTimeTaken: {},
+          timeRemaining: 0
+       }),
     }),
     {
       name: 'quiz-storage',
