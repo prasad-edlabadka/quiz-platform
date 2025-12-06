@@ -18,7 +18,8 @@ export const sampleQuiz: QuizConfig = {
       ],
       timeLimit: 30,
       justification: 'Power rule: $d/dx(x^n) = nx^{n-1}$',
-      imageUrl: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?auto=format&fit=crop&q=80&w=600' // Calculus/Math generic image
+      imageUrl: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?auto=format&fit=crop&q=80&w=600', // Calculus/Math generic image
+      points: 2
     },
     {
       id: 'q2',

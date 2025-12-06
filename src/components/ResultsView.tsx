@@ -17,6 +17,8 @@ export const ResultsView: React.FC = () => {
   if (!config) return null;
 
   let correctCount = 0;
+  let totalScore = 0;
+  let maxScore = 0;
   let totalTimeSpent = 0;
   
   // Calculate total time
@@ -31,15 +33,21 @@ export const ResultsView: React.FC = () => {
   config.questions.forEach(q => {
      const selected = answers[q.id] || [];
      const correctOptions = q.options.filter(o => o.isCorrect).map(o => o.id);
+     const questionPoints = q.points || 1;
+     
+     maxScore += questionPoints;
      
      // Check if arrays match (order doesn't matter)
      const isCorrect = selected.length === correctOptions.length && 
                        selected.every(id => correctOptions.includes(id));
      
-     if (isCorrect) correctCount++;
+     if (isCorrect) {
+         correctCount++;
+         totalScore += questionPoints;
+     }
   });
 
-  const percentage = Math.round((correctCount / config.questions.length) * 100);
+  const percentage = Math.round((totalScore / maxScore) * 100);
 
   return (
     <motion.div 
@@ -63,7 +71,10 @@ export const ResultsView: React.FC = () => {
             <span className="text-4xl font-bold text-indigo-600">{percentage}%</span>
         </div>
         <h2 className="text-3xl font-bold text-gray-900 mb-2">Quiz Completed!</h2>
-        <p className="text-gray-500 mb-4">You scored {correctCount} out of {config.questions.length}</p>
+        <p className="text-gray-500 mb-4">
+            You scored <span className="font-bold text-gray-900">{totalScore}</span> out of <span className="font-bold text-gray-900">{maxScore}</span> points
+            <span className="block text-sm mt-1">({correctCount} out of {config.questions.length} correct)</span>
+        </p>
         
         <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-50 rounded-full text-gray-600 text-sm font-medium">
             <Clock className="w-4 h-4" />
@@ -85,7 +96,10 @@ export const ResultsView: React.FC = () => {
                               <div className="flex-shrink-0">
                                 {isCorrect ? <CheckCircle className="text-green-500 w-6 h-6"/> : <XCircle className="text-red-500 w-6 h-6"/>}
                               </div>
-                              <p className="font-medium text-gray-900 text-base">Question {idx + 1}</p>
+                              <div>
+                                  <p className="font-medium text-gray-900 text-base">Question {idx + 1}</p>
+                                  <p className="text-xs text-gray-400 font-medium">{q.points || 1} points</p>
+                              </div>
                           </div>
                           <div className="flex items-center gap-1 text-xs font-medium text-gray-400 bg-white px-2 py-1 rounded border border-gray-100">
                              <Clock className="w-3 h-3" />

@@ -83,6 +83,7 @@ export const SchemaHelpModal: React.FC<SchemaHelpModalProps> = ({ isOpen, onClos
                 <li><code>type</code>: "single_choice" | "multiple_choice"</li>
                 <li><code>content</code>: Question text (supports Markdown)</li>
                 <li><code>options</code>: Array of options having <code>id</code>, <code>content</code>, and <code>isCorrect</code></li>
+                <li><code>points</code> (optional): Score value (default: 1)</li>
                 <li><code>imageUrl</code> (optional): URL string for image</li>
                 <li><code>justification</code> (optional): Explanation text</li>
               </ul>

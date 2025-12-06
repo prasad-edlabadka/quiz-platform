@@ -20,6 +20,7 @@ export interface Question {
   options: Option[];
   imageUrl?: string; // Optional image
   justification?: string; // Explanation for the answer
+  points?: number; // Score value for this question (default: 1)
 }
 
 export interface Option {

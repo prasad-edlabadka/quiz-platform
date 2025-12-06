@@ -80,6 +80,7 @@ The entire quiz is verified against this JSON structure. You can load a quiz by 
 | `id` | `string` | Unique identifier for the question. |
 | `type` | `"single_choice" \| "multiple_choice"` | Type of question. |
 | `content` | `string` | Question text. Supports **Markdown** and **LaTeX** (e.g., `$E=mc^2$`). |
+| `points` | `number` | (Optional) Points/Score for this question (default: 1). |
 | `timeLimit` | `number` | (Optional) Time limit for this specific question (seconds). |
 | `imageUrl` | `string` | (Optional) URL for an embedded image. |
 | `justification` | `string` | (Optional) Explanation/Solution text shown in results. |
