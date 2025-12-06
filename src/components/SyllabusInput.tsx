@@ -50,8 +50,8 @@ export const SyllabusInput: React.FC<SyllabusInputProps> = ({ onQuizGenerated, o
 
   return (
     <>
-    <div className="max-w-xl w-full bg-white rounded-2xl shadow-xl p-8 md:p-12 relative">
-      <div className="absolute top-6 right-6">
+    <div className="max-w-xl w-full bg-white rounded-2xl shadow-xl p-6 md:p-12 relative mx-4 md:mx-0">
+      <div className="absolute top-4 right-4 md:top-6 md:right-6">
         <button 
            onClick={onCancel}
            className="text-gray-400 hover:text-gray-600 font-medium text-sm"
@@ -64,7 +64,7 @@ export const SyllabusInput: React.FC<SyllabusInputProps> = ({ onQuizGenerated, o
         <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-indigo-100 text-indigo-600 mb-4">
             <BrainCircuit className="w-6 h-6" />
         </div>
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">Generate Quiz from Syllabus</h1>
+        <h1 className="text-xl md:text-2xl font-bold text-gray-900 mb-2">Generate Quiz from Syllabus</h1>
         <p className="text-gray-500 text-sm">Use AI to create a tailored quiz from your study materials.</p>
       </div>
 

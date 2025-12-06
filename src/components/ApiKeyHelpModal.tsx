@@ -27,10 +27,10 @@ export const ApiKeyHelpModal: React.FC<ApiKeyHelpModalProps> = ({ isOpen, onClos
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          className="relative w-full max-w-lg bg-white rounded-2xl shadow-xl overflow-hidden z-10"
+          className="relative w-full max-w-lg bg-white rounded-xl md:rounded-2xl shadow-xl overflow-hidden z-10 mx-4 md:mx-0"
         >
           {/* Header */}
-          <div className="bg-gradient-to-r from-indigo-500 to-purple-600 p-6 text-white">
+          <div className="bg-gradient-to-r from-indigo-500 to-purple-600 p-4 md:p-6 text-white">
             <div className="flex justify-between items-start">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
@@ -50,7 +50,7 @@ export const ApiKeyHelpModal: React.FC<ApiKeyHelpModalProps> = ({ isOpen, onClos
             </div>
           </div>
 
-          <div className="p-6 space-y-6">
+          <div className="p-4 md:p-6 space-y-6">
             {/* Explanation */}
             <div className="bg-indigo-50 rounded-xl p-4 border border-indigo-100">
               <p className="text-sm text-indigo-900 leading-relaxed">
@@ -59,7 +59,7 @@ export const ApiKeyHelpModal: React.FC<ApiKeyHelpModalProps> = ({ isOpen, onClos
             </div>
 
             {/* Features/Reassurance */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="flex items-start gap-3 p-3 rounded-lg border border-gray-100 hover:border-gray-200 transition-colors">
                 <ShieldCheck className="w-5 h-5 text-green-500 mt-0.5" />
                 <div>
