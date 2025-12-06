@@ -1,0 +1,21 @@
+{
+  "id": "upload_test_quiz",
+  "title": "Upload Verification Quiz",
+  "description": "This quiz validates the file upload functionality.",
+  "globalTimeLimit": 300,
+  "theme": {
+    "primaryColor": "#10B981",
+    "backgroundColor": "#ECFDF5"
+  },
+  "questions": [
+    {
+      "id": "uq1",
+      "type": "single_choice",
+      "content": "Is this quiz loaded via file upload?",
+      "options": [
+        { "id": "uopt1", "content": "Yes", "isCorrect": true },
+        { "id": "uopt2", "content": "No", "isCorrect": false }
+      ]
+    }
+  ]
+}

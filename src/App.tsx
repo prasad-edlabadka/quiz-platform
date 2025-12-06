@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useQuizStore } from './store/quizStore';
 import { QuizRenderer } from './components/QuizRenderer';
 import { ConfirmationModal } from './components/ConfirmationModal';
 import { sampleQuiz } from './data/sampleQuiz';
-import { Upload, Play, Trash2 } from 'lucide-react';
+import { Upload, Play, Trash2, FileText } from 'lucide-react';
 import type { QuizConfig } from './types/quiz';
 
 function App() {
@@ -11,22 +11,47 @@ function App() {
   const [jsonInput, setJsonInput] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isResetModalOpen, setIsResetModalOpen] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleLoadSample = () => {
     setConfig(sampleQuiz);
   };
 
-  const handleLoadJson = () => {
-    try {
-      const parsed = JSON.parse(jsonInput) as QuizConfig;
-      if (!parsed.questions || !Array.isArray(parsed.questions)) {
-        throw new Error('Invalid quiz format: missing questions array');
+  const processQuizData = (data: string) => {
+      try {
+        const parsed = JSON.parse(data) as QuizConfig;
+        if (!parsed.questions || !Array.isArray(parsed.questions)) {
+          throw new Error('Invalid quiz format: missing questions array');
+        }
+        setConfig(parsed);
+        setError(null);
+      } catch (e: any) {
+        setError(e.message || 'Invalid JSON');
       }
-      setConfig(parsed);
-      setError(null);
-    } catch (e: any) {
-      setError(e.message || 'Invalid JSON');
-    }
+  };
+
+  const handleLoadJson = () => {
+    processQuizData(jsonInput);
+  };
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const content = e.target?.result as string;
+      processQuizData(content);
+      // Optional: also populate the text area for visibility
+      setJsonInput(content); 
+    };
+    reader.onerror = () => {
+      setError('Failed to read file');
+    };
+    reader.readAsText(file);
+    
+    // Reset value so same file can be selected again if needed
+    event.target.value = '';
   };
 
   // Apply basic theme from config if available
@@ -89,7 +114,32 @@ function App() {
                 className="w-full flex justify-center items-center px-4 py-3 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 <Upload className="w-5 h-5 mr-2" />
-                Load Quiz from JSON
+                Load from Text
+              </button>
+
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-200"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-2 bg-white text-gray-500">Or upload file</span>
+                </div>
+              </div>
+
+              <input
+                 type="file"
+                 ref={fileInputRef}
+                 onChange={handleFileUpload}
+                 accept=".json"
+                 className="hidden"
+              />
+
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="w-full flex justify-center items-center px-4 py-3 bg-white border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+              >
+                <FileText className="w-5 h-5 mr-2 text-indigo-600" />
+                Upload JSON File
               </button>
 
               <div className="relative">
