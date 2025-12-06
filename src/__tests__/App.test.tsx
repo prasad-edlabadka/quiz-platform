@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import App from '../App';
-import * as quizStore from '../store/quizStore';
+
 
 // Partial mock for store to control state
 const initialStoreState = {

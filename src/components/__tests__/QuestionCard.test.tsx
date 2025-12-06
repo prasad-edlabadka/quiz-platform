@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, within } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { QuestionCard } from '../QuestionCard';
 import { useQuizStore } from '../../store/quizStore';
 
@@ -113,7 +113,7 @@ describe('QuestionCard', () => {
         // OptionSelector -> Option Buttons
         
         // Let's try to click the one that is NOT an option.
-        const optionButtons = buttons.filter(b => b.textContent?.includes('Option'));
+        // const optionButtons = buttons.filter(b => b.textContent?.includes('Option'));
         const flagButton = buttons.find(b => !b.textContent?.includes('Option') && !b.textContent?.includes('Question'));
         
         if (flagButton) {
