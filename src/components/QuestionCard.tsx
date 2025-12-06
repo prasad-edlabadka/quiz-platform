@@ -29,18 +29,16 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({ question }) => {
       transition={{ duration: 0.3 }}
       className="w-full max-w-3xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden"
     >
-      <div className="p-6 md:p-8">
-        <div className="flex justify-between items-center mb-6">
-          <div className="flex items-center gap-4">
-             <div className="flex items-center gap-3">
-                 <div className="text-sm font-medium text-gray-500 uppercase tracking-wider">
+      <div className="p-4 sm:p-6 md:p-8">
+        <div className="flex flex-wrap justify-between items-center gap-4 mb-6">
+          <div className="flex flex-wrap items-center gap-3">
+                 <div className="text-xs sm:text-sm font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                     Question {config?.questions.findIndex(q => q.id === question.id)! + 1}
                  </div>
-                 <div className="flex items-center gap-1 px-2 py-0.5 bg-yellow-50 text-yellow-700 text-xs font-semibold rounded-md border border-yellow-100">
+                 <div className="flex items-center gap-1 px-2 py-0.5 bg-yellow-50 text-yellow-700 text-xs font-semibold rounded-md border border-yellow-100 whitespace-nowrap">
                     <Star className="w-3 h-3 fill-current" />
                     <span>{question.points || 1} pts</span>
                  </div>
-             </div>
              <button
                 onClick={() => toggleFlag(question.id)}
                 className={clsx(

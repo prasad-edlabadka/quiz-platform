@@ -65,7 +65,7 @@ export const OptionSelector: React.FC<OptionSelectorProps> = ({
               )}
             </div>
             
-            <div className="flex-grow">
+            <div className="flex-grow min-w-0">
               <MarkdownRenderer content={option.content} className="prose-sm" />
             </div>
           </div>

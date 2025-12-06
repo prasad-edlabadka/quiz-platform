@@ -69,9 +69,9 @@ export const QuizRenderer: React.FC = () => {
   const isLastQuestion = currentQuestionIndex === config.questions.length - 1;
 
   return (
-    <div className="w-full max-w-4xl mx-auto px-4 pb-20">
+    <div className="w-full max-w-4xl mx-auto px-4 pt-12 md:pt-4 pb-20">
       {/* Header */}
-      <div className="flex justify-between items-center mb-8 bg-white p-4 rounded-xl shadow-sm">
+      <div className="flex flex-wrap gap-4 justify-between items-center mb-8 bg-white p-4 rounded-xl shadow-sm">
         <div className="flex flex-col">
              <span className="text-xs font-semibold text-gray-400 uppercase tracking-widest">Progress</span>
              <span className="text-lg font-bold text-gray-800">
