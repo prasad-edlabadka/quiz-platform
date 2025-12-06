@@ -4,7 +4,7 @@ import { QuestionCard } from './QuestionCard';
 import { ResultsView } from './ResultsView';
 import { CompactNavigation } from './CompactNavigation';
 import { Timer } from './Timer';
-import { ArrowRight, ArrowLeft, GripHorizontal } from 'lucide-react'; // Added icon for drawer toggle
+import { ArrowRight, ArrowLeft } from 'lucide-react'; // Added icon for drawer toggle
 import { AnimatePresence } from 'framer-motion';
 
 export const QuizRenderer: React.FC = () => {

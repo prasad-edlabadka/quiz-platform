@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useQuizStore } from '../store/quizStore';
 import { clsx } from 'clsx';
-import { Flag, X, Map } from 'lucide-react';
+import { X, Map } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export const CompactNavigation: React.FC = () => {
