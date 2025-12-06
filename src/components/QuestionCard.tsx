@@ -5,7 +5,7 @@ import { MarkdownRenderer } from './MarkdownRenderer';
 import { Timer } from './Timer';
 import { useQuizStore } from '../store/quizStore';
 import { motion } from 'framer-motion';
-import { Flag } from 'lucide-react';
+import { Flag, Star } from 'lucide-react';
 import { clsx } from 'clsx';
 
 interface QuestionCardProps {
@@ -32,8 +32,14 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({ question }) => {
       <div className="p-6 md:p-8">
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center gap-4">
-             <div className="text-sm font-medium text-gray-500 uppercase tracking-wider">
-                Question {config?.questions.findIndex(q => q.id === question.id)! + 1}
+             <div className="flex items-center gap-3">
+                 <div className="text-sm font-medium text-gray-500 uppercase tracking-wider">
+                    Question {config?.questions.findIndex(q => q.id === question.id)! + 1}
+                 </div>
+                 <div className="flex items-center gap-1 px-2 py-0.5 bg-yellow-50 text-yellow-700 text-xs font-semibold rounded-md border border-yellow-100">
+                    <Star className="w-3 h-3 fill-current" />
+                    <span>{question.points || 1} pts</span>
+                 </div>
              </div>
              <button
                 onClick={() => toggleFlag(question.id)}
