@@ -2,8 +2,9 @@ import React, { useState, useRef } from 'react';
 import { useQuizStore } from './store/quizStore';
 import { QuizRenderer } from './components/QuizRenderer';
 import { ConfirmationModal } from './components/ConfirmationModal';
+import { SchemaHelpModal } from './components/SchemaHelpModal';
 import { sampleQuiz } from './data/sampleQuiz';
-import { Upload, Play, Trash2, FileText } from 'lucide-react';
+import { Upload, Play, Trash2, FileText, HelpCircle } from 'lucide-react';
 import type { QuizConfig } from './types/quiz';
 
 function App() {
@@ -11,6 +12,7 @@ function App() {
   const [jsonInput, setJsonInput] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isResetModalOpen, setIsResetModalOpen] = useState(false);
+  const [isSchemaModalOpen, setIsSchemaModalOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleLoadSample = () => {
@@ -88,7 +90,15 @@ function App() {
       ) : (
         <div className="min-h-screen flex flex-col justify-center items-center p-4">
           {/* ... existing loading screen content ... */}
-          <div className="max-w-xl w-full bg-white rounded-2xl shadow-xl p-8 md:p-12">
+          <div className="max-w-xl w-full bg-white rounded-2xl shadow-xl p-8 md:p-12 relative">
+            <button 
+                onClick={() => setIsSchemaModalOpen(true)}
+                className="absolute top-6 right-6 text-gray-400 hover:text-indigo-600 transition-colors"
+                title="View JSON Schema"
+            >
+                <HelpCircle className="w-6 h-6" />
+            </button>
+
             <div className="text-center mb-10">
               <h1 className="text-3xl font-extrabold text-gray-900 mb-2">Quiz Platform</h1>
               <p className="text-gray-500">Create and take quizzes from JSON specifications</p>
@@ -171,6 +181,11 @@ function App() {
         description="This will clear all your current quiz progress, answers, and the loaded quiz configuration. You will be returned to the loading screen. This action cannot be undone."
         confirmLabel="Reset Everything"
         variant="danger"
+      />
+
+      <SchemaHelpModal 
+        isOpen={isSchemaModalOpen}
+        onClose={() => setIsSchemaModalOpen(false)}
       />
     </div>
   );
