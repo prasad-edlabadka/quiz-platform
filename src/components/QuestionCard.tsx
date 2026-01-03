@@ -27,15 +27,15 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({ question }) => {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.3 }}
-      className="w-full max-w-3xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden"
+      className="w-full max-w-3xl mx-auto glass-panel rounded-3xl overflow-hidden"
     >
       <div className="p-4 sm:p-6 md:p-8">
         <div className="flex flex-wrap justify-between items-center gap-4 mb-6">
           <div className="flex flex-wrap items-center gap-3">
-                 <div className="text-xs sm:text-sm font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                 <div className="text-xs sm:text-sm font-medium text-glass-secondary uppercase tracking-wider whitespace-nowrap">
                     Question {config?.questions.findIndex(q => q.id === question.id)! + 1}
                  </div>
-                 <div className="flex items-center gap-1 px-2 py-0.5 bg-yellow-50 text-yellow-700 text-xs font-semibold rounded-md border border-yellow-100 whitespace-nowrap">
+                 <div className="glass-badge whitespace-nowrap">
                     <Star className="w-3 h-3 fill-current" />
                     <span>{question.points || 1} pts</span>
                  </div>
@@ -44,8 +44,8 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({ question }) => {
                 className={clsx(
                     "flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors focus:outline-none border",
                     flaggedQuestions.includes(question.id)
-                        ? "bg-orange-50 text-orange-600 border-orange-200 hover:bg-orange-100"
-                        : "text-gray-500 border-gray-200 hover:bg-gray-50 hover:text-gray-700"
+                        ? "bg-orange-500/20 text-orange-600 dark:text-orange-300 border-orange-500/30 hover:bg-orange-500/30"
+                        : "text-glass-secondary border-transparent hover:bg-black/5 dark:hover:bg-white/10 hover:text-glass-primary"
                 )}
              >
                 <Flag className={clsx("w-3.5 h-3.5", flaggedQuestions.includes(question.id) && "fill-current")} />
@@ -58,7 +58,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({ question }) => {
         </div>
 
         <div className="mb-8">
-          <MarkdownRenderer content={question.content} className="text-lg md:text-xl font-medium text-gray-900" />
+          <MarkdownRenderer content={question.content} className="text-lg md:text-xl font-medium text-glass-primary" />
           
           {question.imageUrl && (
             <div className="mt-4 rounded-lg overflow-hidden border border-gray-100">

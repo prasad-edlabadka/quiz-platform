@@ -1,21 +1,30 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useQuizStore } from './store/quizStore';
 import { QuizRenderer } from './components/QuizRenderer';
 import { ConfirmationModal } from './components/ConfirmationModal';
 import { SchemaHelpModal } from './components/SchemaHelpModal';
 import { sampleQuiz } from './data/sampleQuiz';
-import { Upload, Play, Trash2, FileText, HelpCircle, BrainCircuit } from 'lucide-react';
+import { Upload, Play, Trash2, FileText, HelpCircle, BrainCircuit, Sun, Moon } from 'lucide-react';
 import { SyllabusInput } from './components/SyllabusInput';
 import type { QuizConfig } from './types/quiz';
 
 function App() {
-  const { config, setConfig, clearState } = useQuizStore();
+  const { config, setConfig, clearState, themeMode, toggleTheme } = useQuizStore();
   const [jsonInput, setJsonInput] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isResetModalOpen, setIsResetModalOpen] = useState(false);
   const [isSchemaModalOpen, setIsSchemaModalOpen] = useState(false);
   const [isSyllabusMode, setIsSyllabusMode] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Sync theme with HTML element
+  useEffect(() => {
+    if (themeMode === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [themeMode]);
 
   const handleLoadSample = () => {
     setConfig(sampleQuiz);
@@ -113,7 +122,7 @@ function App() {
     event.target.value = '';
   };
 
-  // Apply basic theme from config if available
+  // Apply basic theme from config if available (overrides system theme if specific colors provided)
   const themeStyles = config?.theme ? {
     '--primary-color': config.theme.primaryColor,
     '--bg-color': config.theme.backgroundColor,
@@ -121,22 +130,29 @@ function App() {
   } as React.CSSProperties : {};
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900 transition-colors" style={themeStyles}>
+    <div className="min-h-screen transition-colors duration-500" style={themeStyles}>
       
-      {/* Dynamic Background if theme is set */}
+      {/* Dynamic Background if theme is set - made semi-transparent to blend with mesh */}
       {config?.theme && (
         <div 
-            className="fixed inset-0 -z-10 transition-colors pointer-events-none" 
+            className="fixed inset-0 -z-10 transition-colors pointer-events-none opacity-80" 
             style={{ backgroundColor: config.theme.backgroundColor }}
         />
       )}
 
       {config ? (
         <>
-          <div className="absolute top-4 right-4 z-10 print:hidden">
+          <div className="absolute top-4 right-4 z-10 print:hidden flex items-center gap-2">
+            <button
+              onClick={toggleTheme}
+              className="p-2 glass-button rounded-full shadow-sm transition-all"
+              title={`Switch to ${themeMode === 'light' ? 'Dark' : 'Light'} Mode`}
+            >
+              {themeMode === 'light' ? <Moon className="w-5 h-5 text-indigo-600" /> : <Sun className="w-5 h-5 text-yellow-300" />}
+            </button>
             <button
               onClick={() => setIsResetModalOpen(true)}
-              className="p-2 bg-white/80 backdrop-blur-sm border border-red-200 text-red-500 rounded-full hover:bg-red-50 shadow-sm transition-all"
+              className="p-2 glass-button-danger rounded-full shadow-sm transition-all"
               title="Reset App / Clear Data"
             >
               <Trash2 className="w-5 h-5" />
@@ -156,18 +172,27 @@ function App() {
                 onCancel={() => setIsSyllabusMode(false)}
             />
           ) : (
-          <div className="max-w-xl w-full bg-white rounded-2xl shadow-xl p-8 md:p-12 relative">
-            <button 
-                onClick={() => setIsSchemaModalOpen(true)}
-                className="absolute top-6 right-6 text-gray-400 hover:text-indigo-600 transition-colors"
-                title="View JSON Schema"
-            >
-                <HelpCircle className="w-6 h-6" />
-            </button>
+          <div className="max-w-xl w-full glass-panel rounded-3xl p-8 md:p-12 relative transition-all duration-500">
+            <div className="absolute top-6 right-6 flex items-center gap-2">
+                <button
+                    onClick={toggleTheme}
+                    className="text-glass-secondary hover:text-indigo-500 transition-colors p-1"
+                    title={`Switch to ${themeMode === 'light' ? 'Dark' : 'Light'} Mode`}
+                >
+                    {themeMode === 'light' ? <Moon className="w-6 h-6" /> : <Sun className="w-6 h-6" />}
+                </button>
+                <button 
+                    onClick={() => setIsSchemaModalOpen(true)}
+                    className="text-glass-secondary hover:text-indigo-500 transition-colors p-1"
+                    title="View JSON Schema"
+                >
+                    <HelpCircle className="w-6 h-6" />
+                </button>
+            </div>
 
             <div className="text-center mb-10">
-              <h1 className="text-3xl font-extrabold text-gray-900 mb-2">Quiz Platform</h1>
-              <p className="text-gray-500">Create and take quizzes from JSON specifications</p>
+              <h1 className="text-3xl font-extrabold text-glass-primary mb-2">Quiz Platform</h1>
+              <p className="text-glass-secondary">Create and take quizzes from JSON specifications</p>
             </div>
 
             <div className="space-y-6">
@@ -176,7 +201,7 @@ function App() {
                   value={jsonInput}
                   onChange={(e) => setJsonInput(e.target.value)}
                   placeholder="Paste your Quiz JSON here..."
-                  className="w-full h-40 p-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-shadow bg-gray-50 font-mono text-sm resize-none"
+                  className="w-full h-40 p-4 rounded-xl glass-input outline-none font-mono text-sm resize-none"
                 />
                 
                 {error && (
@@ -187,7 +212,7 @@ function App() {
               <button
                 onClick={handleLoadJson}
                 disabled={!jsonInput.trim()}
-                className="w-full flex justify-center items-center px-4 py-3 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="w-full flex justify-center items-center px-4 py-3 glass-button-primary rounded-xl font-medium transition-all"
               >
                 <Upload className="w-5 h-5 mr-2" />
                 Load from Text
@@ -195,10 +220,10 @@ function App() {
 
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-200"></div>
+                  <div className="w-full border-t border-white/10"></div>
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white text-gray-500">Or upload file</span>
+                  <span className="px-2 bg-transparent text-glass-secondary">Or upload file</span>
                 </div>
               </div>
 
@@ -212,41 +237,41 @@ function App() {
 
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="w-full flex justify-center items-center px-4 py-3 bg-white border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+                className="w-full flex justify-center items-center px-4 py-3 glass-button rounded-xl font-medium transition-all"
               >
-                <FileText className="w-5 h-5 mr-2 text-indigo-600" />
+                <FileText className="w-5 h-5 mr-2 text-indigo-300" />
                 Upload JSON File
               </button>
 
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-200"></div>
+                  <div className="w-full border-t border-white/10"></div>
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white text-gray-500">Or start with</span>
+                  <span className="px-2 bg-transparent text-glass-secondary">Or start with</span>
                 </div>
               </div>
 
               <button
                 onClick={handleLoadSample}
-                className="w-full flex justify-center items-center px-4 py-3 bg-white border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+                className="w-full flex justify-center items-center px-4 py-3 glass-button rounded-xl font-medium transition-all"
               >
-                <Play className="w-5 h-5 mr-2 text-green-600" />
+                <Play className="w-5 h-5 mr-2 text-green-400" />
                 Load Sample Math Quiz
               </button>
 
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-200"></div>
+                  <div className="w-full border-t border-white/10"></div>
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white text-gray-500">Or generate with AI</span>
+                  <span className="px-2 bg-transparent text-glass-secondary">Or generate with AI</span>
                 </div>
               </div>
 
               <button
                 onClick={() => setIsSyllabusMode(true)}
-                className="w-full flex justify-center items-center px-4 py-3 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white rounded-lg font-medium hover:opacity-90 transition-all shadow-md"
+                className="w-full flex justify-center items-center px-4 py-3 bg-gradient-to-r from-indigo-500/80 via-purple-500/80 to-pink-500/80 backdrop-blur-md border border-white/20 text-white rounded-xl font-medium hover:opacity-90 transition-all shadow-lg"
               >
                 <BrainCircuit className="w-5 h-5 mr-2" />
                 Generate from Syllabus

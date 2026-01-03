@@ -2,6 +2,119 @@
 
 @layer base {
   body {
-    @apply bg-gray-50 text-gray-900 font-sans;
+    @apply font-sans antialiased min-h-screen transition-colors duration-500;
+    
+    /* Light Mode Background: Soft pastel mesh */
+    background: 
+      radial-gradient(at 0% 0%, hsla(253,16%,90%,1) 0, transparent 50%), 
+      radial-gradient(at 50% 100%, hsla(225,100%,94%,1) 0, transparent 50%), 
+      radial-gradient(at 100% 0%, hsla(339,100%,90%,1) 0, transparent 50%);
+    background-color: #f8fafc;
+    background-attachment: fixed;
+  }
+
+  /* Dark Mode Background: Existing Deep Mesh */
+  .dark body {
+    @apply text-white selection:bg-indigo-500/30;
+    background: 
+      radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+      radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
+      radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+    background-color: #0f172a;
+    background-attachment: fixed;
   }
 }
+
+@layer components {
+  /* Panel: 
+     Light: Slightly clearer, darker border for contrast against light bg 
+     Dark: High transparency, white border 
+  */
+  .glass-panel {
+    @apply transition-all duration-300 backdrop-blur-2xl shadow-[0_8px_32px_0_rgba(31,38,135,0.1)];
+    @apply bg-white/40 border border-white/40; /* Light default */
+  }
+  .dark .glass-panel {
+    @apply bg-white/5 border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)];
+  }
+
+  /* Option:
+     Light: White/60 base
+     Dark: White/5 base
+  */
+  .glass-option {
+    @apply transition-all duration-300 backdrop-blur-sm shadow-sm cursor-pointer border;
+    @apply bg-white/60 border-white/50 hover:bg-white/80 hover:scale-[1.01]; /* Light default */
+  }
+  .dark .glass-option {
+    @apply bg-white/5 border-white/10 hover:bg-white/10;
+  }
+  
+  .glass-option-selected {
+    @apply backdrop-blur-md shadow-lg transition-all duration-300 border;
+    @apply bg-indigo-500/10 border-indigo-500/40 shadow-indigo-500/10; /* Light default */
+  }
+  .dark .glass-option-selected {
+    @apply bg-indigo-500/20 border-indigo-500/40 shadow-[0_0_15px_rgba(99,102,241,0.3)];
+  }
+
+  .glass-button {
+    @apply backdrop-blur-md shadow-sm transition-all duration-300 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed border font-medium;
+    @apply bg-white/50 border-white/40 text-gray-700 hover:bg-white/70; /* Light default */
+  }
+  .dark .glass-button {
+    @apply bg-white/5 border-white/10 text-white hover:bg-white/10;
+  }
+
+  .glass-button-primary {
+    @apply backdrop-blur-md shadow-sm transition-all duration-300 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed border font-medium;
+    @apply bg-indigo-600 text-white border-transparent hover:bg-indigo-700 shadow-indigo-200; /* Light default - Solid for primary in light mode usually easier to read, or glass */
+    /* Let's go with Glass Primary for Light too */
+    @apply bg-indigo-500/80 border-indigo-500/20 hover:bg-indigo-600/90 shadow-indigo-500/20;
+  }
+  .dark .glass-button-primary {
+    @apply bg-indigo-500/20 border-indigo-500/30 text-white hover:bg-indigo-500/30 hover:border-indigo-500/50 shadow-indigo-500/10;
+  }
+
+  .glass-button-danger {
+    @apply backdrop-blur-md shadow-sm transition-all duration-300 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed border font-medium;
+    @apply bg-red-500/10 border-red-500/20 text-red-700 hover:bg-red-500/20; /* Light default */
+  }
+  .dark .glass-button-danger {
+    @apply bg-red-500/20 border-red-500/30 text-red-100 hover:bg-red-500/30 hover:border-red-500/50;
+  }
+  
+  .glass-input {
+    @apply backdrop-blur-md transition-all duration-300 border focus:ring-2 focus:ring-indigo-500/50 outline-none;
+    @apply bg-white/50 border-gray-200 text-gray-800 placeholder:text-gray-400 focus:bg-white/70; /* Light default */
+  }
+  .dark .glass-input {
+    @apply bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:bg-white/10;
+  }
+
+  /* Text utilities for glass */
+  .text-glass-primary {
+    @apply text-gray-900 drop-shadow-sm;
+  }
+  .dark .text-glass-primary {
+    @apply text-white;
+  }
+  
+  .text-glass-secondary {
+    @apply text-gray-500;
+  }
+  .dark .text-glass-secondary {
+    @apply text-gray-400;
+  }
+
+  /* Badge utility for Safari robustness */
+  .glass-badge {
+    @apply relative z-10 isolate flex items-center gap-1 px-2 py-0.5 text-xs font-semibold rounded-md border;
+    /* Light Mode */
+    @apply bg-yellow-200 text-yellow-800 border-yellow-300;
+  }
+  .dark .glass-badge {
+    @apply bg-yellow-500/20 text-yellow-200 border-yellow-500/30;
+  }
+}
+

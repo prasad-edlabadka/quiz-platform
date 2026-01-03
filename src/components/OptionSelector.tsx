@@ -42,23 +42,23 @@ export const OptionSelector: React.FC<OptionSelectorProps> = ({
             key={option.id}
             onClick={() => handleSelect(option.id)}
             className={clsx(
-              "relative flex items-center p-4 rounded-xl border-2 transition-all cursor-pointer group",
+              "relative flex items-center p-4 rounded-xl transition-all cursor-pointer group",
               isSelected 
-                ? "border-indigo-600 bg-indigo-50/50" 
-                : "border-gray-200 hover:border-indigo-300 hover:bg-gray-50",
-              disabled && "opacity-60 cursor-not-allowed hover:border-gray-200 hover:bg-transparent"
+                ? "glass-option-selected" 
+                : "glass-option",
+              disabled && "opacity-50 cursor-not-allowed hover:bg-white/5"
             )}
           >
             <div className={clsx(
-              "flex-shrink-0 mr-4 text-indigo-600 transition-transform",
-              isSelected ? "scale-100" : "scale-100 opacity-50 group-hover:opacity-80"
+              "flex-shrink-0 mr-4 transition-transform",
+              isSelected ? "scale-100 text-indigo-400" : "scale-100 opacity-50 group-hover:opacity-80 text-glass-secondary"
             )}>
               {type === 'single_choice' ? (
-                isSelected ? <CheckCircle2 className="w-6 h-6 fill-indigo-100" /> : <Circle className="w-6 h-6" />
+                isSelected ? <CheckCircle2 className="w-6 h-6 fill-indigo-500/20" /> : <Circle className="w-6 h-6" />
               ) : (
                 <div className={clsx(
                   "w-6 h-6 rounded border-2 flex items-center justify-center transition-colors",
-                  isSelected ? "bg-indigo-600 border-indigo-600" : "border-gray-300"
+                  isSelected ? "bg-indigo-500 border-indigo-500" : "border-glass-secondary bg-transparent"
                 )}>
                   {isSelected && <CheckCircle2 className="w-4 h-4 text-white" />}
                 </div>

@@ -49,4 +49,6 @@ export interface QuizState {
   tick: () => void; // Called every second
   resetQuiz: () => void;
   clearState: () => void; // Reset everything including config
+  themeMode: 'light' | 'dark';
+  toggleTheme: () => void;
 }

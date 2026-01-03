@@ -51,34 +51,34 @@ export const SchemaHelpModal: React.FC<SchemaHelpModalProps> = ({ isOpen, onClos
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          className="relative w-full max-w-2xl bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col max-h-[85vh]"
+          className="relative w-full max-w-2xl glass-panel rounded-2xl overflow-hidden flex flex-col max-h-[85vh]"
         >
           {/* Header */}
-          <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+          <div className="p-6 border-b border-white/10 flex justify-between items-center bg-white/5">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-indigo-100 text-indigo-600 rounded-lg">
+              <div className="p-2 bg-indigo-500/20 text-indigo-300 rounded-lg backdrop-blur-sm">
                 <FileJson className="w-5 h-5" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900">Quiz JSON Schema</h3>
+              <h3 className="text-xl font-bold text-glass-primary">Quiz JSON Schema</h3>
             </div>
-            <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">
+            <button onClick={onClose} className="text-glass-secondary hover:text-glass-primary transition-colors">
               <X className="w-6 h-6" />
             </button>
           </div>
 
           {/* Scrollable Content */}
           <div className="p-6 overflow-y-auto">
-            <div className="prose prose-sm max-w-none text-gray-600">
+            <div className="prose prose-sm max-w-none prose-invert text-glass-secondary">
               <p>Structure your JSON file according to the schema below. The <code>questions</code> array is required.</p>
 
-              <h4 className="text-gray-900 font-semibold mt-4 mb-2">Required Fields</h4>
+              <h4 className="text-glass-primary font-semibold mt-4 mb-2">Required Fields</h4>
               <ul className="list-disc pl-5 space-y-1">
                 <li><code>id</code> (string): Unique identifier</li>
                 <li><code>title</code> (string): Quiz title</li>
                 <li><code>questions</code> (array): List of Question objects</li>
               </ul>
 
-              <h4 className="text-gray-900 font-semibold mt-4 mb-2">Question Object</h4>
+              <h4 className="text-glass-primary font-semibold mt-4 mb-2">Question Object</h4>
               <ul className="list-disc pl-5 space-y-1">
                 <li><code>type</code>: "single_choice" | "multiple_choice"</li>
                 <li><code>content</code>: Question text (supports Markdown)</li>
@@ -90,29 +90,29 @@ export const SchemaHelpModal: React.FC<SchemaHelpModalProps> = ({ isOpen, onClos
 
               <div className="mt-6">
                  <div className="flex justify-between items-center mb-2">
-                    <h4 className="text-gray-900 font-semibold m-0">Minimal Example</h4>
+                    <h4 className="text-glass-primary font-semibold m-0">Minimal Example</h4>
                     <button 
                         onClick={handleCopy}
                         className={clsx(
-                            "flex items-center gap-1.5 text-xs font-medium px-2 py-1 rounded transition-colors border",
-                            copied ? "bg-green-50 text-green-700 border-green-200" : "bg-white text-gray-500 border-gray-200 hover:bg-gray-50"
+                            "glass-button flex items-center gap-1.5 text-xs font-medium px-2 py-1 rounded transition-colors border",
+                            copied ? "bg-green-500/20 text-green-300 border-green-500/30" : "border-white/20"
                         )}
                     >
                         {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
                         {copied ? "Copied!" : "Copy JSON"}
                     </button>
                  </div>
-                 <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto text-xs font-mono">
+                 <pre className="bg-black/40 backdrop-blur-sm text-gray-100 p-4 rounded-lg overflow-x-auto text-xs font-mono border border-white/10">
                     {exampleJson}
                  </pre>
               </div>
             </div>
           </div>
           
-          <div className="p-4 border-t border-gray-100 bg-gray-50 flex justify-end">
+          <div className="p-4 border-t border-white/10 bg-white/5 flex justify-end">
             <button
                 onClick={onClose}
-                className="px-4 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors"
+                className="px-4 py-2 glass-button-primary text-white font-medium rounded-lg transition-colors"
             >
                 Close
             </button>

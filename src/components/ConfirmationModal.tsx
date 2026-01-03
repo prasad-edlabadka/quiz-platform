@@ -42,18 +42,18 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          className="relative w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden z-10"
+          className="relative w-full max-w-md glass-panel rounded-2xl overflow-hidden z-10"
         >
           <div className="p-6">
             <div className="flex items-start gap-4">
-              <div className={`p-3 rounded-full flex-shrink-0 ${variant === 'danger' ? 'bg-red-100 text-red-600' : 'bg-orange-100 text-orange-600'}`}>
+              <div className={`p-3 rounded-full flex-shrink-0 backdrop-blur-sm ${variant === 'danger' ? 'bg-red-500/20 text-red-600 dark:text-red-300 ring-1 ring-red-500/30' : 'bg-orange-500/20 text-orange-600 dark:text-orange-300 ring-1 ring-orange-500/30'}`}>
                 <AlertTriangle className="w-6 h-6" />
               </div>
               <div className="flex-1">
-                <h3 className="text-lg font-bold text-gray-900 mb-2">{title}</h3>
-                <p className="text-gray-600 leading-relaxed">{description}</p>
+                <h3 className="text-lg font-bold text-glass-primary mb-2">{title}</h3>
+                <p className="text-glass-secondary leading-relaxed">{description}</p>
               </div>
-              <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">
+              <button onClick={onClose} className="text-glass-secondary hover:text-glass-primary transition-colors">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -61,7 +61,7 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
             <div className="mt-8 flex justify-end gap-3">
               <button
                 onClick={onClose}
-                className="px-4 py-2 text-gray-700 font-medium hover:bg-gray-100 rounded-lg transition-colors"
+                className="px-4 py-2 glass-button font-medium rounded-lg transition-colors border-white/20"
               >
                 {cancelLabel}
               </button>
@@ -70,10 +70,10 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
                   onConfirm();
                   onClose();
                 }}
-                className={`px-4 py-2 text-white font-medium rounded-lg shadow-sm transition-colors ${
+                className={`px-4 py-2 font-medium rounded-lg shadow-sm transition-colors ${
                   variant === 'danger' 
-                    ? 'bg-red-600 hover:bg-red-700' 
-                    : 'bg-indigo-600 hover:bg-indigo-700'
+                    ? 'glass-button-danger' 
+                    : 'glass-button-primary'
                 }`}
               >
                 {confirmLabel}

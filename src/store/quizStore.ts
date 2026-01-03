@@ -117,7 +117,7 @@ export const useQuizStore = create<QuizState>()(
          }
       }),
 
-       clearState: () => set({
+      clearState: () => set({
           config: null,
           status: 'idle',
           currentQuestionIndex: 0,
@@ -127,9 +127,16 @@ export const useQuizStore = create<QuizState>()(
           questionTimeTaken: {},
           timeRemaining: 0
        }),
+
+      themeMode: 'dark', // Default to dark mode for the premium feel
+      
+      toggleTheme: () => set((state) => ({ 
+        themeMode: state.themeMode === 'light' ? 'dark' : 'light' 
+      })),
     }),
     {
       name: 'quiz-storage',
+      partialize: (state) => ({ themeMode: state.themeMode }), // Only persist theme
     }
   )
 );
