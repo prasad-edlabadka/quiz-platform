@@ -33,7 +33,7 @@ export const OptionSelector: React.FC<OptionSelectorProps> = ({
   };
 
   return (
-    <div className="space-y-3">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
       {options.map((option) => {
         const isSelected = selectedOptionIds.includes(option.id);
         
