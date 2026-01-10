@@ -27,6 +27,7 @@ export interface Option {
   id: string;
   content: string; // Markdown supported
   isCorrect: boolean;
+  imageUrl?: string; // Optional image for the option
 }
 
 export interface QuizState {

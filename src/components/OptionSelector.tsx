@@ -66,6 +66,11 @@ export const OptionSelector: React.FC<OptionSelectorProps> = ({
             </div>
             
             <div className="flex-grow min-w-0">
+              {option.imageUrl && (
+                <div className="mb-3 rounded-lg overflow-hidden border border-white/5">
+                  <img src={option.imageUrl} alt="Option Image" className="max-w-full h-auto max-h-48 object-contain rounded-lg" />
+                </div>
+              )}
               <MarkdownRenderer content={option.content} className="prose-sm" />
             </div>
           </div>

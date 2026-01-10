@@ -65,7 +65,8 @@ function App() {
         const normalizedOptions = q.options.map((opt: any, optIndex: number) => ({
           id: opt.id || `opt-${id}-${optIndex + 1}`,
           content: opt.content || '',
-          isCorrect: !!opt.isCorrect
+          isCorrect: !!opt.isCorrect,
+          imageUrl: opt.imageUrl || opt.imageURL // Support both camelCase and URL suffix
         }));
 
         return {
@@ -74,7 +75,8 @@ function App() {
           type: q.type || 'single_choice', // Default to single choice if missing
           options: normalizedOptions,
           // Ensure points is a number if present, default to 1
-          points: typeof q.points === 'number' ? q.points : 1
+          points: typeof q.points === 'number' ? q.points : 1,
+          imageUrl: q.imageUrl || q.imageURL // Support both cases for question images too
         };
       });
 

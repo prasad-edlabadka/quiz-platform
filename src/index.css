@@ -116,5 +116,28 @@
   .dark .glass-badge {
     @apply bg-yellow-500/20 text-yellow-200 border-yellow-500/30;
   }
+
+  /* Table Styles for Markdown */
+  .prose table {
+    @apply w-full text-left border-collapse my-4;
+  }
+  
+  .prose th {
+    @apply p-3 font-semibold border-b border-gray-300 dark:border-gray-700 bg-gray-100/50 dark:bg-white/5;
+  }
+  
+  .prose td {
+    @apply p-3 border-b border-gray-200 dark:border-gray-800;
+  }
+}
+
+@layer utilities {
+  .no-scrollbar {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
 }
 

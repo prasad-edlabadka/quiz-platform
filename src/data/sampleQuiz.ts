@@ -27,7 +27,7 @@ export const sampleQuiz: QuizConfig = {
       content: 'Which of the following are prime numbers?\n\n![Prime Numbers Grid](https://images.unsplash.com/photo-1611348586804-61bf6c080437?auto=format&fit=crop&q=80&w=600)',
       options: [
         { id: 'opt1', content: '$17$', isCorrect: true },
-        { id: 'opt2', content: '4', isCorrect: false },
+        { id: 'opt2', content: '4', isCorrect: false, imageUrl: 'https://images.unsplash.com/photo-1599508704512-2f19efd1e35f?auto=format&fit=crop&q=80&w=200' },
         { id: 'opt3', content: '17', isCorrect: true },
         { id: 'opt4', content: '1', isCorrect: false },
       ]
@@ -48,6 +48,28 @@ $$
             { id: 'opt4', content: 'Does not exist', isCorrect: false }
         ],
         justification: 'This is a standard limit usage. Using L\'Hopital\'s rule: $\\lim_{x \\to 0} \\frac{\\cos(x)}{1} = 1$.'
+    },
+    {
+      id: 'q4',
+      type: 'single_choice',
+      content: `
+Complete the table:
+
+| x | f(x) |
+|---|------|
+| 1 | 2    |
+| 2 | 4    |
+| 3 | ?    |
+
+If $f(x) = 2x$, what is $f(3)$?
+      `,
+      options: [
+        { id: 'opt1', content: '5', isCorrect: false },
+        { id: 'opt2', content: '6', isCorrect: true },
+        { id: 'opt3', content: '8', isCorrect: false },
+        { id: 'opt4', content: '9', isCorrect: false },
+      ],
+      points: 2
     }
   ]
 };

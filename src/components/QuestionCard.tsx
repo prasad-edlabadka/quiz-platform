@@ -4,7 +4,6 @@ import { OptionSelector } from './OptionSelector';
 import { MarkdownRenderer } from './MarkdownRenderer';
 import { Timer } from './Timer';
 import { useQuizStore } from '../store/quizStore';
-import { motion } from 'framer-motion';
 import { Flag, Star } from 'lucide-react';
 import { clsx } from 'clsx';
 
@@ -22,12 +21,8 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({ question }) => {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.3 }}
-      className="w-full max-w-3xl mx-auto glass-panel rounded-3xl overflow-hidden"
+    <div
+      className="w-full max-w-6xl mx-auto glass-panel rounded-3xl overflow-hidden"
     >
       <div className="p-4 sm:p-6 md:p-8">
         <div className="flex flex-wrap justify-between items-center gap-4 mb-6">
@@ -75,6 +70,6 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({ question }) => {
           disabled={question.timeLimit !== undefined && timeRemaining !== undefined && timeRemaining <= 0}
         />
       </div>{/* End of content */}
-    </motion.div>
+    </div>
   );
 };

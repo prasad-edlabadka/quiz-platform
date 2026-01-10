@@ -1,18 +1,13 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import { useQuizStore } from '../store/quizStore';
 import { MarkdownRenderer } from './MarkdownRenderer';
 import { RefreshCw, CheckCircle, XCircle, Clock, Download } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useReactToPrint } from 'react-to-print';
+import { PDFDownloadLink } from '@react-pdf/renderer';
+import { QuizPDF } from './QuizPDF';
 
 export const ResultsView: React.FC = () => {
   const { config, answers, resetQuiz, questionTimeTaken } = useQuizStore();
-  const componentRef = useRef<HTMLDivElement>(null);
-
-  const handlePrint = useReactToPrint({
-    contentRef: componentRef,
-    documentTitle: `Quiz Results - ${config?.title}`,
-  });
 
   if (!config) return null;
 
@@ -49,23 +44,43 @@ export const ResultsView: React.FC = () => {
 
   const percentage = Math.round((totalScore / maxScore) * 100);
 
+  const scores = {
+    correctCount,
+    totalScore,
+    maxScore,
+    percentage,
+    totalTimeSpent
+  };
+
   return (
     <motion.div 
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="max-w-3xl mx-auto"
+      className="max-w-6xl mx-auto"
     >
       <div className="flex justify-end mb-4">
-        <button
-            onClick={() => handlePrint()}
-            className="flex items-center gap-2 px-4 py-2 glass-button rounded-lg text-white font-medium transition-colors border-white/20"
+        <PDFDownloadLink
+          document={
+            <QuizPDF 
+              config={config} 
+              answers={answers} 
+              scores={scores} 
+              questionTimeTaken={questionTimeTaken} 
+            />
+          }
+          fileName={`quiz-results-${config.title?.toLowerCase().replace(/\s+/g, '-') || 'export'}.pdf`}
+          className="flex items-center gap-2 px-4 py-2 glass-button rounded-lg text-white font-medium transition-colors border-white/20"
         >
-            <Download className="w-4 h-4" />
-            Export Results
-        </button>
+          {({ loading }) => (
+            <>
+              <Download className="w-4 h-4" />
+              {loading ? 'Generating PDF...' : 'Export Results'}
+            </>
+          )}
+        </PDFDownloadLink>
       </div>
 
-      <div ref={componentRef} className="glass-panel rounded-3xl text-center p-8 md:p-12 print:shadow-none print:p-0 print:bg-white">
+      <div className="glass-panel rounded-3xl text-center p-8 md:p-12">
       <div className="mb-8 border-b border-white/10 pb-8">
         <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-indigo-500/20 backdrop-blur-sm shadow-inner mb-6 ring-4 ring-indigo-500/30">
             <span className="text-4xl font-bold text-indigo-600 dark:text-indigo-300">{percentage}%</span>
@@ -123,9 +138,20 @@ export const ResultsView: React.FC = () => {
                                       <p className="text-xs font-bold text-red-400 uppercase tracking-wide mb-1">Your Answer:</p>
                                       {selected.length > 0 ? (
                                         <ul className="list-disc list-inside text-sm text-glass-primary">
-                                            {q.options.filter(o => selected.includes(o.id)).map(o => (
-                                                <li key={o.id}><span className="inline-block align-top"><MarkdownRenderer content={o.content} className="inline" /></span></li>
-                                            ))}
+                                            {q.options.filter(o => selected.includes(o.id)).map(o => {
+                                                const letter = String.fromCharCode(65 + q.options.findIndex(opt => opt.id === o.id));
+                                                return (
+                                                <li key={o.id} className="mb-2">
+                                                    {o.imageUrl && (
+                                                        <div className="mb-1 ml-5 mt-1 rounded overflow-hidden border border-white/10 max-w-[200px]">
+                                                            <img src={o.imageUrl} alt="Option Answer" className="max-w-full h-auto max-h-32 object-contain" />
+                                                        </div>
+                                                    )}
+                                                    <span className="inline-block align-top font-bold mr-1 text-glass-secondary">({letter})</span>
+                                                    <span className="inline-block align-top"><MarkdownRenderer content={o.content} className="inline" /></span>
+                                                </li>
+                                                );
+                                            })}
                                         </ul>
                                       ) : (
                                         <p className="text-sm text-glass-secondary italic">No answer selected</p>
@@ -135,9 +161,20 @@ export const ResultsView: React.FC = () => {
                                   <div>
                                        <p className="text-xs font-bold text-green-400 uppercase tracking-wide mb-1">Correct Answer:</p>
                                        <ul className="list-disc list-inside text-sm text-glass-primary">
-                                            {q.options.filter(o => o.isCorrect).map(o => (
-                                                <li key={o.id}><span className="inline-block align-top"><MarkdownRenderer content={o.content} className="inline" /></span></li>
-                                            ))}
+                                            {q.options.filter(o => o.isCorrect).map(o => {
+                                                const letter = String.fromCharCode(65 + q.options.findIndex(opt => opt.id === o.id));
+                                                return (
+                                                <li key={o.id} className="mb-2">
+                                                    {o.imageUrl && (
+                                                        <div className="mb-1 ml-5 mt-1 rounded overflow-hidden border border-white/10 max-w-[200px]">
+                                                            <img src={o.imageUrl} alt="Correct Option" className="max-w-full h-auto max-h-32 object-contain" />
+                                                        </div>
+                                                    )}
+                                                    <span className="inline-block align-top font-bold mr-1 text-glass-secondary">({letter})</span>
+                                                    <span className="inline-block align-top"><MarkdownRenderer content={o.content} className="inline" /></span>
+                                                </li>
+                                                );
+                                            })}
                                         </ul>
                                   </div>
 
@@ -158,7 +195,7 @@ export const ResultsView: React.FC = () => {
       </div>
       </div>
       
-      <div className="mt-8 flex justify-center print:hidden">
+      <div className="mt-8 flex justify-center">
         <button
             onClick={resetQuiz}
             className="inline-flex items-center px-6 py-3 glass-button-primary text-base font-medium rounded-md shadow-sm transition-colors"

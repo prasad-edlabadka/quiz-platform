@@ -136,7 +136,17 @@ export const useQuizStore = create<QuizState>()(
     }),
     {
       name: 'quiz-storage',
-      partialize: (state) => ({ themeMode: state.themeMode }), // Only persist theme
+      partialize: (state) => ({ 
+        config: state.config,
+        status: state.status,
+        currentQuestionIndex: state.currentQuestionIndex,
+        answers: state.answers,
+        flaggedQuestions: state.flaggedQuestions,
+        timeRemaining: state.timeRemaining,
+        questionTimeRemaining: state.questionTimeRemaining,
+        questionTimeTaken: state.questionTimeTaken,
+        themeMode: state.themeMode 
+      }),
     }
   )
 );
