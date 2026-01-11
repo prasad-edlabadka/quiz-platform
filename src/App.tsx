@@ -3,10 +3,11 @@ import { useQuizStore } from './store/quizStore';
 import { QuizRenderer } from './components/QuizRenderer';
 import { ConfirmationModal } from './components/ConfirmationModal';
 import { SchemaHelpModal } from './components/SchemaHelpModal';
-import { sampleQuiz } from './data/sampleQuiz';
-import { Upload, Play, Trash2, FileText, HelpCircle, BrainCircuit, Sun, Moon } from 'lucide-react';
+import { Upload, Trash2, FileText, HelpCircle, BrainCircuit, Sun, Moon } from 'lucide-react';
 import { SyllabusInput } from './components/SyllabusInput';
 import type { QuizConfig } from './types/quiz';
+
+import { TestSelector } from './components/TestSelector';
 
 function App() {
   const { config, setConfig, clearState, themeMode, toggleTheme } = useQuizStore();
@@ -26,13 +27,9 @@ function App() {
     }
   }, [themeMode]);
 
-  const handleLoadSample = () => {
-    setConfig(sampleQuiz);
-  };
-
-  const processQuizData = (data: string) => {
+  const processQuizData = (data: string | any) => {
     try {
-      const parsed = JSON.parse(data);
+      const parsed = typeof data === 'string' ? JSON.parse(data) : data;
       
       // Basic validation
       if (!parsed || typeof parsed !== 'object') {
@@ -245,22 +242,7 @@ function App() {
                 Upload JSON File
               </button>
 
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-white/10"></div>
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-transparent text-glass-secondary">Or start with</span>
-                </div>
-              </div>
-
-              <button
-                onClick={handleLoadSample}
-                className="w-full flex justify-center items-center px-4 py-3 glass-button rounded-xl font-medium transition-all"
-              >
-                <Play className="w-5 h-5 mr-2 text-green-400" />
-                Load Sample Math Quiz
-              </button>
+              <TestSelector onSelect={processQuizData} />
 
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
@@ -283,6 +265,8 @@ function App() {
           )}
         </div>
       )}
+
+
 
       <ConfirmationModal
         isOpen={isResetModalOpen}

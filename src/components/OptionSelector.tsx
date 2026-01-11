@@ -67,7 +67,7 @@ export const OptionSelector: React.FC<OptionSelectorProps> = ({
             
             <div className="flex-grow min-w-0">
               {option.imageUrl && (
-                <div className="mb-3 rounded-lg overflow-hidden border border-white/5">
+                <div className="mb-3 rounded-lg overflow-hidden">
                   <img src={option.imageUrl} alt="Option Image" className="max-w-full h-auto max-h-48 object-contain rounded-lg" />
                 </div>
               )}

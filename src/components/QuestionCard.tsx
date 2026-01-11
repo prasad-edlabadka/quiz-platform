@@ -56,7 +56,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({ question }) => {
           <MarkdownRenderer content={question.content} className="text-lg md:text-xl font-medium text-glass-primary" />
           
           {question.imageUrl && (
-            <div className="mt-4 rounded-lg overflow-hidden border border-gray-100">
+            <div className="mt-4 rounded-lg overflow-hidden">
                <img src={question.imageUrl} alt="Question Reference" className="max-w-full h-auto w-auto object-contain max-h-96 rounded-lg" />
             </div>
           )}

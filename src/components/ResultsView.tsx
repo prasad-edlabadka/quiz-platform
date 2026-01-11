@@ -126,7 +126,7 @@ export const ResultsView: React.FC = () => {
                           <div className="text-glass-primary text-sm mb-4">
                             <MarkdownRenderer content={q.content} />
                             {q.imageUrl && (
-                                <div className="mt-3 rounded-lg overflow-hidden border border-white/10 max-w-sm">
+                                <div className="mt-3 rounded-lg overflow-hidden max-w-sm">
                                     <img src={q.imageUrl} alt={`Question ${idx + 1}`} className="max-w-full h-auto w-auto object-contain" />
                                 </div>
                             )}
@@ -143,7 +143,7 @@ export const ResultsView: React.FC = () => {
                                                 return (
                                                 <li key={o.id} className="mb-2">
                                                     {o.imageUrl && (
-                                                        <div className="mb-1 ml-5 mt-1 rounded overflow-hidden border border-white/10 max-w-[200px]">
+                                                        <div className="mb-1 ml-5 mt-1 rounded overflow-hidden max-w-[200px]">
                                                             <img src={o.imageUrl} alt="Option Answer" className="max-w-full h-auto max-h-32 object-contain" />
                                                         </div>
                                                     )}
@@ -166,7 +166,7 @@ export const ResultsView: React.FC = () => {
                                                 return (
                                                 <li key={o.id} className="mb-2">
                                                     {o.imageUrl && (
-                                                        <div className="mb-1 ml-5 mt-1 rounded overflow-hidden border border-white/10 max-w-[200px]">
+                                                        <div className="mb-1 ml-5 mt-1 rounded overflow-hidden max-w-[200px]">
                                                             <img src={o.imageUrl} alt="Correct Option" className="max-w-full h-auto max-h-32 object-contain" />
                                                         </div>
                                                     )}
