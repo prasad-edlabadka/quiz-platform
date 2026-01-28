@@ -12,6 +12,7 @@ export const useQuizStore = create<QuizState>()(
       flaggedQuestions: [],
       timeRemaining: 0,
       questionTimeRemaining: {},
+      questionTimeTaken: {},
       apiKey: null,
       evaluations: {},
 

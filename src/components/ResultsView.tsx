@@ -186,6 +186,13 @@ export const ResultsView: React.FC = () => {
                         </p>
                     )}
 
+                    {gradingError && (
+                        <div className="flex items-center justify-center gap-2 text-red-400 mb-4">
+                            <AlertCircle className="w-4 h-4" />
+                            <p className="text-sm">{gradingError}</p>
+                        </div>
+                    )}
+
                     <p className="text-glass-secondary mb-4">
                         You scored <span className="font-bold text-glass-primary">{totalScore}</span> out of <span className="font-bold text-glass-primary">{maxScore}</span> points
                         <span className="block text-sm mt-1">({correctCount} out of {config.questions.length} correct)</span>
@@ -431,7 +438,7 @@ export const ResultsView: React.FC = () => {
             <ApiKeyModal 
                 isOpen={showKeyModal} 
                 onClose={() => setShowKeyModal(false)}
-                onSuccess={(key) => {
+                onSuccess={() => {
                     // Trigger grading immediately
                     setShowKeyModal(false);
                 }}
