@@ -8,6 +8,9 @@ interface CalculatorProps {
 
 export const Calculator: React.FC<CalculatorProps> = ({ onClose }) => {
   const [mode, setMode] = useState<'basic' | 'scientific'>('basic');
+  const [display, setDisplay] = useState('0');
+  const [equation, setEquation] = useState('');
+  const [isNewNumber, setIsNewNumber] = useState(true);
 
   const handleNumber = (num: string) => {
     if (isNewNumber) {

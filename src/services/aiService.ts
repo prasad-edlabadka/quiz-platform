@@ -1,32 +1,7 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import type { QuizConfig } from '../types/quiz';
 
-const QUIZ_SCHEMA = `
-{
-  "title": "string",
-  "description": "string",
-  "globalTimeLimit": "number (in seconds, optional)",
-  "shuffleQuestions": "boolean (optional)",
-  "theme": {
-    "primaryColor": "string (hex)",
-    "backgroundColor": "string (hex)"
-  },
-  "questions": [
-    {
-      "content": "string (Markdown supported, can include LaTeX)",
-      "type": "single_choice" | "multiple_choice",
-      "options": [
-        {
-          "content": "string",
-          "isCorrect": boolean
-        }
-      ],
-      "timeLimit": "number (seconds, optional)",
-      "justification": "string (explanation for the answer)"
-    }
-  ]
-}
-`;
+
 
 export type QuestionTypeFilter = 'mixed' | 'mcq' | 'text';
 export type StructureMode = 'flat' | 'sections';
