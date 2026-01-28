@@ -104,6 +104,7 @@ export type StructureMode = 'flat' | 'sections';
     4. IB STYLE: Use IB command terms (e.g., Define, Explain, Calculate, Discuss, Evaluate, Justify) in the questions. Ensure rigor matches IB Diploma Programme (DP) or Middle Years Programme (MYP) standards.
     5. Include at least one math/logic question if relevant (use LaTeX $x^2$).
     6. Double-escape backslashes in LaTeX (e.g. \\\\frac).
+    7. CRITICAL: Do NOT include any 'imageUrl' fields or references to images. Use descriptive text or ASCII diagrams if needed.
     
     OUTPUT FORMAT:
     Return ONLY a valid JSON object matching the detailed structure below.
