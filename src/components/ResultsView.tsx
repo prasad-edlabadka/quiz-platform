@@ -27,24 +27,29 @@ export const ResultsView: React.FC = () => {
   
   config.questions.forEach(q => {
      const selected = answers[q.id] || [];
-     const correctOptions = q.options.filter(o => o.isCorrect).map(o => o.id);
      const questionPoints = q.points || 1;
      
      maxScore += questionPoints;
      
-     // Check if arrays match (order doesn't matter)
-     const isCorrect = selected.length === correctOptions.length && 
-                       selected.every(id => correctOptions.includes(id));
-     
-     if (isCorrect) {
-         correctCount++;
-         totalScore += questionPoints;
+     if (q.options) {
+        const correctOptions = q.options.filter(o => o.isCorrect).map(o => o.id);
+        const isCorrect = selected.length === correctOptions.length && 
+                          selected.every(id => correctOptions.includes(id));
+        
+        if (isCorrect) {
+            correctCount++;
+            totalScore += questionPoints;
+        }
+     } else if (q.type === 'text' && selected.length > 0) {
+        // Optional: Award points for simply answering, or leave as 0 until manual grade
+        // For now, let's just count as "attempted" but not add to numeric score unless we want to assume auto-correct
+        // Let's being conservative: don't add to score.
      }
   });
 
   const percentage = Math.round((totalScore / maxScore) * 100);
 
-  const scores = {
+      const scores = {
     correctCount,
     totalScore,
     maxScore,
@@ -69,7 +74,7 @@ export const ResultsView: React.FC = () => {
             />
           }
           fileName={`quiz-results-${config.title?.toLowerCase().replace(/\s+/g, '-') || 'export'}.pdf`}
-          className="flex items-center gap-2 px-4 py-2 glass-button rounded-lg text-white font-medium transition-colors border-white/20"
+          className="flex items-center gap-2 px-4 py-2 glass-button rounded-lg text-glass-primary hover:text-indigo-600 dark:text-indigo-200 dark:hover:text-indigo-100 font-medium transition-colors border-indigo-200 dark:border-indigo-500/30 hover:border-indigo-300"
         >
           {({ loading }) => (
             <>
@@ -82,7 +87,7 @@ export const ResultsView: React.FC = () => {
 
       <div className="glass-panel rounded-3xl text-center p-8 md:p-12">
       <div className="mb-8 border-b border-white/10 pb-8">
-        <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-indigo-500/20 backdrop-blur-sm shadow-inner mb-6 ring-4 ring-indigo-500/30">
+        <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-indigo-100 dark:bg-indigo-500/20 backdrop-blur-sm shadow-inner mb-6 ring-4 ring-indigo-500/10 dark:ring-indigo-500/30">
             <span className="text-4xl font-bold text-indigo-600 dark:text-indigo-300">{percentage}%</span>
         </div>
         <h2 className="text-3xl font-bold text-glass-primary mb-2">Quiz Completed!</h2>
@@ -100,16 +105,31 @@ export const ResultsView: React.FC = () => {
       <div className="space-y-6 mb-8 text-left">
           {config.questions.map((q, idx) => {
               const selected = answers[q.id] || [];
-              const correctOptions = q.options.filter(o => o.isCorrect).map(o => o.id);
-              const isCorrect = selected.length === correctOptions.length && 
+              let isCorrect = false;
+              
+              if (q.type === 'text') {
+                 // For text questions, we assume it's "correct" if answered for now, or just show as submitted
+                 // In a real app, this would need manual grading or specific logic.
+                 // Let's mark it as neutral/submitted.
+                 isCorrect = selected.length > 0 && selected[0].length > 0;
+              } else if (q.options) {
+                 const correctOptions = q.options.filter(o => o.isCorrect).map(o => o.id);
+                 isCorrect = selected.length === correctOptions.length && 
                                 selected.every(id => correctOptions.includes(id));
+              }
 
               return (
                   <div key={q.id} className="p-5 rounded-2xl glass-panel break-inside-avoid backdrop-blur-sm">
                       <div className="flex justify-between items-start mb-3">
                           <div className="flex items-center gap-3">
                               <div className="flex-shrink-0">
-                                {isCorrect ? <CheckCircle className="text-green-500 dark:text-green-400 w-6 h-6"/> : <XCircle className="text-red-500 dark:text-red-400 w-6 h-6"/>}
+                                {q.type === 'text' ? (
+                                    <div className="w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center border border-blue-500/30">
+                                        <span className="text-xs font-bold text-blue-500">T</span>
+                                    </div>
+                                ) : (
+                                    isCorrect ? <CheckCircle className="text-green-500 dark:text-green-400 w-6 h-6"/> : <XCircle className="text-red-500 dark:text-red-400 w-6 h-6"/>
+                                )}
                               </div>
                               <div>
                                   <p className="font-medium text-glass-primary text-base">Question {idx + 1}</p>
@@ -132,61 +152,77 @@ export const ResultsView: React.FC = () => {
                             )}
                           </div>
 
-                          {!isCorrect && (
-                              <div className="space-y-3 p-4 bg-white/5 rounded-md border border-red-500/20">
-                                  <div>
-                                      <p className="text-xs font-bold text-red-400 uppercase tracking-wide mb-1">Your Answer:</p>
-                                      {selected.length > 0 ? (
-                                        <ul className="list-disc list-inside text-sm text-glass-primary">
-                                            {q.options.filter(o => selected.includes(o.id)).map(o => {
-                                                const letter = String.fromCharCode(65 + q.options.findIndex(opt => opt.id === o.id));
-                                                return (
-                                                <li key={o.id} className="mb-2">
-                                                    {o.imageUrl && (
-                                                        <div className="mb-1 ml-5 mt-1 rounded overflow-hidden max-w-[200px]">
-                                                            <img src={o.imageUrl} alt="Option Answer" className="max-w-full h-auto max-h-32 object-contain" />
-                                                        </div>
-                                                    )}
-                                                    <span className="inline-block align-top font-bold mr-1 text-glass-secondary">({letter})</span>
-                                                    <span className="inline-block align-top"><MarkdownRenderer content={o.content} className="inline" /></span>
-                                                </li>
-                                                );
-                                            })}
-                                        </ul>
-                                      ) : (
-                                        <p className="text-sm text-glass-secondary italic">No answer selected</p>
+                          {q.type === 'text' ? (
+                             <div className="space-y-3 p-4 bg-white/5 rounded-md border border-indigo-500/20">
+                                <div>
+                                    <p className="text-xs font-bold text-indigo-400 uppercase tracking-wide mb-1">Your Answer:</p>
+                                    <div className="p-3 bg-black/10 dark:bg-white/5 rounded-lg text-sm text-glass-primary min-h-[50px]">
+                                       {selected[0] ? (
+                                           <div dangerouslySetInnerHTML={{ __html: selected[0] }} />
+                                       ) : (
+                                           <span className="italic text-glass-secondary">No answer provided</span>
+                                       )}
+                                    </div>
+                                </div>
+                             </div>
+                          ) : (
+                              !isCorrect && (
+                                  <div className="space-y-3 p-4 bg-white/5 rounded-md border border-red-500/20">
+                                      {/* Existing Option Rendering Logic */}
+                                      <div>
+                                          <p className="text-xs font-bold text-red-400 uppercase tracking-wide mb-1">Your Answer:</p>
+                                          {selected.length > 0 ? (
+                                            <ul className="list-disc list-inside text-sm text-glass-primary">
+                                                {q.options?.filter(o => selected.includes(o.id)).map(o => {
+                                                    const letter = String.fromCharCode(65 + (q.options?.findIndex(opt => opt.id === o.id) || 0));
+                                                    return (
+                                                    <li key={o.id} className="mb-2">
+                                                        {o.imageUrl && (
+                                                            <div className="mb-1 ml-5 mt-1 rounded overflow-hidden max-w-[200px]">
+                                                                <img src={o.imageUrl} alt="Option Answer" className="max-w-full h-auto max-h-32 object-contain" />
+                                                            </div>
+                                                        )}
+                                                        <span className="inline-block align-top font-bold mr-1 text-glass-secondary">({letter})</span>
+                                                        <span className="inline-block align-top"><MarkdownRenderer content={o.content} className="inline" /></span>
+                                                    </li>
+                                                    );
+                                                })}
+                                            </ul>
+                                          ) : (
+                                            <p className="text-sm text-glass-secondary italic">No answer selected</p>
+                                          )}
+                                      </div>
+                                      
+                                      <div>
+                                           <p className="text-xs font-bold text-green-400 uppercase tracking-wide mb-1">Correct Answer:</p>
+                                           <ul className="list-disc list-inside text-sm text-glass-primary">
+                                                {q.options?.filter(o => o.isCorrect).map(o => {
+                                                    const letter = String.fromCharCode(65 + (q.options?.findIndex(opt => opt.id === o.id) || 0));
+                                                    return (
+                                                    <li key={o.id} className="mb-2">
+                                                        {o.imageUrl && (
+                                                            <div className="mb-1 ml-5 mt-1 rounded overflow-hidden max-w-[200px]">
+                                                                <img src={o.imageUrl} alt="Correct Option" className="max-w-full h-auto max-h-32 object-contain" />
+                                                            </div>
+                                                        )}
+                                                        <span className="inline-block align-top font-bold mr-1 text-glass-secondary">({letter})</span>
+                                                        <span className="inline-block align-top"><MarkdownRenderer content={o.content} className="inline" /></span>
+                                                    </li>
+                                                    );
+                                                })}
+                                            </ul>
+                                      </div>
+
+                                      {q.justification && (
+                                         <div className="mt-3 pt-3 border-t border-white/10">
+                                             <p className="text-xs font-bold text-indigo-400 uppercase tracking-wide mb-1">Explanation:</p>
+                                             <div className="text-sm text-glass-primary">
+                                                <MarkdownRenderer content={q.justification} />
+                                             </div>
+                                         </div>
                                       )}
                                   </div>
-                                  
-                                  <div>
-                                       <p className="text-xs font-bold text-green-400 uppercase tracking-wide mb-1">Correct Answer:</p>
-                                       <ul className="list-disc list-inside text-sm text-glass-primary">
-                                            {q.options.filter(o => o.isCorrect).map(o => {
-                                                const letter = String.fromCharCode(65 + q.options.findIndex(opt => opt.id === o.id));
-                                                return (
-                                                <li key={o.id} className="mb-2">
-                                                    {o.imageUrl && (
-                                                        <div className="mb-1 ml-5 mt-1 rounded overflow-hidden max-w-[200px]">
-                                                            <img src={o.imageUrl} alt="Correct Option" className="max-w-full h-auto max-h-32 object-contain" />
-                                                        </div>
-                                                    )}
-                                                    <span className="inline-block align-top font-bold mr-1 text-glass-secondary">({letter})</span>
-                                                    <span className="inline-block align-top"><MarkdownRenderer content={o.content} className="inline" /></span>
-                                                </li>
-                                                );
-                                            })}
-                                        </ul>
-                                  </div>
-
-                                  {q.justification && (
-                                     <div className="mt-3 pt-3 border-t border-white/10">
-                                         <p className="text-xs font-bold text-indigo-400 uppercase tracking-wide mb-1">Explanation:</p>
-                                         <div className="text-sm text-glass-primary">
-                                            <MarkdownRenderer content={q.justification} />
-                                         </div>
-                                     </div>
-                                  )}
-                              </div>
+                              )
                           )}
                       </div>
                   </div>

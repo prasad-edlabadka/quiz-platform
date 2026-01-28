@@ -3,11 +3,12 @@ import { useQuizStore } from './store/quizStore';
 import { QuizRenderer } from './components/QuizRenderer';
 import { ConfirmationModal } from './components/ConfirmationModal';
 import { SchemaHelpModal } from './components/SchemaHelpModal';
-import { Upload, Trash2, FileText, HelpCircle, BrainCircuit, Sun, Moon } from 'lucide-react';
+import { Upload, Trash2, FileText, HelpCircle, BrainCircuit, Sun, Moon, Download } from 'lucide-react';
 import { SyllabusInput } from './components/SyllabusInput';
 import type { QuizConfig } from './types/quiz';
 
 import { TestSelector } from './components/TestSelector';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 function App() {
   const { config, setConfig, clearState, themeMode, toggleTheme } = useQuizStore();
@@ -36,17 +37,50 @@ function App() {
         throw new Error('Invalid JSON: Must be an object');
       }
 
-      // Handle questions array
-      if (!parsed.questions || !Array.isArray(parsed.questions)) {
-        throw new Error('Invalid quiz format: missing "questions" array');
+      // Process Sections and Questions
+      let rawQuestions: any[] = [];
+      const sections: any[] = [];
+
+      // 1. Handle Sections (New Format)
+      if (parsed.sections && Array.isArray(parsed.sections)) {
+        parsed.sections.forEach((section: any) => {
+           if (!section.id || !section.questions) return;
+           
+           // Store section metadata
+           sections.push({
+               id: section.id,
+               title: section.title,
+               content: section.content || ''
+           });
+
+           // Extract questions and tag them with sectionId
+           if (Array.isArray(section.questions)) {
+               section.questions.forEach((q: any) => {
+                   rawQuestions.push({ ...q, sectionId: section.id });
+               });
+           }
+        });
       }
 
-      if (parsed.questions.length === 0) {
-        throw new Error('Quiz must have at least one question');
+
+
+      // 2. Handle Top-Level Questions (Legacy/Mixed Format)
+      // FIX: If we successfully extracted questions from sections, we IGNORE top-level questions 
+      // to prevents duplicates. The app treats 'sections' as the source of truth if present.
+      if (rawQuestions.length === 0 && parsed.questions && Array.isArray(parsed.questions)) {
+          // No sections found (or empty), so we trust top-level questions
+          rawQuestions = [...parsed.questions];
+      } else if (rawQuestions.length > 0 && parsed.questions) {
+          console.warn('Ignoring top-level questions because sections were found.');
+      }
+
+      // Handle questions array validation
+      if (rawQuestions.length === 0) {
+        throw new Error('Quiz must have at least one question (in sections or top-level)');
       }
 
       // Normalize and validate questions
-      const normalizedQuestions = parsed.questions.map((q: any, qIndex: number) => {
+      const normalizedQuestions = rawQuestions.map((q: any, qIndex: number) => {
         // Handle ID mapping: preferred 'id', fallback 'questionId', fallback generated
         const id = q.id || q.questionId || `q-${qIndex + 1}`;
         
@@ -55,11 +89,11 @@ function App() {
         }
 
         // Handle options
-        if (!q.options || !Array.isArray(q.options) || q.options.length === 0) {
+        if (q.type !== 'text' && (!q.options || !Array.isArray(q.options) || q.options.length === 0)) {
           throw new Error(`Question "${q.content.substring(0, 20)}..." is missing options`);
         }
 
-        const normalizedOptions = q.options.map((opt: any, optIndex: number) => ({
+        const normalizedOptions = (q.options || []).map((opt: any, optIndex: number) => ({
           id: opt.id || `opt-${id}-${optIndex + 1}`,
           content: opt.content || '',
           isCorrect: !!opt.isCorrect,
@@ -73,7 +107,8 @@ function App() {
           options: normalizedOptions,
           // Ensure points is a number if present, default to 1
           points: typeof q.points === 'number' ? q.points : 1,
-          imageUrl: q.imageUrl || q.imageURL // Support both cases for question images too
+          imageUrl: q.imageUrl || q.imageURL, // Support both cases for question images too
+          sectionId: q.sectionId // Preserve section link
         };
       });
 
@@ -85,6 +120,7 @@ function App() {
         globalTimeLimit: parsed.globalTimeLimit,
         shuffleQuestions: !!parsed.shuffleQuestions,
         theme: parsed.theme,
+        sections: sections.length > 0 ? sections : undefined,
         questions: normalizedQuestions
       };
 
@@ -139,132 +175,150 @@ function App() {
         />
       )}
 
-      {config ? (
-        <>
-          <div className="absolute top-4 right-4 z-10 print:hidden flex items-center gap-2">
-            <button
-              onClick={toggleTheme}
-              className="p-2 glass-button rounded-full shadow-sm transition-all"
-              title={`Switch to ${themeMode === 'light' ? 'Dark' : 'Light'} Mode`}
-            >
-              {themeMode === 'light' ? <Moon className="w-5 h-5 text-indigo-600" /> : <Sun className="w-5 h-5 text-yellow-300" />}
-            </button>
-            <button
-              onClick={() => setIsResetModalOpen(true)}
-              className="p-2 glass-button-danger rounded-full shadow-sm transition-all"
-              title="Reset App / Clear Data"
-            >
-              <Trash2 className="w-5 h-5" />
-            </button>
-          </div>
-          <QuizRenderer />
-        </>
-      ) : (
-        <div className="min-h-screen flex flex-col justify-center items-center p-4">
-          {/* ... existing loading screen content ... */}
-          {isSyllabusMode ? (
-            <SyllabusInput 
-                onQuizGenerated={(config) => {
-                    setConfig(config);
-                    setIsSyllabusMode(false);
-                }}
-                onCancel={() => setIsSyllabusMode(false)}
-            />
-          ) : (
-          <div className="max-w-xl w-full glass-panel rounded-3xl p-8 md:p-12 relative transition-all duration-500">
-            <div className="absolute top-6 right-6 flex items-center gap-2">
+      <ErrorBoundary onReset={clearState}>
+          {config ? (
+            <>
+              <div className="absolute top-4 right-4 z-50 print:hidden flex items-center gap-2">
                 <button
-                    onClick={toggleTheme}
-                    className="text-glass-secondary hover:text-indigo-500 transition-colors p-1"
-                    title={`Switch to ${themeMode === 'light' ? 'Dark' : 'Light'} Mode`}
+                  onClick={toggleTheme}
+                  className="p-2 glass-button rounded-full shadow-sm transition-all"
+                  title={`Switch to ${themeMode === 'light' ? 'Dark' : 'Light'} Mode`}
                 >
-                    {themeMode === 'light' ? <Moon className="w-6 h-6" /> : <Sun className="w-6 h-6" />}
+                  {themeMode === 'light' ? <Moon className="w-5 h-5 text-indigo-600" /> : <Sun className="w-5 h-5 text-yellow-300" />}
                 </button>
-                <button 
-                    onClick={() => setIsSchemaModalOpen(true)}
-                    className="text-glass-secondary hover:text-indigo-500 transition-colors p-1"
-                    title="View JSON Schema"
+                <button
+                  onClick={() => {
+                    if (!config) return;
+                    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(config, null, 2));
+                    const downloadAnchorNode = document.createElement('a');
+                    downloadAnchorNode.setAttribute("href", dataStr);
+                    downloadAnchorNode.setAttribute("download", `${config.title || 'quiz'}.json`);
+                    document.body.appendChild(downloadAnchorNode); // required for firefox
+                    downloadAnchorNode.click();
+                    downloadAnchorNode.remove();
+                  }}
+                  className="p-2 glass-button rounded-full shadow-sm transition-all text-indigo-500 hover:text-indigo-600 dark:text-indigo-400 dark:hover:text-indigo-300"
+                  title="Export Quiz JSON"
                 >
-                    <HelpCircle className="w-6 h-6" />
+                  <Download className="w-5 h-5" />
                 </button>
-            </div>
-
-            <div className="text-center mb-10">
-              <h1 className="text-3xl font-extrabold text-glass-primary mb-2">Quiz Platform</h1>
-              <p className="text-glass-secondary">Create and take quizzes from JSON specifications</p>
-            </div>
-
-            <div className="space-y-6">
-              <div className="relative">
-                <textarea
-                  value={jsonInput}
-                  onChange={(e) => setJsonInput(e.target.value)}
-                  placeholder="Paste your Quiz JSON here..."
-                  className="w-full h-40 p-4 rounded-xl glass-input outline-none font-mono text-sm resize-none"
+                <button
+                  onClick={() => setIsResetModalOpen(true)}
+                  className="p-2 glass-button-danger rounded-full shadow-sm transition-all"
+                  title="Reset App / Clear Data"
+                >
+                  <Trash2 className="w-5 h-5" />
+                </button>
+              </div>
+              <QuizRenderer />
+            </>
+          ) : (
+            <div className="min-h-screen flex flex-col justify-center items-center p-4">
+              {/* ... existing loading screen content ... */}
+              {isSyllabusMode ? (
+                <SyllabusInput 
+                    onQuizGenerated={(config) => {
+                        setConfig(config);
+                        setIsSyllabusMode(false);
+                    }}
+                    onCancel={() => setIsSyllabusMode(false)}
                 />
-                
-                {error && (
-                    <p className="absolute -bottom-6 left-0 text-red-500 text-sm">{error}</p>
-                )}
+              ) : (
+              <div className="max-w-xl w-full glass-panel rounded-3xl p-8 md:p-12 relative transition-all duration-500">
+                <div className="absolute top-6 right-6 flex items-center gap-2">
+                    <button
+                        onClick={toggleTheme}
+                        className="text-glass-secondary hover:text-indigo-500 transition-colors p-1"
+                        title={`Switch to ${themeMode === 'light' ? 'Dark' : 'Light'} Mode`}
+                    >
+                        {themeMode === 'light' ? <Moon className="w-6 h-6" /> : <Sun className="w-6 h-6" />}
+                    </button>
+                    <button 
+                        onClick={() => setIsSchemaModalOpen(true)}
+                        className="text-glass-secondary hover:text-indigo-500 transition-colors p-1"
+                        title="View JSON Schema"
+                    >
+                        <HelpCircle className="w-6 h-6" />
+                    </button>
+                </div>
+
+                <div className="text-center mb-10">
+                  <h1 className="text-3xl font-extrabold text-glass-primary mb-2">Quiz Platform</h1>
+                  <p className="text-glass-secondary">Create and take quizzes from JSON specifications</p>
+                </div>
+
+                <div className="space-y-6">
+                  <div className="relative">
+                    <textarea
+                      value={jsonInput}
+                      onChange={(e) => setJsonInput(e.target.value)}
+                      placeholder="Paste your Quiz JSON here..."
+                      className="w-full h-40 p-4 rounded-xl glass-input outline-none font-mono text-sm resize-none"
+                    />
+                    
+                    {error && (
+                        <p className="absolute -bottom-6 left-0 text-red-500 text-sm">{error}</p>
+                    )}
+                  </div>
+
+                  <button
+                    onClick={handleLoadJson}
+                    disabled={!jsonInput.trim()}
+                    className="w-full flex justify-center items-center px-4 py-3 glass-button-primary rounded-xl font-medium transition-all"
+                  >
+                    <Upload className="w-5 h-5 mr-2" />
+                    Load from Text
+                  </button>
+
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <div className="w-full border-t border-white/10"></div>
+                    </div>
+                    <div className="relative flex justify-center text-sm">
+                      <span className="px-2 bg-transparent text-glass-secondary">Or upload file</span>
+                    </div>
+                  </div>
+
+                  <input
+                     type="file"
+                     ref={fileInputRef}
+                     onChange={handleFileUpload}
+                     accept=".json"
+                     className="hidden"
+                  />
+
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    className="w-full flex justify-center items-center px-4 py-3 glass-button rounded-xl font-medium transition-all"
+                  >
+                    <FileText className="w-5 h-5 mr-2 text-indigo-300" />
+                    Upload JSON File
+                  </button>
+
+                  <TestSelector onSelect={processQuizData} />
+
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <div className="w-full border-t border-white/10"></div>
+                    </div>
+                    <div className="relative flex justify-center text-sm">
+                      <span className="px-2 bg-transparent text-glass-secondary">Or generate with AI</span>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => setIsSyllabusMode(true)}
+                    className="w-full flex justify-center items-center px-4 py-3 bg-gradient-to-r from-indigo-500/80 via-purple-500/80 to-pink-500/80 backdrop-blur-md border border-white/20 text-white rounded-xl font-medium hover:opacity-90 transition-all shadow-lg"
+                  >
+                    <BrainCircuit className="w-5 h-5 mr-2" />
+                    Generate from Syllabus
+                  </button>
+                </div>
               </div>
-
-              <button
-                onClick={handleLoadJson}
-                disabled={!jsonInput.trim()}
-                className="w-full flex justify-center items-center px-4 py-3 glass-button-primary rounded-xl font-medium transition-all"
-              >
-                <Upload className="w-5 h-5 mr-2" />
-                Load from Text
-              </button>
-
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-white/10"></div>
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-transparent text-glass-secondary">Or upload file</span>
-                </div>
-              </div>
-
-              <input
-                 type="file"
-                 ref={fileInputRef}
-                 onChange={handleFileUpload}
-                 accept=".json"
-                 className="hidden"
-              />
-
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                className="w-full flex justify-center items-center px-4 py-3 glass-button rounded-xl font-medium transition-all"
-              >
-                <FileText className="w-5 h-5 mr-2 text-indigo-300" />
-                Upload JSON File
-              </button>
-
-              <TestSelector onSelect={processQuizData} />
-
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-white/10"></div>
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-transparent text-glass-secondary">Or generate with AI</span>
-                </div>
-              </div>
-
-              <button
-                onClick={() => setIsSyllabusMode(true)}
-                className="w-full flex justify-center items-center px-4 py-3 bg-gradient-to-r from-indigo-500/80 via-purple-500/80 to-pink-500/80 backdrop-blur-md border border-white/20 text-white rounded-xl font-medium hover:opacity-90 transition-all shadow-lg"
-              >
-                <BrainCircuit className="w-5 h-5 mr-2" />
-                Generate from Syllabus
-              </button>
+              )}
             </div>
-          </div>
           )}
-        </div>
-      )}
+      </ErrorBoundary>
 
 
 

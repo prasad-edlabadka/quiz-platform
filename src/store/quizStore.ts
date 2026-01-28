@@ -64,6 +64,8 @@ export const useQuizStore = create<QuizState>()(
         }
       },
 
+      finishQuiz: () => set({ status: 'completed' }),
+
       tick: () => set((state) => {
         if (state.status !== 'active' || !state.config) return {};
 

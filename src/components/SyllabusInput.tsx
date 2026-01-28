@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { generateQuizFromSyllabus } from '../services/aiService';
+import { generateQuizFromSyllabus, type QuestionTypeFilter, type StructureMode } from '../services/aiService';
 import type { QuizConfig } from '../types/quiz';
-import { BrainCircuit, Loader2, AlertCircle, Key, BookOpen, Hash, HelpCircle } from 'lucide-react';
+import { BrainCircuit, Loader2, AlertCircle, Key, BookOpen, Hash, HelpCircle, Layout, ListChecks } from 'lucide-react';
 import { ApiKeyHelpModal } from './ApiKeyHelpModal';
 
 interface SyllabusInputProps {
@@ -13,6 +13,8 @@ export const SyllabusInput: React.FC<SyllabusInputProps> = ({ onQuizGenerated, o
   const [apiKey, setApiKey] = useState('');
   const [syllabus, setSyllabus] = useState('');
   const [questionCount, setQuestionCount] = useState(5);
+  const [structureMode, setStructureMode] = useState<StructureMode>('flat');
+  const [questionType, setQuestionType] = useState<QuestionTypeFilter>('mixed');
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -39,7 +41,7 @@ export const SyllabusInput: React.FC<SyllabusInputProps> = ({ onQuizGenerated, o
     localStorage.setItem('gemini_api_key', apiKey.trim());
 
     try {
-      const quizConfig = await generateQuizFromSyllabus(apiKey, syllabus, questionCount);
+      const quizConfig = await generateQuizFromSyllabus(apiKey, syllabus, questionCount, structureMode, questionType);
       onQuizGenerated(quizConfig);
     } catch (err: any) {
       setError(err.message || 'Failed to generate quiz');
@@ -113,13 +115,14 @@ export const SyllabusInput: React.FC<SyllabusInputProps> = ({ onQuizGenerated, o
             />
         </div>
 
-        {/* Question Count Input */}
-        <div className="space-y-3">
-            <label className="text-sm font-bold text-glass-primary flex items-center gap-2">
-                <Hash className="w-4 h-4 text-indigo-300" />
-                Number of Questions
-            </label>
-            <div>
+        {/* Configuration Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+             {/* Question Count */}
+            <div className="space-y-3">
+                <label className="text-sm font-bold text-glass-primary flex items-center gap-2">
+                    <Hash className="w-4 h-4 text-indigo-300" />
+                    Count
+                </label>
                 <input
                     type="number"
                     min={1}
@@ -128,14 +131,50 @@ export const SyllabusInput: React.FC<SyllabusInputProps> = ({ onQuizGenerated, o
                     onChange={(e) => setQuestionCount(Math.max(1, Math.min(20, parseInt(e.target.value) || 5)))}
                     className="w-full p-3 rounded-xl glass-input outline-none text-sm"
                 />
-                <p className="text-xs text-glass-secondary mt-2">
-                    Choose between 1 and 20 questions.
-                </p>
+            </div>
+
+            {/* Structure Mode */}
+            <div className="space-y-3">
+                <label className="text-sm font-bold text-glass-primary flex items-center gap-2">
+                    <Layout className="w-4 h-4 text-indigo-300" />
+                    Structure
+                </label>
+                <select 
+                    value={structureMode}
+                    onChange={(e) => setStructureMode(e.target.value as any)}
+                    className="w-full p-3 rounded-xl glass-input outline-none text-sm appearance-none bg-black/20"
+                >
+                    <option value="flat">Standard (Flat)</option>
+                    <option value="sections">Section-Based (Passages)</option>
+                </select>
+            </div>
+
+            {/* Question Type */}
+            <div className="space-y-3 md:col-span-2">
+                <label className="text-sm font-bold text-glass-primary flex items-center gap-2">
+                    <ListChecks className="w-4 h-4 text-indigo-300" />
+                    Question Type
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                    {(['mixed', 'mcq', 'text'] as const).map(type => (
+                        <button
+                            key={type}
+                            onClick={() => setQuestionType(type)}
+                            className={`p-2 rounded-lg text-xs font-bold transition-all border ${
+                                questionType === type 
+                                    ? 'bg-indigo-500/20 text-indigo-300 border-indigo-500/50'
+                                    : 'bg-white/5 text-glass-secondary border-white/10 hover:bg-white/10'
+                            }`}
+                        >
+                            {type === 'mixed' ? 'Mixed' : type === 'mcq' ? 'Multiple Choice' : 'Text Only'}
+                        </button>
+                    ))}
+                </div>
             </div>
         </div>
 
         {error && (
-            <div className="p-3 bg-red-500/20 text-red-800 dark:text-red-200 text-sm rounded-lg flex items-center gap-2 border border-red-500/30">
+            <div className="p-3 bg-red-500/20 text-red-800 dark:text-red-200 text-sm rounded-lg flex items-center gap-2 border border-red-500/30 text-left">
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
                 {error}
             </div>
@@ -160,8 +199,9 @@ export const SyllabusInput: React.FC<SyllabusInputProps> = ({ onQuizGenerated, o
         </button>
       
       <ApiKeyHelpModal isOpen={isHelpOpen} onClose={() => setIsHelpOpen(false)} />
+      
       </div>
-      </div>
+    </div>
     </>
   );
 };

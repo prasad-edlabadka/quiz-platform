@@ -70,6 +70,12 @@ If $f(x) = 2x$, what is $f(3)$?
         { id: 'opt4', content: '9', isCorrect: false },
       ],
       points: 2
+    },
+    {
+      id: 'q5',
+      type: 'text',
+      content: 'Explain the concept of limits in calculus and provide an example using the visual math editor.',
+      points: 5,
     }
   ]
 };

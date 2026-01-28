@@ -2,6 +2,7 @@ import React from 'react';
 import type { Question } from '../types/quiz';
 import { OptionSelector } from './OptionSelector';
 import { MarkdownRenderer } from './MarkdownRenderer';
+import { RichTextEditor } from './RichTextEditor';
 import { Timer } from './Timer';
 import { useQuizStore } from '../store/quizStore';
 import { Flag, Star } from 'lucide-react';
@@ -53,6 +54,22 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({ question }) => {
         </div>
 
         <div className="mb-8">
+          {/* Section Background Info */}
+          {question.sectionId && config?.sections?.find(s => s.id === question.sectionId) && (
+            (() => {
+                const section = config.sections!.find(s => s.id === question.sectionId)!;
+                return (
+                    <div className="mb-6 p-5 glass-panel bg-indigo-50/50 dark:bg-indigo-900/10 border-indigo-100 dark:border-indigo-500/20 rounded-2xl">
+                        <h3 className="text-xs font-bold text-indigo-500 dark:text-indigo-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                             <span className="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+                             {section.title || 'Background Information'}
+                        </h3>
+                        <MarkdownRenderer content={section.content} className="text-base text-glass-secondary" />
+                    </div>
+                );
+            })()
+          )}
+
           <MarkdownRenderer content={question.content} className="text-lg md:text-xl font-medium text-glass-primary" />
           
           {question.imageUrl && (
@@ -62,13 +79,21 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({ question }) => {
           )}
         </div>
 
-        <OptionSelector
-          options={question.options}
-          selectedOptionIds={selectedOptions}
-          type={question.type}
-          onSelectionChange={handleSelectionChange}
-          disabled={question.timeLimit !== undefined && timeRemaining !== undefined && timeRemaining <= 0}
-        />
+        {question.type === 'text' ? (
+          <RichTextEditor
+             value={selectedOptions[0] || ''}
+             onChange={(val) => handleSelectionChange([val])}
+             placeholder="Type your answer here..."
+          />
+        ) : (
+          <OptionSelector
+            options={question.options || []}
+            selectedOptionIds={selectedOptions}
+            type={question.type}
+            onSelectionChange={handleSelectionChange}
+            disabled={question.timeLimit !== undefined && timeRemaining !== undefined && timeRemaining <= 0}
+          />
+        )}
       </div>{/* End of content */}
     </div>
   );
