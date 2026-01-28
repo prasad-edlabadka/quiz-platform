@@ -13,6 +13,24 @@ export const useQuizStore = create<QuizState>()(
       timeRemaining: 0,
       questionTimeRemaining: {},
       questionTimeTaken: {},
+      apiKey: null,
+      evaluations: {},
+
+      setApiKey: (key: string) => set({ apiKey: key }),
+
+      addEvaluation: (questionId, evaluation) => set((state) => ({
+        evaluations: {
+          ...state.evaluations,
+          [questionId]: evaluation
+        }
+      })),
+
+      addBatchEvaluations: (newEvaluations) => set((state) => ({
+        evaluations: {
+          ...state.evaluations,
+          ...newEvaluations
+        }
+      })),
 
       setConfig: (config: QuizConfig) => set({ 
         config, 
@@ -20,6 +38,7 @@ export const useQuizStore = create<QuizState>()(
         timeRemaining: config.globalTimeLimit || 0,
         flaggedQuestions: [], // Reset flags
         questionTimeTaken: {}, // Reset time taken
+        evaluations: {}, // Reset evaluations
         // Initialize question timers if they exist
         questionTimeRemaining: config.questions.reduce((acc, q) => {
           if (q.timeLimit) acc[q.id] = q.timeLimit;
@@ -111,6 +130,7 @@ export const useQuizStore = create<QuizState>()(
             answers: {},
             flaggedQuestions: [],
             questionTimeTaken: {},
+            evaluations: {}, // Reset evaluations
             timeRemaining: state.config.globalTimeLimit || 0,
             questionTimeRemaining: state.config.questions.reduce((acc, q) => {
                 if (q.timeLimit) acc[q.id] = q.timeLimit;
@@ -127,6 +147,7 @@ export const useQuizStore = create<QuizState>()(
           flaggedQuestions: [],
           questionTimeRemaining: {},
           questionTimeTaken: {},
+          evaluations: {},
           timeRemaining: 0
        }),
 
@@ -147,6 +168,8 @@ export const useQuizStore = create<QuizState>()(
         timeRemaining: state.timeRemaining,
         questionTimeRemaining: state.questionTimeRemaining,
         questionTimeTaken: state.questionTimeTaken,
+        evaluations: state.evaluations,
+        apiKey: state.apiKey,
         themeMode: state.themeMode 
       }),
     }

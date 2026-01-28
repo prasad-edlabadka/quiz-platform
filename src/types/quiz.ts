@@ -47,8 +47,13 @@ export interface QuizState {
   timeRemaining: number; // For global timer
   questionTimeRemaining: Record<string, number>; // For per-question timer
   questionTimeTaken: Record<string, number>; // Actual seconds spent on each question
-  
+  apiKey: string | null;
+  evaluations: Record<string, { score: number; feedback: string; maxScore: number }>;
+
   setConfig: (config: QuizConfig) => void;
+  setApiKey: (key: string) => void;
+  addEvaluation: (questionId: string, evaluation: { score: number; feedback: string; maxScore: number }) => void;
+  addBatchEvaluations: (evaluations: Record<string, { score: number; feedback: string; maxScore: number }>) => void;
   startQuiz: () => void;
   answerQuestion: (questionId: string, optionIds: string[]) => void;
   toggleFlag: (questionId: string) => void;

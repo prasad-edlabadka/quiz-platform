@@ -6,7 +6,30 @@ import type { QuizConfig } from '../types/quiz';
 export type QuestionTypeFilter = 'mixed' | 'mcq' | 'text';
 export type StructureMode = 'flat' | 'sections';
 
-export const generateQuizFromSyllabus = async (
+  // Fallback models in order of preference (based on available quota)
+  const MODELS = ["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-3-flash"];
+
+  const generateWithFallback = async (apiKey: string, prompt: string): Promise<string> => {
+      const genAI = new GoogleGenerativeAI(apiKey);
+      
+      let lastError: any;
+      for (const modelName of MODELS) {
+          try {
+              console.log(`Attempting generation with model: ${modelName}`);
+              const model = genAI.getGenerativeModel({ model: modelName });
+              const result = await model.generateContent(prompt);
+              const response = await result.response;
+              return response.text();
+          } catch (error: any) {
+              console.warn(`Model ${modelName} failed:`, error.message);
+              lastError = error;
+              // Continue to next model if available
+          }
+      }
+      throw new Error(lastError?.message || "All models failed to generate content.");
+  };
+
+  export const generateQuizFromSyllabus = async (
     apiKey: string, 
     syllabus: string, 
     questionCount: number = 5,
@@ -15,9 +38,6 @@ export const generateQuizFromSyllabus = async (
 ): Promise<QuizConfig> => {
   if (!apiKey) throw new Error('API Key is required');
   if (!syllabus) throw new Error('Syllabus content is required');
-
-  const genAI = new GoogleGenerativeAI(apiKey);
-  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
   // Dynamic Schema Construction
   const QUESTION_SCHEMA = `
@@ -72,7 +92,7 @@ export const generateQuizFromSyllabus = async (
     : 'Create a flat list of questions.';
 
   const prompt = `
-    You are an expert educational content creator. Create a quiz based on the following syllabus.
+    You are an expert International Baccalaureate (IB) Examiner and educational content creator. Create a quiz based on the following syllabus.
     
     SYLLABUS:
     "${syllabus}"
@@ -81,8 +101,9 @@ export const generateQuizFromSyllabus = async (
     1. Create exactly ${questionCount} high-quality questions.
     2. ${typeInstruction}
     3. ${structureInstruction}
-    4. Include at least one math/logic question if relevant (use LaTeX $x^2$).
-    5. Double-escape backslashes in LaTeX (e.g. \\\\frac).
+    4. IB STYLE: Use IB command terms (e.g., Define, Explain, Calculate, Discuss, Evaluate, Justify) in the questions. Ensure rigor matches IB Diploma Programme (DP) or Middle Years Programme (MYP) standards.
+    5. Include at least one math/logic question if relevant (use LaTeX $x^2$).
+    6. Double-escape backslashes in LaTeX (e.g. \\\\frac).
     
     OUTPUT FORMAT:
     Return ONLY a valid JSON object matching the detailed structure below.
@@ -91,10 +112,10 @@ export const generateQuizFromSyllabus = async (
     ${FINAL_SCHEMA}
   `;
 
+
+
   try {
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
+    const text = await generateWithFallback(apiKey, prompt);
     
     // Extract valid JSON using brace counting
     let startIndex = text.indexOf('{');
@@ -201,7 +222,162 @@ export const generateQuizFromSyllabus = async (
     return processedQuiz as QuizConfig;
 
   } catch (error: any) {
-    console.error("AI Generation Error:", error);
     throw new Error(error.message || "Failed to generate quiz. Please check your API key and try again.");
   }
+};
+
+
+
+
+export const evaluateTextAnswer = async (
+    apiKey: string,
+    question: any,
+    userAnswer: string,
+    studentComments?: string // New optional parameter
+): Promise<{ score: number; feedback: string; maxScore: number }> => {
+    if (!apiKey) throw new Error('API Key is required for grading');
+    if (!userAnswer || !userAnswer.trim()) return { score: 0, feedback: "No answer provided.", maxScore: question.points || 1 };
+
+    // Specialized prompt for Appeals vs Initial Grading
+    const isAppeal = !!studentComments;
+    const instructionPrefix = isAppeal 
+        ? "You are reviewing a grade appeal from a student." 
+        : "You are an expert International Baccalaureate (IB) Examiner grading a student's answer.";
+
+    const appealContext = isAppeal 
+        ? `\nSTUDENT APPEAL COMMENT: "${studentComments}"\n\nINSTRUCTION: The student disagrees with the previous assessment or wants to clarify their answer. Re-evaluate the answer carefully. If the student's explanation justifies a higher mark based on IB criteria, adjust the score. If not, explain clearly why.` 
+        : "";
+
+    const prompt = `
+      ${instructionPrefix}
+      
+      QUESTION:
+      "${question.content}"
+      
+      CONTEXT/SECTION CONTENT (if any):
+      "${question.sectionContent || 'N/A'}"
+      
+      EXPECTED ANSWER / JUSTIFICATION:
+      "${question.justification || 'N/A'}"
+      
+      STUDENT ANSWER:
+      "${userAnswer}"
+      
+      MAX POINTS: ${question.points || 1}
+      ${appealContext}
+      
+      STANDARD INSTRUCTIONS:
+      Evaluate the student's answer based on IB assessment criteria (Knowledge & Understanding, Application, Communication).
+      Give a score between 0 and ${question.points || 1}.
+      Provide concise, constructive feedback in the style of an IB Markscheme.
+      CRITICAL: If the answer is incorrect or incomplete, EXPLICITLY state what the correct answer should be.
+      
+      OUTPUT JSON ONLY:
+      {
+        "score": number,
+        "feedback": "string"
+      }
+    `;
+
+
+
+    try {
+        const text = await generateWithFallback(apiKey, prompt);
+        
+        let cleanJson = text.replace(/```json\n?|\n?```/g, '').trim();
+        const firstBrace = cleanJson.indexOf('{');
+        const lastBrace = cleanJson.lastIndexOf('}');
+        if (firstBrace >= 0 && lastBrace > firstBrace) {
+            cleanJson = cleanJson.substring(firstBrace, lastBrace + 1);
+        }
+
+        const data = JSON.parse(cleanJson);
+        return {
+            score: typeof data.score === 'number' ? data.score : 0,
+            feedback: data.feedback || "Evaluated.",
+            maxScore: question.points || 1
+        };
+    } catch (error: any) {
+        console.error("AI Grading Error:", error);
+        return {
+            score: 0,
+            feedback: "Error evaluating answer. Please try again.",
+            maxScore: question.points || 1
+        };
+    }
+};
+
+export const evaluateBatchAnswers = async (
+    apiKey: string,
+    items: { question: any; userAnswer: string }[]
+): Promise<Record<string, { score: number; feedback: string; maxScore: number }>> => {
+    if (!apiKey) throw new Error('API Key is required for grading');
+    if (!items || items.length === 0) return {};
+
+    // Construct a structured prompt for multiple items
+    const questionsPayload = items.map((item, index) => `
+    [ITEM ${index + 1}]
+    ID: "${item.question.id}"
+    QUESTION: "${item.question.content}"
+    CONTEXT: "${item.question.sectionContent || 'N/A'}"
+    EXPECTED ANSWER/JUSTIFICATION: "${item.question.justification || 'N/A'}"
+    STUDENT ANSWER: "${item.userAnswer}"
+    MAX POINTS: ${item.question.points || 1}
+    `).join('\n-----------------------------------\n');
+
+    const prompt = `
+      You are an expert International Baccalaureate (IB) Examiner grading a set of student answers.
+      
+      INSTRUCTIONS:
+      1. Evaluate EACH student answer based on IB assessment criteria (Knowledge & Understanding, Application, Communication).
+      2. Give a score between 0 and MAX POINTS.
+      3. Provide concise, constructive feedback in the style of an IB Markscheme (e.g., "Award [1] for...").
+      4. CRITICAL: If the answer is incorrect or incomplete, EXPLICITLY state what the correct answer should be.
+      
+      INPUT DATA:
+      ${questionsPayload}
+      
+      OUTPUT FORMAT:
+      Return ONLY a valid JSON object mapping Question IDs to their evaluation.
+      
+      Structure:
+      {
+        "evaluations": {
+          "question_id_1": { "score": number, "feedback": "string" },
+          "question_id_2": { "score": number, "feedback": "string" }
+        }
+      }
+    `;
+
+    try {
+        const text = await generateWithFallback(apiKey, prompt);
+        
+        let cleanJson = text.replace(/```json\n?|\n?```/g, '').trim();
+        const firstBrace = cleanJson.indexOf('{');
+        const lastBrace = cleanJson.lastIndexOf('}');
+        if (firstBrace >= 0 && lastBrace > firstBrace) {
+            cleanJson = cleanJson.substring(firstBrace, lastBrace + 1);
+        }
+
+        const data = JSON.parse(cleanJson);
+        const evaluations = data.evaluations || {};
+        
+        // Normalize result
+        const finalResults: Record<string, any> = {};
+        items.forEach(item => {
+            const evalData = evaluations[item.question.id];
+            finalResults[item.question.id] = {
+                score: typeof evalData?.score === 'number' ? evalData.score : 0,
+                feedback: evalData?.feedback || "Evaluation failed or not provided.",
+                maxScore: item.question.points || 1
+            };
+        });
+
+        return finalResults;
+
+    } catch (error: any) {
+        console.error("Batch Grading Error:", error);
+        // Return empty or error states for all
+        return {};
+    }
 };
