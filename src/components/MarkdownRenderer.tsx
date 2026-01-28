@@ -25,7 +25,12 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
             )
         }}
       >
-        {content}
+        {content
+            .replace(/\\newline/g, '\n\n')
+            .replace(/\\textbf{([^}]*)}/g, '**$1**')
+            .replace(/\\textit{([^}]*)}/g, '*$1*')
+            .replace(/\\underline{([^}]*)}/g, '<u>$1</u>')
+        }
       </ReactMarkdown>
     </div>
   );
