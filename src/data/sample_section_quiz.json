@@ -1,0 +1,47 @@
+{
+  "id": "section-demo",
+  "title": "Reading Comprehension Test",
+  "description": "A sample quiz demonstrating sections with shared background information.",
+  "globalTimeLimit": 600,
+  "sections": [
+    {
+      "id": "sec-1",
+      "title": "The Solar System",
+      "content": "### The Solar System\n\nThe **Solar System** is the gravitationally bound system of the Sun and the objects that orbit it. The largest of these objects are the **eight planets**, which in order from the Sun are four terrestrial planets (Mercury, Venus, Earth, and Mars); two gas giants (Jupiter and Saturn); and two ice giants (Uranus and Neptune).\n\n*   **Terrestrial planets** are primarily composed of rock and metal.\n*   **Gas giants** are composed mainly of hydrogen and helium.\n*   **Ice giants** are composed mostly of volatiles such as water, ammonia, and methane.",
+      "questions": [
+        {
+          "id": "q1",
+          "type": "single_choice",
+          "content": "Which of the following is an **Ice Giant**?",
+          "points": 2,
+          "options": [
+            { "content": "Jupiter", "isCorrect": false },
+            { "content": "Mars", "isCorrect": false },
+            { "content": "Neptune", "isCorrect": true },
+            { "content": "Venus", "isCorrect": false }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "multiple_choice",
+          "content": "Select all the **Terrestrial Planets** from the list below.",
+          "points": 3,
+          "options": [
+            { "content": "Earth", "isCorrect": true },
+            { "content": "Saturn", "isCorrect": false },
+            { "content": "Mars", "isCorrect": true },
+            { "content": "Uranus", "isCorrect": false }
+          ]
+        }
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "id": "q3",
+      "type": "text",
+      "content": "This is a standalone question not belonging to any section. What is 2 + 2?",
+      "points": 1
+    }
+  ]
+}

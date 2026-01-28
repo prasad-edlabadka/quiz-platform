@@ -1,3 +1,9 @@
+export interface QuizSection {
+  id: string;
+  title?: string;
+  content: string; // Markdown background info
+}
+
 export interface QuizConfig {
   id: string;
   title: string;
@@ -9,15 +15,17 @@ export interface QuizConfig {
     backgroundColor: string;
     fontFamily?: string;
   };
+  sections?: QuizSection[];
   questions: Question[];
 }
 
 export interface Question {
   id: string;
-  type: 'single_choice' | 'multiple_choice';
+  type: 'single_choice' | 'multiple_choice' | 'text';
   content: string; // Markdown supported
+  sectionId?: string; // Link to a section
   timeLimit?: number; // in seconds, specific to this question
-  options: Option[];
+  options?: Option[];
   imageUrl?: string; // Optional image
   justification?: string; // Explanation for the answer
   points?: number; // Score value for this question (default: 1)
@@ -47,6 +55,7 @@ export interface QuizState {
   jumpToQuestion: (index: number) => void;
   nextQuestion: () => void;
   prevQuestion: () => void;
+  finishQuiz: () => void;
   tick: () => void; // Called every second
   resetQuiz: () => void;
   clearState: () => void; // Reset everything including config

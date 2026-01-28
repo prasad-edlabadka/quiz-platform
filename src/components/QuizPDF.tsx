@@ -152,55 +152,76 @@ export const QuizPDF: React.FC<QuizPDFProps> = ({ config, answers, scores, quest
 
         {config.questions.map((q, idx) => {
            const selected = answers[q.id] || [];
-           const correctOptions = q.options.filter(o => o.isCorrect).map(o => o.id);
-           const isCorrect = selected.length === correctOptions.length && 
-                             selected.every(id => correctOptions.includes(id));
-           
-           const selectedOpts = q.options.filter(o => selected.includes(o.id));
-           const correctOpts = q.options.filter(o => o.isCorrect);
+            let isCorrect = false;
+            let selectedOpts: any[] = [];
+            let correctOpts: any[] = [];
+            
+            if (q.type === 'text') {
+                // For text questions, simple logic: if answered, we mark as "Completed" or similar
+                // We'll just show the text answer.
+                isCorrect = selected.length > 0 && selected[0].length > 0;
+            } else if (q.options) {
+                const correctOptions = q.options.filter(o => o.isCorrect).map(o => o.id);
+                isCorrect = selected.length === correctOptions.length && 
+                            selected.every(id => correctOptions.includes(id));
+                selectedOpts = q.options.filter(o => selected.includes(o.id));
+                correctOpts = q.options.filter(o => o.isCorrect);
+            }
 
-            // Helper to render option item
-            const renderOptionItem = (o: any) => {
-              const letter = String.fromCharCode(65 + q.options.findIndex(opt => opt.id === o.id));
-              return (
-              <View key={o.id} style={{ marginBottom: 4 }}>
-                 {o.imageUrl && (
-                   <Image 
-                     src={o.imageUrl} 
-                     style={{ width: 100, height: 60, objectFit: 'contain', marginLeft: 10, marginBottom: 2 }} 
-                   />
-                 )}
-                 <Text style={styles.answerText}>{letter}. {cleanText(o.content)}</Text>
-              </View>
-              );
-            };
-
-           return (
-             <View key={q.id} style={styles.questionContainer} break={idx > 0 && idx % 3 === 0}>
-               <View style={styles.questionHeader}>
-                  <Text style={styles.questionTitle}>Q{idx + 1}: {cleanText(q.content)}</Text>
-                  <Text style={styles.points}>[{q.points || 1} pts]</Text>
+             // Helper to render option item
+             const renderOptionItem = (o: any) => {
+               const letter = String.fromCharCode(65 + (q.options?.findIndex(opt => opt.id === o.id) || 0));
+               return (
+               <View key={o.id} style={{ marginBottom: 4 }}>
+                  {o.imageUrl && (
+                    <Image 
+                      src={o.imageUrl} 
+                      style={{ width: 100, height: 60, objectFit: 'contain', marginLeft: 10, marginBottom: 2 }} 
+                    />
+                  )}
+                  <Text style={styles.answerText}>{letter}. {cleanText(o.content)}</Text>
                </View>
+               );
+             };
 
-               <Text style={[styles.status, isCorrect ? styles.statusCorrect : styles.statusIncorrect]}>
-                 {isCorrect ? '✓ Correct' : '✗ Incorrect'} · {formatTime(questionTimeTaken[q.id] || 0)}
-               </Text>
+            return (
+              <View key={q.id} style={styles.questionContainer} break={idx > 0 && idx % 3 === 0}>
+                <View style={styles.questionHeader}>
+                   <Text style={styles.questionTitle}>Q{idx + 1}: {cleanText(q.content)}</Text>
+                   <Text style={styles.points}>[{q.points || 1} pts]</Text>
+                </View>
 
-               {!isCorrect && (
-                 <View style={styles.answerSection}>
+                <Text style={[styles.status, isCorrect ? styles.statusCorrect : styles.statusIncorrect]}>
+                  {q.type === 'text' 
+                    ? (isCorrect ? '✓ Submitted' : '⚠ No Answer') 
+                    : (isCorrect ? '✓ Correct' : '✗ Incorrect')
+                  } 
+                  {' '}· {formatTime(questionTimeTaken[q.id] || 0)}
+                </Text>
+
+                {/* Answer Section */}
+                <View style={[styles.answerSection, { marginTop: 8 }]}>
                     <Text style={styles.label}>Your Answer:</Text>
-                    {selectedOpts.length > 0 ? (
-                      selectedOpts.map(o => renderOptionItem(o))
+                    {q.type === 'text' ? (
+                       <Text style={styles.answerText}>{selected[0] ? cleanText(selected[0]) : 'No answer selected'}</Text>
                     ) : (
-                      <Text style={[styles.answerText, { fontStyle: 'italic', color: '#999' }]}>No answer selected</Text>
+                       !isCorrect && (
+                           selectedOpts.length > 0 ? (
+                              selectedOpts.map(o => renderOptionItem(o))
+                           ) : (
+                              <Text style={[styles.answerText, { fontStyle: 'italic', color: '#999' }]}>No answer selected</Text>
+                           )
+                       )
                     )}
-                 </View>
-               )}
+                </View>
 
-               <View style={[styles.answerSection, !isCorrect ? { borderTopWidth: 0, marginTop: 0 } : {}]}>
-                  <Text style={styles.label}>Correct Answer:</Text>
-                  {correctOpts.map(o => renderOptionItem(o))}
-               </View>
+                {/* Correct Answer Section (Only for objective or if we want to show model answer for text) */}
+                {q.type !== 'text' && (
+                    <View style={[styles.answerSection, !isCorrect ? { borderTopWidth: 0, marginTop: 0 } : {}]}>
+                       <Text style={styles.label}>Correct Answer:</Text>
+                       {correctOpts.map(o => renderOptionItem(o))}
+                    </View>
+                )}
 
                {q.justification && (
                   <View style={styles.explanation}>

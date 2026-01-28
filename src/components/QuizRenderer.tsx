@@ -2,23 +2,19 @@ import React, { useEffect } from 'react';
 import { useQuizStore } from '../store/quizStore';
 import { QuestionCard } from './QuestionCard';
 import { ResultsView } from './ResultsView';
-import { Timer } from './Timer';
 import { ArrowRight, ArrowLeft } from 'lucide-react';
-import { clsx } from 'clsx';
+import { AssessprepLayout } from './AssessprepLayout';
 
 export const QuizRenderer: React.FC = () => {
   const { 
     config, 
     status, 
     currentQuestionIndex, 
-    timeRemaining, 
     nextQuestion, 
     prevQuestion, 
     startQuiz, 
     tick,
-    answers,
-    flaggedQuestions,
-    jumpToQuestion
+    finishQuiz
   } = useQuizStore();
 
   useEffect(() => {
@@ -71,65 +67,10 @@ export const QuizRenderer: React.FC = () => {
   const isLastQuestion = currentQuestionIndex === config.questions.length - 1;
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 pt-12 md:pt-4 pb-20">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row gap-6 justify-between items-center mb-8 glass-panel p-6 rounded-2xl">
-        <div className="flex items-center gap-6 w-full md:w-auto justify-between md:justify-start">
-            <div className="flex flex-col">
-                <span className="text-xs font-semibold text-glass-secondary uppercase tracking-widest">Progress</span>
-                <span className="text-xl font-bold text-glass-primary">
-                    {currentQuestionIndex + 1} <span className="text-glass-secondary font-normal text-base">/ {config.questions.length}</span>
-                </span>
-            </div>
-            
-            {config.globalTimeLimit && (
-                <div className="md:hidden">
-                    <Timer seconds={timeRemaining} label="Time" variant={timeRemaining < 60 ? 'urgent' : 'default'} />
-                </div>
-            )}
-        </div>
-
-        {/* Question Map */}
-        <div className="flex-1 flex justify-center px-4 w-full md:w-auto overflow-x-auto no-scrollbar">
-            <div className="flex gap-2 flex-wrap justify-center max-w-2xl">
-                {config.questions.map((q, idx) => {
-                    const isFlagged = flaggedQuestions.includes(q.id);
-                    const isAttempted = answers[q.id] && answers[q.id].length > 0;
-                    const isCurrent = idx === currentQuestionIndex;
-
-                    return (
-                        <button
-                            key={q.id}
-                            onClick={() => jumpToQuestion(idx)}
-                            className={clsx(
-                                "relative z-10 transform-gpu w-3 h-3 md:w-3.5 md:h-3.5 rounded-full transition-all duration-300",
-                                isCurrent 
-                                    ? "bg-indigo-500 scale-125 ring-4 ring-indigo-500/20" 
-                                    : isFlagged 
-                                        ? "bg-orange-500" 
-                                        : isAttempted 
-                                            ? "bg-indigo-400/60" 
-                                            : "bg-slate-500 border border-slate-600 dark:bg-white/10 dark:border-white/10 hover:bg-glass-primary hover:scale-110"
-                            )}
-                            title={`Question ${idx + 1}`}
-                        />
-                    );
-                })}
-            </div>
-        </div>
-        
-        {config.globalTimeLimit && (
-             <div className="hidden md:block">
-                 <Timer seconds={timeRemaining} label="Global Timer" variant={timeRemaining < 60 ? 'urgent' : 'default'} />
-             </div>
-        )}
-      </div>
-
-
-
+    <AssessprepLayout>
       <QuestionCard key={currentQuestion.id} question={currentQuestion} />
 
-      <div className="mt-8 flex justify-between items-center">
+      <div className="mt-8 flex justify-between items-center max-w-6xl mx-auto">
         <button
           onClick={prevQuestion}
           disabled={currentQuestionIndex === 0}
@@ -140,13 +81,13 @@ export const QuizRenderer: React.FC = () => {
         </button>
 
         <button
-          onClick={nextQuestion}
+          onClick={isLastQuestion ? finishQuiz : nextQuestion}
           className="flex items-center px-6 py-3 glass-button-primary rounded-lg font-medium shadow-md transition-colors"
         >
           {isLastQuestion ? 'Finish Quiz' : 'Next Question'}
           {!isLastQuestion && <ArrowRight className="ml-2 w-5 h-5" />}
         </button>
       </div>
-    </div>
+    </AssessprepLayout>
   );
 };
