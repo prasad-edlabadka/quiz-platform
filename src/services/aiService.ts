@@ -58,7 +58,6 @@ export type StructureMode = 'flat' | 'sections';
         "title": "string",
         "description": "string",
         "globalTimeLimit": "number (seconds)",
-        "theme": { "primaryColor": "hex", "backgroundColor": "hex" },
         "sections": [
             {
                 "id": "string",
@@ -75,7 +74,7 @@ export type StructureMode = 'flat' | 'sections';
         "title": "string",
         "description": "string",
         "globalTimeLimit": "number (seconds)",
-        "theme": { "primaryColor": "hex", "backgroundColor": "hex" },
+        "globalTimeLimit": "number (seconds)",
         "questions": [ ${QUESTION_SCHEMA} ]
       }
       `;
