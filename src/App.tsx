@@ -186,22 +186,27 @@ function App() {
               >
                 {themeMode === 'light' ? <Moon className="w-5 h-5 text-indigo-600" /> : <Sun className="w-5 h-5 text-yellow-300" />}
               </button>
-              <button
-                onClick={() => {
-                  if (!config) return;
-                  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(config, null, 2));
-                  const downloadAnchorNode = document.createElement('a');
-                  downloadAnchorNode.setAttribute("href", dataStr);
-                  downloadAnchorNode.setAttribute("download", `${config.title || 'quiz'}.json`);
-                  document.body.appendChild(downloadAnchorNode); // required for firefox
-                  downloadAnchorNode.click();
-                  downloadAnchorNode.remove();
-                }}
-                className={`p-2 glass-button rounded-full shadow-sm transition-all ${themeMode === 'dark' ? 'text-indigo-400 hover:text-indigo-300' : 'text-indigo-500 hover:text-indigo-600'}`}
-                title="Export Quiz JSON"
-              >
-                <Download className="w-5 h-5" />
-              </button>
+
+              {/* Only show floating download when NOT in intro or completed (where specialized buttons exist) */}
+              {useQuizStore.getState().status === 'active' && (
+                <button
+                  onClick={() => {
+                    if (!config) return;
+                    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(config, null, 2));
+                    const downloadAnchorNode = document.createElement('a');
+                    downloadAnchorNode.setAttribute("href", dataStr);
+                    downloadAnchorNode.setAttribute("download", `${config.title || 'quiz'}.json`);
+                    document.body.appendChild(downloadAnchorNode);
+                    downloadAnchorNode.click();
+                    downloadAnchorNode.remove();
+                  }}
+                  className={`p-2 glass-button rounded-full shadow-sm transition-all ${themeMode === 'dark' ? 'text-indigo-400 hover:text-indigo-300' : 'text-indigo-500 hover:text-indigo-600'}`}
+                  title="Export Quiz JSON"
+                >
+                  <Download className="w-5 h-5" />
+                </button>
+              )}
+
               <button
                 onClick={() => setIsResetModalOpen(true)}
                 className="p-2 glass-button-danger rounded-full shadow-sm transition-all"

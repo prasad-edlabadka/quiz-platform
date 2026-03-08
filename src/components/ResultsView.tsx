@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useQuizStore } from '../store/quizStore';
 import { MarkdownRenderer } from './MarkdownRenderer';
-import { RefreshCw, CheckCircle, XCircle, Clock, Download, Sparkles, AlertCircle, MessageSquare, Send } from 'lucide-react';
+import { RefreshCw, CheckCircle, XCircle, Clock, Printer, Download, Sparkles, AlertCircle, MessageSquare, Send } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { PDFDownloadLink } from '@react-pdf/renderer';
-import { QuizPDF } from './QuizPDF';
 import { evaluateBatchAnswers, evaluateTextAnswer } from '../services/aiService';
 import { ApiKeyModal } from './ApiKeyModal';
 
@@ -146,26 +144,31 @@ export const ResultsView: React.FC = () => {
             animate={{ opacity: 1, scale: 1 }}
             className="max-w-6xl mx-auto"
         >
-            <div className="flex justify-end mb-4">
-                <PDFDownloadLink
-                    document={
-                        <QuizPDF
-                            config={config}
-                            answers={answers}
-                            scores={scores}
-                            questionTimeTaken={questionTimeTaken}
-                        />
-                    }
-                    fileName={`quiz-results-${config.title?.toLowerCase().replace(/\s+/g, '-') || 'export'}.pdf`}
+            <div className="flex justify-end gap-3 mb-4 print:hidden">
+                <button
+                    onClick={() => {
+                        if (!config) return;
+                        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(config, null, 2));
+                        const downloadAnchorNode = document.createElement('a');
+                        downloadAnchorNode.setAttribute("href", dataStr);
+                        downloadAnchorNode.setAttribute("download", `${config.title || 'quiz'}.json`);
+                        document.body.appendChild(downloadAnchorNode);
+                        downloadAnchorNode.click();
+                        downloadAnchorNode.remove();
+                    }}
                     className={`flex items-center gap-2 px-4 py-2 glass-button rounded-lg font-medium transition-colors ${isDark ? 'text-indigo-200 hover:text-indigo-100 border-indigo-500/30' : 'text-glass-primary hover:text-indigo-600 border-indigo-200 hover:border-indigo-300'}`}
                 >
-                    {({ loading }) => (
-                        <>
-                            <Download className="w-4 h-4" />
-                            {loading ? 'Generating PDF...' : 'Export Results'}
-                        </>
-                    )}
-                </PDFDownloadLink>
+                    <Download className="w-4 h-4" />
+                    Download JSON
+                </button>
+
+                <button
+                    onClick={() => window.print()}
+                    className={`flex items-center gap-2 px-4 py-2 glass-button rounded-lg font-medium transition-colors ${isDark ? 'text-indigo-200 hover:text-indigo-100 border-indigo-500/30' : 'text-glass-primary hover:text-indigo-600 border-indigo-200 hover:border-indigo-300'}`}
+                >
+                    <Printer className="w-4 h-4" />
+                    Export Results (PDF)
+                </button>
             </div>
 
             <div className="glass-panel rounded-3xl text-center p-8 md:p-12 mb-8">
@@ -429,7 +432,7 @@ export const ResultsView: React.FC = () => {
             <div className="mt-8 flex justify-center">
                 <button
                     onClick={resetQuiz}
-                    className="inline-flex items-center px-6 py-3 glass-button-primary text-base font-medium rounded-md shadow-sm transition-colors"
+                    className="inline-flex items-center px-6 py-3 glass-button-primary text-base font-medium rounded-md shadow-sm transition-colors print:hidden"
                 >
                     <RefreshCw className="mr-2 -ml-1 h-5 w-5" />
                     Restart Quiz
