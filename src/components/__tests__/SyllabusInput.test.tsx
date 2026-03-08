@@ -72,7 +72,7 @@ describe('SyllabusInput', () => {
         expect(screen.getByText(/Generating/i)).toBeInTheDocument();
 
         await waitFor(() => {
-            expect(aiService.generateQuizFromSyllabus).toHaveBeenCalledWith('test-key', 'Mathematics', 10);
+            expect(aiService.generateQuizFromSyllabus).toHaveBeenCalledWith('test-key', 'Mathematics', 10, 'flat', 'mixed', 'none');
             expect(mockOnQuizGenerated).toHaveBeenCalledWith(mockQuiz);
         });
     });

@@ -5,6 +5,7 @@ import type { QuizConfig } from '../types/quiz';
 
 export type QuestionTypeFilter = 'mixed' | 'mcq' | 'text';
 export type StructureMode = 'flat' | 'sections';
+export type TimeBoundMode = 'none' | 'overall' | 'per_question' | 'both';
 
   // Fallback models in order of preference (based on available quota)
   const MODELS = ["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-3-flash"];
@@ -34,12 +35,16 @@ export type StructureMode = 'flat' | 'sections';
     syllabus: string, 
     questionCount: number = 5,
     structure: StructureMode = 'flat',
-    questionType: QuestionTypeFilter = 'mixed'
+    questionType: QuestionTypeFilter = 'mixed',
+    timeBoundMode: TimeBoundMode = 'none'
 ): Promise<QuizConfig> => {
   if (!apiKey) throw new Error('API Key is required');
   if (!syllabus) throw new Error('Syllabus content is required');
 
   // Dynamic Schema Construction
+  const includeQuestionTime = timeBoundMode === 'per_question' || timeBoundMode === 'both';
+  const includeGlobalTime = timeBoundMode === 'overall' || timeBoundMode === 'both';
+
   const QUESTION_SCHEMA = `
     {
       "content": "string (Markdown supported, can include LaTeX)",
@@ -47,7 +52,8 @@ export type StructureMode = 'flat' | 'sections';
       ${questionType !== 'text' ? `"options": [
         { "content": "string", "isCorrect": boolean }
       ],` : ''}
-      "justification": "string (explanation)"
+      "justification": "string (explanation)"${includeQuestionTime ? `,
+      "timeLimit": "number (seconds, based on difficulty/complexity of this question)"` : ''}
     }
   `;
 
@@ -56,8 +62,8 @@ export type StructureMode = 'flat' | 'sections';
       FINAL_SCHEMA = `
       {
         "title": "string",
-        "description": "string",
-        "globalTimeLimit": "number (seconds)",
+        "description": "string",${includeGlobalTime ? `
+        "globalTimeLimit": "number (seconds, sum of estimated time across all questions/sections)",` : ''}
         "sections": [
             {
                 "id": "string",
@@ -72,13 +78,16 @@ export type StructureMode = 'flat' | 'sections';
       FINAL_SCHEMA = `
       {
         "title": "string",
-        "description": "string",
-        "globalTimeLimit": "number (seconds)",
-        "globalTimeLimit": "number (seconds)",
+        "description": "string",${includeGlobalTime ? `
+        "globalTimeLimit": "number (seconds, sum of estimated time across all questions)",` : ''}
         "questions": [ ${QUESTION_SCHEMA} ]
       }
       `;
   }
+
+  const timeInstruction = timeBoundMode !== 'none' 
+    ? 'If time limits are requested in the schema, analyze the difficulty, required cognitive steps, and reading length of each question/topic to assign a realistic number of seconds.'
+    : '';
 
   const typeInstruction = questionType === 'text' 
     ? 'Create ONLY open-ended text questions (no options).' 
@@ -104,6 +113,7 @@ export type StructureMode = 'flat' | 'sections';
     5. Include at least one math/logic question if relevant (use LaTeX $x^2$).
     6. Double-escape backslashes in LaTeX (e.g. \\\\frac).
     7. CRITICAL: Do NOT include any 'imageUrl' fields or references to images. Use descriptive text or ASCII diagrams if needed.
+    ${timeInstruction ? `8. ${timeInstruction}` : ''}
     
     OUTPUT FORMAT:
     Return ONLY a valid JSON object matching the detailed structure below.

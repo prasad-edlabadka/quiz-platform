@@ -48,6 +48,8 @@ export const useQuizStore = create<QuizState>()(
 
       startQuiz: () => set({ status: 'active' }),
 
+      printQuiz: () => set({ status: 'printable' }),
+
       answerQuestion: (questionId, optionIds) => set((state) => {
         // Enforce timer: Cannot answer if time runs out for this question
         const qTime = state.questionTimeRemaining[questionId];

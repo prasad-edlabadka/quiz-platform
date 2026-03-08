@@ -5,22 +5,22 @@
     @apply font-sans antialiased min-h-screen transition-colors duration-500;
     
     /* Light Mode Background: Soft pastel mesh */
-    background: 
+    background-color: #f8fafc;
+    background-image: 
       radial-gradient(at 0% 0%, hsla(253,16%,90%,1) 0, transparent 50%), 
       radial-gradient(at 50% 100%, hsla(225,100%,94%,1) 0, transparent 50%), 
       radial-gradient(at 100% 0%, hsla(339,100%,90%,1) 0, transparent 50%);
-    background-color: #f8fafc;
     background-attachment: fixed;
   }
 
   /* Dark Mode Background: Existing Deep Mesh */
   .dark body {
     @apply text-white selection:bg-indigo-500/30;
-    background: 
+    background-color: #020617; /* Slate 950 for deeper contrast */
+    background-image: 
       radial-gradient(at 0% 0%, hsla(253,16%,4%,1) 0, transparent 50%), 
       radial-gradient(at 50% 0%, hsla(225,39%,15%,1) 0, transparent 50%), 
       radial-gradient(at 100% 0%, hsla(339,49%,15%,1) 0, transparent 50%);
-    background-color: #020617; /* Slate 950 for deeper contrast */
     background-attachment: fixed;
   }
 }
@@ -32,13 +32,13 @@
   */
   .glass-panel {
     @apply transition-all duration-300 shadow-[0_8px_32px_0_rgba(31,38,135,0.1)];
-    @apply backdrop-blur-2xl;
-    -webkit-backdrop-filter: blur(40px); /* Safari Fix */
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+    transform: translateZ(0); /* Safari Fix */
     @apply bg-white/60 border border-white/40; /* Increased opacity for light mode */
   }
   .dark .glass-panel {
     @apply bg-slate-900/60 border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.5)];
-    -webkit-backdrop-filter: blur(40px); /* Safari Fix */
   }
 
   /* Option:
@@ -47,81 +47,81 @@
   */
   .glass-option {
     @apply transition-all duration-300 shadow-sm cursor-pointer border;
-    @apply backdrop-blur-sm;
-    -webkit-backdrop-filter: blur(4px); /* Safari Fix */
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    transform: translateZ(0); /* Safari Fix */
     @apply bg-white/60 border-white/50 hover:bg-white/80 hover:scale-[1.01]; /* Light default */
   }
   .dark .glass-option {
     @apply bg-slate-800/40 border-white/10 hover:bg-slate-700/50;
-    -webkit-backdrop-filter: blur(4px); /* Safari Fix */
   }
   
   .glass-option-selected {
     @apply shadow-lg transition-all duration-300 border;
-    @apply backdrop-blur-md;
-    -webkit-backdrop-filter: blur(12px); /* Safari Fix */
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transform: translateZ(0); /* Safari Fix */
     @apply bg-indigo-500/10 border-indigo-500/40 shadow-indigo-500/10; /* Light default */
   }
   .dark .glass-option-selected {
     @apply bg-indigo-500/20 border-indigo-500/40 shadow-[0_0_15px_rgba(99,102,241,0.3)];
-    -webkit-backdrop-filter: blur(12px); /* Safari Fix */
   }
 
   .glass-button {
     @apply shadow-sm transition-all duration-300 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed border font-medium;
-    @apply backdrop-blur-md;
-    -webkit-backdrop-filter: blur(12px); /* Safari Fix */
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transform: translateZ(0); /* Safari Fix */
     @apply bg-white/50 border-white/40 text-gray-700 hover:bg-white/70; /* Light default */
   }
   .dark .glass-button {
     @apply bg-white/5 border-white/10 text-white hover:bg-white/10;
-    -webkit-backdrop-filter: blur(12px); /* Safari Fix */
   }
 
   .glass-button-primary {
     @apply shadow-sm transition-all duration-300 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed border font-medium;
-    @apply backdrop-blur-md;
-    -webkit-backdrop-filter: blur(12px); /* Safari Fix */
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transform: translateZ(0); /* Safari Fix */
     @apply bg-indigo-500/80 border-indigo-500/20 hover:bg-indigo-600/90 shadow-indigo-500/20;
     color: white;
   }
   .dark .glass-button-primary {
     @apply bg-indigo-500/20 border-indigo-500/30 text-white hover:bg-indigo-500/30 hover:border-indigo-500/50 shadow-indigo-500/10;
-    -webkit-backdrop-filter: blur(12px); /* Safari Fix */
   }
 
   .glass-button-danger {
     @apply shadow-sm transition-all duration-300 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed border font-medium;
-    @apply backdrop-blur-md;
-    -webkit-backdrop-filter: blur(12px); /* Safari Fix */
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transform: translateZ(0); /* Safari Fix */
     @apply bg-red-500/10 border-red-500/20 text-red-700 hover:bg-red-500/20; /* Light default */
   }
   .dark .glass-button-danger {
     @apply bg-red-500/20 border-red-500/30 text-red-100 hover:bg-red-500/30 hover:border-red-500/50;
-    -webkit-backdrop-filter: blur(12px); /* Safari Fix */
   }
   
   .glass-input {
     @apply transition-all duration-300 border focus:ring-2 focus:ring-indigo-500/50 outline-none;
-    @apply backdrop-blur-md;
-    -webkit-backdrop-filter: blur(12px); /* Safari Fix */
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transform: translateZ(0); /* Safari Fix */
     @apply bg-white/50 border-gray-200 text-gray-800 placeholder:text-gray-400 focus:bg-white/70; /* Light default */
   }
   .dark .glass-input {
     @apply bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:bg-white/10;
-    -webkit-backdrop-filter: blur(12px); /* Safari Fix */
   }
 
   /* Text utilities for glass */
   .text-glass-primary {
-    @apply text-slate-900 drop-shadow-sm;
+    @apply text-slate-900 font-semibold tracking-tight;
   }
   .dark .text-glass-primary {
-    @apply text-slate-50;
+    @apply text-slate-50 font-normal tracking-normal;
   }
   
   .text-glass-secondary {
-    @apply text-slate-500;
+    @apply text-slate-600;
   }
   .dark .text-glass-secondary {
     @apply text-slate-400;
@@ -161,3 +161,93 @@
   }
 }
 
+
+/* Print Styles */
+@media print {
+  @page {
+    size: A4;
+    margin: 20mm;
+  }
+
+  body {
+    background: white !important;
+    background-image: none !important;
+    color: black !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Reset transitions and shadows for print */
+  * {
+    transition: none !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  /* Hide non-essential UI */
+  .print-hidden, 
+  button, 
+  nav, 
+  .glass-button, 
+  .glass-button-primary,
+  .glass-button-danger,
+  .no-print {
+    display: none !important;
+  }
+
+  /* Force visibility for specific components */
+  .glass-panel {
+    background: #f9fafb !important;
+    border: 1px solid #e5e7eb !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    break-inside: avoid !important;
+    margin-bottom: 20px !important;
+    border-radius: 8px !important;
+    padding: 20px !important;
+  }
+
+  .glass-option, .glass-option-selected {
+    background: white !important;
+    border: 1px solid #e5e7eb !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    break-inside: avoid !important;
+  }
+
+  .glass-option-selected {
+    border-color: #4f46e5 !important;
+    background: #f5f3ff !important;
+  }
+
+  /* LaTeX and Images */
+  img {
+    max-width: 100% !important;
+    height: auto !important;
+    display: block !important;
+  }
+
+  .katex-display {
+    margin: 10px 0 !important;
+    overflow-x: visible !important;
+  }
+
+  /* Text colors */
+  .text-glass-primary { color: #111827 !important; }
+  .text-glass-secondary { color: #4b5563 !important; }
+  .text-indigo-400, .text-indigo-500, .text-indigo-600 { color: #4f46e5 !important; }
+  .text-green-500, .text-green-400 { color: #16a34a !important; }
+  .text-red-500, .text-red-400 { color: #dc2626 !important; }
+
+  /* Ensure content takes full width */
+  .max-w-6xl, .max-w-7xl {
+    max-width: 100% !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .break-inside-avoid {
+    break-inside: avoid-page !important;
+  }
+}

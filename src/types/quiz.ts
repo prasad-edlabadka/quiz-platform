@@ -40,7 +40,7 @@ export interface Option {
 
 export interface QuizState {
   config: QuizConfig | null;
-  status: 'idle' | 'intro' | 'active' | 'completed';
+  status: 'idle' | 'intro' | 'active' | 'completed' | 'printable';
   currentQuestionIndex: number;
   answers: Record<string, string[]>; // questionId -> selectedOptionIds
   flaggedQuestions: string[]; // ids of flagged questions
@@ -55,6 +55,7 @@ export interface QuizState {
   addEvaluation: (questionId: string, evaluation: { score: number; feedback: string; maxScore: number }) => void;
   addBatchEvaluations: (evaluations: Record<string, { score: number; feedback: string; maxScore: number }>) => void;
   startQuiz: () => void;
+  printQuiz: () => void;
   answerQuestion: (questionId: string, optionIds: string[]) => void;
   toggleFlag: (questionId: string) => void;
   jumpToQuestion: (index: number) => void;
