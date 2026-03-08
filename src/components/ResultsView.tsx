@@ -130,13 +130,6 @@ export const ResultsView: React.FC = () => {
 
     const percentage = Math.round((totalScore / maxScore) * 100);
 
-    const scores = {
-        correctCount,
-        totalScore,
-        maxScore,
-        percentage,
-        totalTimeSpent
-    };
 
     return (
         <motion.div
