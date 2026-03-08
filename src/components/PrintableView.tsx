@@ -33,12 +33,12 @@ export const PrintableView: React.FC = () => {
 
       {/* Main Print Container - Enforce A4 dimensions and avoid clipping */}
       <div className="max-w-4xl mx-auto p-4 md:p-8 print:p-8 print:col-span-1 print:block print:max-w-[210mm] print:bg-white overflow-hidden">
-        
+
         {/* Header */}
         <div className="mb-12 border-b-2 border-black pb-6 text-center">
           <h1 className="text-3xl font-bold mb-4">{config.title}</h1>
           {config.description && <p className="text-gray-700 mb-6">{config.description}</p>}
-          
+
           <div className="flex justify-between text-sm text-gray-600 mt-8 text-left">
             <div><strong>Total Questions:</strong> {config.questions.length}</div>
             {config.globalTimeLimit && (
@@ -81,10 +81,11 @@ export const PrintableView: React.FC = () => {
             </div>
           )}
         </div>
-        
+
         {/* Footer */}
         <div className="mt-16 pt-8 border-t border-gray-300 text-center text-sm text-gray-500 print:text-black">
-            End of Question Paper
+          <div>End of Question Paper</div>
+          <div className="mt-2 text-xs text-gray-400 print:text-gray-500">Created with Revise · Built by Prasad Edlabadkar</div>
         </div>
       </div>
     </div>
@@ -101,9 +102,9 @@ const QuestionBlock = ({ question, index }: { question: any; index: number }) =>
           <div className="prose prose-sm max-w-none mb-4 print:prose-p:text-black">
             <MarkdownRenderer content={question.content} />
             {question.imageUrl && (
-              <img 
-                src={question.imageUrl} 
-                alt="Question reference" 
+              <img
+                src={question.imageUrl}
+                alt="Question reference"
                 className="mt-4 max-w-full h-auto rounded-lg border border-gray-200"
               />
             )}

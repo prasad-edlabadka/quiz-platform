@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AlertTriangle, X } from 'lucide-react';
+import { useQuizStore } from '../store/quizStore';
 
 interface ConfirmationModalProps {
   isOpen: boolean;
@@ -23,6 +24,9 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   cancelLabel = 'Cancel',
   variant = 'danger',
 }) => {
+  const { themeMode } = useQuizStore();
+  const isDark = themeMode === 'dark';
+
   if (!isOpen) return null;
 
   return (
@@ -46,7 +50,7 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
         >
           <div className="p-6">
             <div className="flex items-start gap-4">
-              <div className={`p-3 rounded-full flex-shrink-0 backdrop-blur-sm ${variant === 'danger' ? 'bg-red-500/20 text-red-600 dark:text-red-300 ring-1 ring-red-500/30' : 'bg-orange-500/20 text-orange-600 dark:text-orange-300 ring-1 ring-orange-500/30'}`}>
+              <div className={`p-3 rounded-full flex-shrink-0 backdrop-blur-sm ${variant === 'danger' ? (isDark ? 'bg-red-500/20 text-red-300 ring-1 ring-red-500/30' : 'bg-red-500/20 text-red-600 ring-1 ring-red-500/30') : (isDark ? 'bg-orange-500/20 text-orange-300 ring-1 ring-orange-500/30' : 'bg-orange-500/20 text-orange-600 ring-1 ring-orange-500/30')}`}>
                 <AlertTriangle className="w-6 h-6" />
               </div>
               <div className="flex-1">
@@ -70,11 +74,10 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
                   onConfirm();
                   onClose();
                 }}
-                className={`px-4 py-2 font-medium rounded-lg shadow-sm transition-colors ${
-                  variant === 'danger' 
-                    ? 'glass-button-danger' 
+                className={`px-4 py-2 font-medium rounded-lg shadow-sm transition-colors ${variant === 'danger'
+                    ? 'glass-button-danger'
                     : 'glass-button-primary'
-                }`}
+                  }`}
               >
                 {confirmLabel}
               </button>

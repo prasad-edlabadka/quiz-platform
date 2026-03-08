@@ -4,16 +4,16 @@ import { QuestionCard } from './QuestionCard';
 import { ResultsView } from './ResultsView';
 import { PrintableView } from './PrintableView';
 import { ArrowRight, ArrowLeft, Printer } from 'lucide-react';
-import { AssessprepLayout } from './AssessprepLayout';
+import { ReviseLayout } from './ReviseLayout';
 
 export const QuizRenderer: React.FC = () => {
-  const { 
-    config, 
-    status, 
-    currentQuestionIndex, 
-    nextQuestion, 
-    prevQuestion, 
-    startQuiz, 
+  const {
+    config,
+    status,
+    currentQuestionIndex,
+    nextQuestion,
+    prevQuestion,
+    startQuiz,
     printQuiz,
     tick,
     finishQuiz
@@ -36,34 +36,34 @@ export const QuizRenderer: React.FC = () => {
       <div className="max-w-2xl mx-auto text-center py-20 px-4">
         <h1 className="text-4xl font-extrabold text-glass-primary mb-6 drop-shadow-lg">{config.title}</h1>
         {config.description && (
-            <p className="text-xl text-glass-secondary mb-10">{config.description}</p>
+          <p className="text-xl text-glass-secondary mb-10">{config.description}</p>
         )}
-        
+
         <div className="glass-panel p-6 rounded-xl mb-10 inline-block text-left max-w-2xl">
-            <h3 className="font-semibold text-glass-primary mb-4">Quiz Details:</h3>
-            <ul className="space-y-2 text-glass-secondary">
-                <li>• {config.questions.length} Questions</li>
-                {config.globalTimeLimit && <li>• {Math.floor(config.globalTimeLimit / 60)} Minutes Time Limit</li>}
-                <li>• {config.questions.every(q => q.type === 'single_choice') ? 'Single Choice' : 'Multiple Choice'}</li>
-            </ul>
+          <h3 className="font-semibold text-glass-primary mb-4">Quiz Details:</h3>
+          <ul className="space-y-2 text-glass-secondary">
+            <li>• {config.questions.length} Questions</li>
+            {config.globalTimeLimit && <li>• {Math.floor(config.globalTimeLimit / 60)} Minutes Time Limit</li>}
+            <li>• {config.questions.every(q => q.type === 'single_choice') ? 'Single Choice' : 'Multiple Choice'}</li>
+          </ul>
         </div>
 
         <div className="flex justify-center gap-4">
-            <button
+          <button
             onClick={startQuiz}
             className="inline-flex items-center px-8 py-4 glass-button-primary rounded-full text-lg font-bold shadow-lg transform hover:scale-105 transition-all"
-            >
+          >
             Start Quiz
             <ArrowRight className="ml-2 h-5 w-5" />
-            </button>
+          </button>
 
-            <button
+          <button
             onClick={printQuiz}
             className="inline-flex items-center px-8 py-4 glass-button rounded-full text-lg font-bold shadow-lg transform hover:scale-105 transition-all text-glass-secondary hover:text-glass-primary"
-            >
+          >
             <Printer className="mr-2 h-5 w-5" />
             Print Question Paper
-            </button>
+          </button>
         </div>
       </div>
     );
@@ -81,7 +81,7 @@ export const QuizRenderer: React.FC = () => {
   const isLastQuestion = currentQuestionIndex === config.questions.length - 1;
 
   return (
-    <AssessprepLayout>
+    <ReviseLayout>
       <QuestionCard key={currentQuestion.id} question={currentQuestion} />
 
       <div className="mt-8 flex justify-between items-center max-w-6xl mx-auto">
@@ -102,6 +102,6 @@ export const QuizRenderer: React.FC = () => {
           {!isLastQuestion && <ArrowRight className="ml-2 w-5 h-5" />}
         </button>
       </div>
-    </AssessprepLayout>
+    </ReviseLayout>
   );
 };

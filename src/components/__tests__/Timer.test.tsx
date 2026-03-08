@@ -17,12 +17,12 @@ describe('Timer', () => {
         render(<Timer seconds={5} />);
         const timeText = screen.getByText('0:05');
         // Check for urgent class (red text)
-        expect(timeText).toHaveClass('text-red-600');
+        expect(timeText).toHaveClass('text-red-300');
     });
 
     it('should apply urgent styles based on variant prop', () => {
         render(<Timer seconds={100} variant="urgent" />);
         const timeText = screen.getByText('1:40');
-        expect(timeText).toHaveClass('text-red-600');
+        expect(timeText).toHaveClass('text-red-300');
     });
 });
