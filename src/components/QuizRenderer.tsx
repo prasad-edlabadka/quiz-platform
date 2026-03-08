@@ -2,7 +2,8 @@ import React, { useEffect } from 'react';
 import { useQuizStore } from '../store/quizStore';
 import { QuestionCard } from './QuestionCard';
 import { ResultsView } from './ResultsView';
-import { ArrowRight, ArrowLeft } from 'lucide-react';
+import { PrintableView } from './PrintableView';
+import { ArrowRight, ArrowLeft, Printer } from 'lucide-react';
 import { AssessprepLayout } from './AssessprepLayout';
 
 export const QuizRenderer: React.FC = () => {
@@ -13,6 +14,7 @@ export const QuizRenderer: React.FC = () => {
     nextQuestion, 
     prevQuestion, 
     startQuiz, 
+    printQuiz,
     tick,
     finishQuiz
   } = useQuizStore();
@@ -46,13 +48,21 @@ export const QuizRenderer: React.FC = () => {
             </ul>
         </div>
 
-        <div>
+        <div className="flex justify-center gap-4">
             <button
             onClick={startQuiz}
             className="inline-flex items-center px-8 py-4 glass-button-primary rounded-full text-lg font-bold shadow-lg transform hover:scale-105 transition-all"
             >
             Start Quiz
             <ArrowRight className="ml-2 h-5 w-5" />
+            </button>
+
+            <button
+            onClick={printQuiz}
+            className="inline-flex items-center px-8 py-4 glass-button rounded-full text-lg font-bold shadow-lg transform hover:scale-105 transition-all text-glass-secondary hover:text-glass-primary"
+            >
+            <Printer className="mr-2 h-5 w-5" />
+            Print Question Paper
             </button>
         </div>
       </div>
@@ -61,6 +71,10 @@ export const QuizRenderer: React.FC = () => {
 
   if (status === 'completed') {
     return <ResultsView />;
+  }
+
+  if (status === 'printable') {
+    return <PrintableView />;
   }
 
   const currentQuestion = config.questions[currentQuestionIndex];

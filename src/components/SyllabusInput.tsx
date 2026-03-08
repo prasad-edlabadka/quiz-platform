@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { generateQuizFromSyllabus, type QuestionTypeFilter, type StructureMode } from '../services/aiService';
+import { generateQuizFromSyllabus, type QuestionTypeFilter, type StructureMode, type TimeBoundMode } from '../services/aiService';
 import type { QuizConfig } from '../types/quiz';
-import { BrainCircuit, Loader2, AlertCircle, Key, BookOpen, Hash, HelpCircle, Layout, ListChecks } from 'lucide-react';
+import { BrainCircuit, Loader2, AlertCircle, Key, BookOpen, Hash, HelpCircle, Layout, ListChecks, Timer, Info } from 'lucide-react';
 import { ApiKeyHelpModal } from './ApiKeyHelpModal';
 
 interface SyllabusInputProps {
@@ -15,6 +15,7 @@ export const SyllabusInput: React.FC<SyllabusInputProps> = ({ onQuizGenerated, o
   const [questionCount, setQuestionCount] = useState(5);
   const [structureMode, setStructureMode] = useState<StructureMode>('flat');
   const [questionType, setQuestionType] = useState<QuestionTypeFilter>('mixed');
+  const [timeBoundMode, setTimeBoundMode] = useState<TimeBoundMode>('none');
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -41,7 +42,7 @@ export const SyllabusInput: React.FC<SyllabusInputProps> = ({ onQuizGenerated, o
     localStorage.setItem('gemini_api_key', apiKey.trim());
 
     try {
-      const quizConfig = await generateQuizFromSyllabus(apiKey, syllabus, questionCount, structureMode, questionType);
+      const quizConfig = await generateQuizFromSyllabus(apiKey, syllabus, questionCount, structureMode, questionType, timeBoundMode);
       onQuizGenerated(quizConfig);
     } catch (err: any) {
       setError(err.message || 'Failed to generate quiz');
@@ -138,6 +139,24 @@ export const SyllabusInput: React.FC<SyllabusInputProps> = ({ onQuizGenerated, o
                 <label className="text-sm font-bold text-glass-primary flex items-center gap-2">
                     <Layout className="w-4 h-4 text-indigo-300" />
                     Structure
+                    <div className="relative group flex items-center">
+                        <Info className="w-4 h-4 text-indigo-300/70 cursor-help hover:text-indigo-300 transition-colors" />
+                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-80 md:w-96 p-4 bg-gray-900/95 backdrop-blur-sm border border-gray-700 text-white text-xs rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+                            <div className="space-y-3">
+                                <div>
+                                    <strong className="text-indigo-300 text-sm block mb-1">Standard (Flat)</strong>
+                                    <p className="text-gray-300 mb-1">A simple, consecutive list of standalone questions.</p>
+                                    <p className="text-gray-400 italic">Example: A math quiz with 10 independent equations (Q1, Q2, Q3...).</p>
+                                </div>
+                                <div>
+                                    <strong className="text-indigo-300 text-sm block mb-1">Section-Based</strong>
+                                    <p className="text-gray-300 mb-1">Questions are grouped together under shared reading passages, case studies, or unified contexts.</p>
+                                    <p className="text-gray-400 italic">Example: An English exam with a reading passage (Section 1) followed by 5 questions about that passage, then a second passage (Section 2) with its own questions.</p>
+                                </div>
+                            </div>
+                            <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-700/90"></div>
+                        </div>
+                    </div>
                 </label>
                 <select 
                     value={structureMode}
@@ -149,8 +168,26 @@ export const SyllabusInput: React.FC<SyllabusInputProps> = ({ onQuizGenerated, o
                 </select>
             </div>
 
+            {/* Time Constraints */}
+            <div className="space-y-3">
+                <label className="text-sm font-bold text-glass-primary flex items-center gap-2">
+                    <Timer className="w-4 h-4 text-indigo-300" />
+                    Time Constraints
+                </label>
+                <select 
+                    value={timeBoundMode}
+                    onChange={(e) => setTimeBoundMode(e.target.value as any)}
+                    className="w-full p-3 rounded-xl glass-input outline-none text-sm appearance-none bg-black/20"
+                >
+                    <option value="none">No Time Limit</option>
+                    <option value="overall">Overall Test Time</option>
+                    <option value="per_question">Per-Question Time</option>
+                    <option value="both">Both</option>
+                </select>
+            </div>
+
             {/* Question Type */}
-            <div className="space-y-3 md:col-span-2">
+            <div className="space-y-3 md:col-span-1">
                 <label className="text-sm font-bold text-glass-primary flex items-center gap-2">
                     <ListChecks className="w-4 h-4 text-indigo-300" />
                     Question Type

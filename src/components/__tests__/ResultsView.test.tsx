@@ -25,6 +25,17 @@ vi.mock('framer-motion', () => ({
     }
 }));
 
+// Mock React PDF
+vi.mock('@react-pdf/renderer', () => ({
+    PDFDownloadLink: ({ children }: any) => <div>{children({ loading: false })}</div>,
+    Document: () => <div>Document</div>,
+    Page: () => <div>Page</div>,
+    Text: () => <div>Text</div>,
+    View: () => <div>View</div>,
+    StyleSheet: { create: (s: any) => s },
+    Font: { register: vi.fn() }
+}));
+
 describe('ResultsView', () => {
     const mockConfig = {
         title: 'Test Quiz',
