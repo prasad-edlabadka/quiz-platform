@@ -45,16 +45,16 @@ export const QuizLoader: React.FC<QuizLoaderProps> = ({
       shortLabel: 'Sample',
     },
     {
-      id: 'history' as const,
-      icon: CheckCircle2,
-      label: 'Past Results',
-      shortLabel: 'History',
-    },
-    {
       id: 'upload' as const,
       icon: Upload,
       label: 'Upload',
       shortLabel: 'Custom',
+    },
+    {
+      id: 'history' as const,
+      icon: CheckCircle2,
+      label: 'Past Results',
+      shortLabel: 'History',
     },
   ];
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useQuizStore } from '../store/quizStore';
-import { ArrowLeft, Clock, Award, Trash2, Eye, Calendar } from 'lucide-react';
+import { Clock, Award, Trash2, Eye, Calendar } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface PastResultsViewProps {
@@ -8,8 +8,7 @@ interface PastResultsViewProps {
 }
 
 export const PastResultsView: React.FC<PastResultsViewProps> = ({ onBack }) => {
-    const { pastResults, loadPastResult, deletePastResult, themeMode } = useQuizStore();
-    const isDark = themeMode === 'dark';
+    const { pastResults, loadPastResult, deletePastResult } = useQuizStore();
 
     const formatDate = (dateString: string) => {
         return new Date(dateString).toLocaleString(undefined, {
@@ -22,20 +21,7 @@ export const PastResultsView: React.FC<PastResultsViewProps> = ({ onBack }) => {
     };
 
     return (
-        <div className="w-full max-h-[80vh] flex flex-col glass-panel rounded-3xl p-6 md:p-8 relative min-h-[500px]">
-            <div className="flex items-center justify-between mb-6 flex-shrink-0">
-                <div className="flex items-center gap-4">
-                    <button
-                        onClick={onBack}
-                        className={`p-2 rounded-full transition-colors ${isDark ? 'text-indigo-400 hover:bg-white/10' : 'text-indigo-600 hover:bg-black/5'}`}
-                    >
-                        <ArrowLeft className="w-6 h-6" />
-                    </button>
-                    <h1 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-500 drop-shadow-sm">
-                        Past Results
-                    </h1>
-                </div>
-            </div>
+        <div className="w-full max-h-[80vh] flex flex-col relative flex-1">
 
             {pastResults.length === 0 ? (
                 <div className="glass-panel p-16 rounded-2xl flex flex-col items-center justify-center text-center flex-1">
@@ -89,7 +75,7 @@ export const PastResultsView: React.FC<PastResultsViewProps> = ({ onBack }) => {
                                 className="glass-panel p-4 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between group transition-all hover:bg-white/5 border border-white/5 hover:border-white/10"
                             >
                                 <div className="flex-1 min-w-0 pr-4 mb-3 sm:mb-0">
-                                    <h3 className="font-bold text-base text-glass-primary mb-1 truncate" title={result.config.title}>
+                                    <h3 className="font-bold text-base text-glass-primary mb-1" title={result.config.title}>
                                         {result.config.title || 'Untitled Quiz'}
                                     </h3>
                                     <div className="flex flex-wrap items-center gap-3 md:gap-4 text-[11px] text-glass-secondary font-medium">
