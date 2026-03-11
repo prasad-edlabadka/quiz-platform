@@ -38,9 +38,22 @@ export interface Option {
   imageUrl?: string; // Optional image for the option
 }
 
+export interface PastQuizResult {
+  attemptId: string;
+  date: string;
+  config: QuizConfig;
+  answers: Record<string, string[]>;
+  evaluations: Record<string, { score: number; feedback: string; maxScore: number }>;
+  timeRemaining: number;
+  questionTimeTaken: Record<string, number>;
+}
+
 export interface QuizState {
   config: QuizConfig | null;
   status: 'idle' | 'intro' | 'active' | 'completed' | 'printable';
+  pastResults: PastQuizResult[];
+  isViewingPastResult: boolean;
+
   currentQuestionIndex: number;
   answers: Record<string, string[]>; // questionId -> selectedOptionIds
   flaggedQuestions: string[]; // ids of flagged questions
@@ -65,6 +78,12 @@ export interface QuizState {
   tick: () => void; // Called every second
   resetQuiz: () => void;
   clearState: () => void; // Reset everything including config
+  
+  // History actions
+  saveCurrentResult: () => void;
+  loadPastResult: (attemptId: string) => void;
+  deletePastResult: (attemptId: string) => void;
+
   themeMode: 'light' | 'dark';
   toggleTheme: () => void;
 }

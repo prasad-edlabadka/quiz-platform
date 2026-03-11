@@ -3,7 +3,11 @@ import { BrainCircuit, Timer, Printer, CheckCircle2, Sun, Moon } from 'lucide-re
 import { motion } from 'framer-motion';
 import { useQuizStore } from '../store/quizStore';
 
-export const LandingFeatures: React.FC = () => {
+interface LandingFeaturesProps {
+  onOpenHistory: () => void;
+}
+
+export const LandingFeatures: React.FC<LandingFeaturesProps> = ({ onOpenHistory }) => {
   const { themeMode, toggleTheme } = useQuizStore();
   const isDark = themeMode === 'dark';
   const container = {
@@ -42,20 +46,37 @@ export const LandingFeatures: React.FC = () => {
             </div>
           </div>
 
-          <button
-            onClick={toggleTheme}
-            className={`flex items-center gap-3 px-4 py-2.5 rounded-2xl transition-all duration-300 group hover:scale-[1.02] active:scale-[0.98] ${isDark
-              ? 'bg-white/5 hover:bg-white/10 text-yellow-300 border border-white/10'
-              : 'bg-black/5 hover:bg-black/10 text-indigo-600 border border-black/10'
-              }`}
-          >
-            <div className="relative">
-              {isDark ? <Sun className="w-5 h-5 flex-shrink-0" /> : <Moon className="w-5 h-5 flex-shrink-0" />}
-            </div>
-            <span className={`text-sm font-bold tracking-wide uppercase ${isDark ? 'text-glass-primary' : 'text-indigo-900/70'}`}>
-              {isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-            </span>
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={toggleTheme}
+              className={`flex items-center gap-3 px-4 py-2.5 rounded-2xl transition-all duration-300 group hover:scale-[1.02] active:scale-[0.98] ${isDark
+                ? 'bg-white/5 hover:bg-white/10 text-yellow-300 border border-white/10'
+                : 'bg-black/5 hover:bg-black/10 text-indigo-600 border border-black/10'
+                }`}
+            >
+              <div className="relative">
+                {isDark ? <Sun className="w-5 h-5 flex-shrink-0" /> : <Moon className="w-5 h-5 flex-shrink-0" />}
+              </div>
+              <span className={`text-sm font-bold tracking-wide uppercase ${isDark ? 'text-glass-primary' : 'text-indigo-900/70'}`}>
+                {isDark ? 'Light' : 'Dark'} Mode
+              </span>
+            </button>
+
+            <button
+              onClick={onOpenHistory}
+              className={`flex items-center gap-3 px-4 py-2.5 rounded-2xl transition-all duration-300 group hover:scale-[1.02] active:scale-[0.98] ${isDark
+                ? 'bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 border border-indigo-500/30'
+                : 'bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200'
+                }`}
+            >
+              <div className="relative">
+                <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
+              </div>
+              <span className={`text-sm font-bold tracking-wide uppercase`}>
+                Past Results
+              </span>
+            </button>
+          </div>
         </div>
 
         <h1 className="text-4xl md:text-5xl lg:text-5xl font-extrabold text-glass-primary mb-4 drop-shadow-sm leading-tight">

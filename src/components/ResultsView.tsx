@@ -7,7 +7,7 @@ import { evaluateBatchAnswers, evaluateTextAnswer } from '../services/aiService'
 import { ApiKeyModal } from './ApiKeyModal';
 
 export const ResultsView: React.FC = () => {
-    const { config, answers, resetQuiz, questionTimeTaken, apiKey, evaluations, addBatchEvaluations, addEvaluation, themeMode } = useQuizStore();
+    const { config, answers, resetQuiz, questionTimeTaken, apiKey, evaluations, addBatchEvaluations, addEvaluation, themeMode, isViewingPastResult } = useQuizStore();
     const isDark = themeMode === 'dark';
     const [isGrading, setIsGrading] = useState(false);
     const [showKeyModal, setShowKeyModal] = useState(false);
@@ -428,7 +428,7 @@ export const ResultsView: React.FC = () => {
                     className="inline-flex items-center px-6 py-3 glass-button-primary text-base font-medium rounded-md shadow-sm transition-colors print:hidden"
                 >
                     <RefreshCw className="mr-2 -ml-1 h-5 w-5" />
-                    Restart Quiz
+                    {isViewingPastResult ? 'Close Result' : 'Restart Quiz'}
                 </button>
             </div>
 

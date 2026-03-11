@@ -10,6 +10,7 @@ import type { QuizConfig } from './types/quiz';
 import { QuizLoader } from './components/QuizLoader';
 import { LandingFeatures } from './components/LandingFeatures';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { PastResultsView } from './components/PastResultsView';
 
 function App() {
   const { config, setConfig, clearState, themeMode, toggleTheme } = useQuizStore();
@@ -18,6 +19,7 @@ function App() {
   const [isResetModalOpen, setIsResetModalOpen] = useState(false);
   const [isSchemaModalOpen, setIsSchemaModalOpen] = useState(false);
   const [isSyllabusMode, setIsSyllabusMode] = useState(false);
+  const [isHistoryMode, setIsHistoryMode] = useState(false);
 
   // Sync theme with HTML element
   useEffect(() => {
@@ -228,12 +230,14 @@ function App() {
                 }}
                 onCancel={() => setIsSyllabusMode(false)}
               />
+            ) : isHistoryMode ? (
+              <PastResultsView onBack={() => setIsHistoryMode(false)} />
             ) : (
               <div className="w-full max-w-7xl mx-auto flex-1 flex flex-col justify-center relative">
 
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-stretch w-full mt-16 md:mt-0">
-                  <LandingFeatures />
+                  <LandingFeatures onOpenHistory={() => setIsHistoryMode(true)} />
                   <div className="flex flex-col h-full pt-6 md:pt-[60px]">
                     <QuizLoader
                       jsonInput={jsonInput}
