@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useQuizStore } from '../store/quizStore';
 import { MarkdownRenderer } from './MarkdownRenderer';
-import { RefreshCw, CheckCircle, XCircle, Clock, Printer, Download, Sparkles, AlertCircle, MessageSquare, Send } from 'lucide-react';
+import { RefreshCw, CheckCircle, XCircle, Clock, Printer, Download, Sparkles, AlertCircle, MessageSquare, Send, ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { evaluateBatchAnswers, evaluateTextAnswer } from '../services/aiService';
 import { ApiKeyModal } from './ApiKeyModal';
 
 export const ResultsView: React.FC = () => {
-    const { config, answers, resetQuiz, questionTimeTaken, apiKey, evaluations, addBatchEvaluations, addEvaluation, themeMode, isViewingPastResult } = useQuizStore();
+    const { config, answers, resetQuiz, clearState, questionTimeTaken, apiKey, evaluations, addBatchEvaluations, addEvaluation, themeMode, isViewingPastResult } = useQuizStore();
     const isDark = themeMode === 'dark';
     const [isGrading, setIsGrading] = useState(false);
     const [showKeyModal, setShowKeyModal] = useState(false);
@@ -136,8 +136,20 @@ export const ResultsView: React.FC = () => {
         <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="max-w-6xl mx-auto"
+            className="max-w-6xl mx-auto flex flex-col pt-4"
         >
+            {isViewingPastResult && (
+                <div className="w-full flex justify-start mb-6 print:hidden">
+                    <button
+                        onClick={clearState}
+                        className="flex items-center gap-2 px-4 py-2 glass-button rounded-xl text-glass-secondary hover:text-white transition-colors border border-white/5"
+                    >
+                        <ArrowLeft className="w-4 h-4" />
+                        Back to Past Results
+                    </button>
+                </div>
+            )}
+
             <div className="flex justify-end gap-3 mb-4 print:hidden">
                 <button
                     onClick={() => {
@@ -425,11 +437,20 @@ export const ResultsView: React.FC = () => {
 
             <div className="mt-8 flex justify-center">
                 <button
-                    onClick={resetQuiz}
+                    onClick={isViewingPastResult ? clearState : resetQuiz}
                     className="inline-flex items-center px-6 py-3 glass-button-primary text-base font-medium rounded-md shadow-sm transition-colors print:hidden"
                 >
-                    <RefreshCw className="mr-2 -ml-1 h-5 w-5" />
-                    {isViewingPastResult ? 'Close Result' : 'Restart Quiz'}
+                    {isViewingPastResult ? (
+                        <>
+                            <ArrowLeft className="mr-2 -ml-1 h-5 w-5" />
+                            Back to Past Results
+                        </>
+                    ) : (
+                        <>
+                            <RefreshCw className="mr-2 -ml-1 h-5 w-5" />
+                            Restart Quiz
+                        </>
+                    )}
                 </button>
             </div>
 

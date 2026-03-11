@@ -50,7 +50,7 @@ export const PastResultsView: React.FC<PastResultsViewProps> = ({ onBack }) => {
                     </button>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 overflow-y-auto pr-2 custom-scrollbar flex-1 pb-4">
+                <div className="flex flex-col gap-3 overflow-y-auto pr-2 custom-scrollbar flex-1 pb-4">
                     {pastResults.map((result) => {
                         let totalScore = 0;
                         let maxScore = 0;
@@ -83,59 +83,43 @@ export const PastResultsView: React.FC<PastResultsViewProps> = ({ onBack }) => {
                         return (
                             <motion.div
                                 key={result.attemptId}
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                className="glass-panel p-6 rounded-2xl flex flex-col relative group transition-all hover:shadow-lg"
+                                initial={{ opacity: 0, x: -10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                whileHover={{ scale: 1.01 }}
+                                className="glass-panel p-4 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between group transition-all hover:bg-white/5 border border-white/5 hover:border-white/10"
                             >
-                                <button
-                                    onClick={() => {
-                                        if (window.confirm('Are you sure you want to delete this result?')) {
-                                            deletePastResult(result.attemptId);
-                                        }
-                                    }}
-                                    className="absolute top-4 right-4 p-2 text-glass-secondary hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all rounded-full hover:bg-red-500/10"
-                                    title="Delete Result"
-                                >
-                                    <Trash2 className="w-4 h-4" />
-                                </button>
-
-                                <div className="mb-4">
-                                    <h3 className="font-bold text-lg text-glass-primary mb-1 line-clamp-2" title={result.config.title}>
+                                <div className="flex-1 min-w-0 pr-4 mb-3 sm:mb-0">
+                                    <h3 className="font-bold text-base text-glass-primary mb-1 truncate" title={result.config.title}>
                                         {result.config.title || 'Untitled Quiz'}
                                     </h3>
-                                    <div className="flex items-center gap-2 text-xs text-glass-secondary">
-                                        <Calendar className="w-3 h-3" />
-                                        {formatDate(result.date)}
+                                    <div className="flex flex-wrap items-center gap-3 md:gap-4 text-[11px] text-glass-secondary font-medium">
+                                        <span className="flex items-center gap-1"><Calendar className="w-3 h-3 text-indigo-400/70" /> {formatDate(result.date)}</span>
+                                        <span className="flex items-center gap-1"><Award className="w-3 h-3 text-emerald-400/70" /> <span className={scoreInfo.max > 0 ? "text-emerald-400" : ""}>{scoreInfo.max > 0 ? `${Math.round((scoreInfo.score / scoreInfo.max) * 100)}%` : 'N/A'}</span></span>
+                                        <span className="flex items-center gap-1"><Clock className="w-3 h-3 text-amber-400/70" /> {Math.floor(timeSpent / 60)}m {timeSpent % 60}s</span>
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-4 mb-6 mt-auto">
-                                    <div className="glass-option p-3 rounded-xl border border-white/5">
-                                        <div className="text-2xl font-black text-indigo-500 mb-1">
-                                            {scoreInfo.max > 0 ? `${Math.round((scoreInfo.score / scoreInfo.max) * 100)}%` : 'N/A'}
-                                        </div>
-                                        <div className="text-[10px] font-bold text-glass-secondary uppercase tracking-widest flex items-center gap-1">
-                                            <Award className="w-3 h-3" /> Score
-                                        </div>
-                                    </div>
-
-                                    <div className="glass-option p-3 rounded-xl border border-white/5">
-                                        <div className="text-2xl font-black text-glass-primary mb-1">
-                                            {Math.floor(timeSpent / 60)}m {timeSpent % 60}s
-                                        </div>
-                                        <div className="text-[10px] font-bold text-glass-secondary uppercase tracking-widest flex items-center gap-1">
-                                            <Clock className="w-3 h-3" /> Time
-                                        </div>
-                                    </div>
+                                <div className="flex items-center gap-2 flex-shrink-0 w-full sm:w-auto mt-2 sm:mt-0 pt-2 sm:pt-0 border-t border-white/5 sm:border-t-0">
+                                    <button
+                                        onClick={() => loadPastResult(result.attemptId)}
+                                        className="flex-1 sm:flex-none flex items-center justify-center gap-2 p-2 px-3 glass-button rounded-lg text-indigo-400 font-medium hover:text-indigo-300 hover:bg-indigo-500/10 transition-colors"
+                                        title="View Details & PDF"
+                                    >
+                                        <Eye className="w-4 h-4" />
+                                        <span className="text-xs">Review</span>
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            if (window.confirm('Are you sure you want to delete this result?')) {
+                                                deletePastResult(result.attemptId);
+                                            }
+                                        }}
+                                        className="p-2 text-glass-secondary hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors sm:opacity-0 group-hover:opacity-100 focus:opacity-100"
+                                        title="Delete Result"
+                                    >
+                                        <Trash2 className="w-4 h-4" />
+                                    </button>
                                 </div>
-
-                                <button
-                                    onClick={() => loadPastResult(result.attemptId)}
-                                    className="w-full flex items-center justify-center gap-2 py-3 px-4 glass-button rounded-xl font-bold transition-all text-indigo-500 hover:text-indigo-400"
-                                >
-                                    <Eye className="w-4 h-4" />
-                                    View Details & PDF
-                                </button>
                             </motion.div>
                         );
                     })}

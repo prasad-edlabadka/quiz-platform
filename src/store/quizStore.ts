@@ -20,19 +20,53 @@ export const useQuizStore = create<QuizState>()(
 
       setApiKey: (key: string) => set({ apiKey: key }),
 
-      addEvaluation: (questionId, evaluation) => set((state) => ({
-        evaluations: {
+      addEvaluation: (questionId, evaluation) => set((state) => {
+        const updatedEvaluations = {
           ...state.evaluations,
           [questionId]: evaluation
-        }
-      })),
+        };
 
-      addBatchEvaluations: (newEvaluations) => set((state) => ({
-        evaluations: {
+        // If we are grading the current live quiz, update its saved past result instance as well
+        let updatedPastResults = state.pastResults;
+        if (!state.isViewingPastResult && state.pastResults.length > 0) {
+          updatedPastResults = [
+            {
+              ...state.pastResults[0],
+              evaluations: updatedEvaluations
+            },
+            ...state.pastResults.slice(1)
+          ];
+        }
+
+        return {
+          evaluations: updatedEvaluations,
+          pastResults: updatedPastResults
+        };
+      }),
+
+      addBatchEvaluations: (newEvaluations) => set((state) => {
+        const updatedEvaluations = {
           ...state.evaluations,
           ...newEvaluations
+        };
+
+        // If we are grading the current live quiz, update its saved past result instance as well
+        let updatedPastResults = state.pastResults;
+        if (!state.isViewingPastResult && state.pastResults.length > 0) {
+          updatedPastResults = [
+            {
+              ...state.pastResults[0],
+              evaluations: updatedEvaluations
+            },
+            ...state.pastResults.slice(1)
+          ];
         }
-      })),
+
+        return {
+          evaluations: updatedEvaluations,
+          pastResults: updatedPastResults
+        };
+      }),
 
       setConfig: (config: QuizConfig) => set({ 
         config, 
