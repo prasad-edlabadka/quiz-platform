@@ -10,7 +10,6 @@ import type { QuizConfig } from './types/quiz';
 import { QuizLoader } from './components/QuizLoader';
 import { LandingFeatures } from './components/LandingFeatures';
 import { ErrorBoundary } from './components/ErrorBoundary';
-import { PastResultsView } from './components/PastResultsView';
 
 function App() {
   const { config, setConfig, clearState, themeMode, toggleTheme } = useQuizStore();
@@ -19,7 +18,6 @@ function App() {
   const [isResetModalOpen, setIsResetModalOpen] = useState(false);
   const [isSchemaModalOpen, setIsSchemaModalOpen] = useState(false);
   const [isSyllabusMode, setIsSyllabusMode] = useState(false);
-  const [isHistoryMode, setIsHistoryMode] = useState(false);
 
   // Sync theme with HTML element
   useEffect(() => {
@@ -235,22 +233,18 @@ function App() {
 
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-stretch w-full mt-16 md:mt-0">
-                  <LandingFeatures onOpenHistory={() => setIsHistoryMode(true)} />
+                  <LandingFeatures />
                   <div className="flex flex-col h-full pt-6 md:pt-[60px]">
-                    {isHistoryMode ? (
-                      <PastResultsView onBack={() => setIsHistoryMode(false)} />
-                    ) : (
-                      <QuizLoader
-                        jsonInput={jsonInput}
-                        setJsonInput={setJsonInput}
-                        error={error}
-                        onLoadJson={handleLoadJson}
-                        onFileUpload={handleFileUpload}
-                        onProcessQuizData={processQuizData}
-                        onStartSyllabusMode={() => setIsSyllabusMode(true)}
-                        onOpenSchemaHelp={() => setIsSchemaModalOpen(true)}
-                      />
-                    )}
+                    <QuizLoader
+                      jsonInput={jsonInput}
+                      setJsonInput={setJsonInput}
+                      error={error}
+                      onLoadJson={handleLoadJson}
+                      onFileUpload={handleFileUpload}
+                      onProcessQuizData={processQuizData}
+                      onStartSyllabusMode={() => setIsSyllabusMode(true)}
+                      onOpenSchemaHelp={() => setIsSchemaModalOpen(true)}
+                    />
                   </div>
                 </div>
               </div>

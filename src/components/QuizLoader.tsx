@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Upload, FileText, BrainCircuit, Library, HelpCircle } from 'lucide-react';
+import { Upload, FileText, BrainCircuit, Library, HelpCircle, CheckCircle2 } from 'lucide-react';
 import { TestSelector } from './TestSelector';
 import { useQuizStore } from '../store/quizStore';
 
@@ -14,6 +14,8 @@ interface QuizLoaderProps {
   onOpenSchemaHelp?: () => void;
 }
 
+import { PastResultsView } from './PastResultsView';
+
 export const QuizLoader: React.FC<QuizLoaderProps> = ({
   jsonInput,
   setJsonInput,
@@ -25,7 +27,7 @@ export const QuizLoader: React.FC<QuizLoaderProps> = ({
   onOpenSchemaHelp
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [activeTab, setActiveTab] = useState<'ai' | 'upload' | 'library'>('ai');
+  const [activeTab, setActiveTab] = useState<'ai' | 'upload' | 'library' | 'history'>('ai');
   const { themeMode } = useQuizStore();
   const isDark = themeMode === 'dark';
 
@@ -43,6 +45,12 @@ export const QuizLoader: React.FC<QuizLoaderProps> = ({
       shortLabel: 'Sample',
     },
     {
+      id: 'history' as const,
+      icon: CheckCircle2,
+      label: 'Past Results',
+      shortLabel: 'History',
+    },
+    {
       id: 'upload' as const,
       icon: Upload,
       label: 'Upload',
@@ -58,7 +66,7 @@ export const QuizLoader: React.FC<QuizLoaderProps> = ({
       </div>
 
       {/* Tabs */}
-      <div className={`grid grid-cols-3 gap-1 ${isDark ? 'bg-black/20' : 'bg-slate-200/50'} rounded-xl p-1 mb-8`}>
+      <div className={`grid grid-cols-4 gap-1 ${isDark ? 'bg-black/20' : 'bg-slate-200/50'} rounded-xl p-1 mb-6`}>
         {tabsConfig.map((tab) => {
           const isActive = activeTab === tab.id;
           // const isDark = themeMode === 'dark'; // Removed redundant declaration
@@ -184,6 +192,13 @@ export const QuizLoader: React.FC<QuizLoaderProps> = ({
                 View JSON Schema Help
               </button>
             )}
+          </div>
+        )}
+
+        {/* Tab Content: Past Results */}
+        {activeTab === 'history' && (
+          <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 h-full flex flex-col">
+            <PastResultsView onBack={() => setActiveTab('ai')} />
           </div>
         )}
       </div>
