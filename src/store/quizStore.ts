@@ -7,6 +7,8 @@ export const useQuizStore = create<QuizState>()(
     (set, get) => ({
       config: null,
       status: 'idle',
+      pastResults: [],
+      isViewingPastResult: false,
       currentQuestionIndex: 0,
       answers: {},
       flaggedQuestions: [],
@@ -18,23 +20,58 @@ export const useQuizStore = create<QuizState>()(
 
       setApiKey: (key: string) => set({ apiKey: key }),
 
-      addEvaluation: (questionId, evaluation) => set((state) => ({
-        evaluations: {
+      addEvaluation: (questionId, evaluation) => set((state) => {
+        const updatedEvaluations = {
           ...state.evaluations,
           [questionId]: evaluation
-        }
-      })),
+        };
 
-      addBatchEvaluations: (newEvaluations) => set((state) => ({
-        evaluations: {
+        // If we are grading the current live quiz, update its saved past result instance as well
+        let updatedPastResults = state.pastResults;
+        if (!state.isViewingPastResult && state.pastResults.length > 0) {
+          updatedPastResults = [
+            {
+              ...state.pastResults[0],
+              evaluations: updatedEvaluations
+            },
+            ...state.pastResults.slice(1)
+          ];
+        }
+
+        return {
+          evaluations: updatedEvaluations,
+          pastResults: updatedPastResults
+        };
+      }),
+
+      addBatchEvaluations: (newEvaluations) => set((state) => {
+        const updatedEvaluations = {
           ...state.evaluations,
           ...newEvaluations
+        };
+
+        // If we are grading the current live quiz, update its saved past result instance as well
+        let updatedPastResults = state.pastResults;
+        if (!state.isViewingPastResult && state.pastResults.length > 0) {
+          updatedPastResults = [
+            {
+              ...state.pastResults[0],
+              evaluations: updatedEvaluations
+            },
+            ...state.pastResults.slice(1)
+          ];
         }
-      })),
+
+        return {
+          evaluations: updatedEvaluations,
+          pastResults: updatedPastResults
+        };
+      }),
 
       setConfig: (config: QuizConfig) => set({ 
         config, 
         status: 'intro',
+        isViewingPastResult: false,
         timeRemaining: config.globalTimeLimit || 0,
         flaggedQuestions: [], // Reset flags
         questionTimeTaken: {}, // Reset time taken
@@ -85,7 +122,10 @@ export const useQuizStore = create<QuizState>()(
         }
       },
 
-      finishQuiz: () => set({ status: 'completed' }),
+      finishQuiz: () => {
+        set({ status: 'completed' });
+        get().saveCurrentResult();
+      },
 
       tick: () => set((state) => {
         if (state.status !== 'active' || !state.config) return {};
@@ -124,10 +164,18 @@ export const useQuizStore = create<QuizState>()(
         return updates;
       }),
 
-      resetQuiz: () => set((state) => {
-         if(!state.config) return {};
-         return {
+      resetQuiz: () => {
+         const state = get();
+         if(!state.config) return;
+         
+         // Only save if there's actually a completed or partially completed attempt AND it's not a viewing of a past result
+         if (Object.keys(state.answers).length > 0 && !state.isViewingPastResult) {
+           state.saveCurrentResult();
+         }
+
+         set({
             status: 'intro',
+            isViewingPastResult: false,
             currentQuestionIndex: 0,
             answers: {},
             flaggedQuestions: [],
@@ -138,12 +186,13 @@ export const useQuizStore = create<QuizState>()(
                 if (q.timeLimit) acc[q.id] = q.timeLimit;
                 return acc;
             }, {} as Record<string, number>)
-         }
-      }),
+         });
+      },
 
       clearState: () => set({
           config: null,
           status: 'idle',
+          isViewingPastResult: false,
           currentQuestionIndex: 0,
           answers: {},
           flaggedQuestions: [],
@@ -158,12 +207,57 @@ export const useQuizStore = create<QuizState>()(
       toggleTheme: () => set((state) => ({ 
         themeMode: state.themeMode === 'light' ? 'dark' : 'light' 
       })),
+
+      saveCurrentResult: () => set((state) => {
+        if (!state.config || state.isViewingPastResult) return state;
+        
+        // Don't save empty attempts
+        if (Object.keys(state.answers).length === 0) return state;
+
+        const attemptId = `attempt-${Date.now()}`;
+        const newResult = {
+          attemptId,
+          date: new Date().toISOString(),
+          config: state.config,
+          answers: state.answers,
+          evaluations: state.evaluations,
+          timeRemaining: state.timeRemaining,
+          questionTimeTaken: state.questionTimeTaken,
+        };
+
+        return {
+          pastResults: [newResult, ...state.pastResults]
+        };
+      }),
+
+      loadPastResult: (attemptId: string) => set((state) => {
+        const result = state.pastResults.find(r => r.attemptId === attemptId);
+        if (!result) return state;
+
+        return {
+          config: result.config,
+          status: 'completed', // Immediately jump to results view
+          isViewingPastResult: true,
+          answers: result.answers,
+          evaluations: result.evaluations,
+          timeRemaining: result.timeRemaining,
+          questionTimeTaken: result.questionTimeTaken,
+          currentQuestionIndex: 0,
+          flaggedQuestions: [],
+        };
+      }),
+
+      deletePastResult: (attemptId: string) => set((state) => ({
+        pastResults: state.pastResults.filter(r => r.attemptId !== attemptId)
+      })),
     }),
     {
       name: 'quiz-storage',
       partialize: (state) => ({ 
         config: state.config,
         status: state.status,
+        pastResults: state.pastResults,
+        isViewingPastResult: state.isViewingPastResult,
         currentQuestionIndex: state.currentQuestionIndex,
         answers: state.answers,
         flaggedQuestions: state.flaggedQuestions,

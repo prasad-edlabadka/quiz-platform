@@ -229,10 +229,9 @@ function App() {
                 onCancel={() => setIsSyllabusMode(false)}
               />
             ) : (
-              <div className="w-full max-w-7xl mx-auto flex-1 flex flex-col justify-center relative">
+              <div className="w-full max-w-[1440px] mx-auto flex-1 flex flex-col justify-center relative px-4 lg:px-8">
 
-
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-stretch w-full mt-16 md:mt-0">
+                <div className="grid grid-cols-1 lg:grid-cols-[4fr_5fr] gap-8 lg:gap-16 items-stretch w-full mt-16 md:mt-0">
                   <LandingFeatures />
                   <div className="flex flex-col h-full pt-6 md:pt-[60px]">
                     <QuizLoader
