@@ -230,8 +230,6 @@ function App() {
                 }}
                 onCancel={() => setIsSyllabusMode(false)}
               />
-            ) : isHistoryMode ? (
-              <PastResultsView onBack={() => setIsHistoryMode(false)} />
             ) : (
               <div className="w-full max-w-7xl mx-auto flex-1 flex flex-col justify-center relative">
 
@@ -239,16 +237,20 @@ function App() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-stretch w-full mt-16 md:mt-0">
                   <LandingFeatures onOpenHistory={() => setIsHistoryMode(true)} />
                   <div className="flex flex-col h-full pt-6 md:pt-[60px]">
-                    <QuizLoader
-                      jsonInput={jsonInput}
-                      setJsonInput={setJsonInput}
-                      error={error}
-                      onLoadJson={handleLoadJson}
-                      onFileUpload={handleFileUpload}
-                      onProcessQuizData={processQuizData}
-                      onStartSyllabusMode={() => setIsSyllabusMode(true)}
-                      onOpenSchemaHelp={() => setIsSchemaModalOpen(true)}
-                    />
+                    {isHistoryMode ? (
+                      <PastResultsView onBack={() => setIsHistoryMode(false)} />
+                    ) : (
+                      <QuizLoader
+                        jsonInput={jsonInput}
+                        setJsonInput={setJsonInput}
+                        error={error}
+                        onLoadJson={handleLoadJson}
+                        onFileUpload={handleFileUpload}
+                        onProcessQuizData={processQuizData}
+                        onStartSyllabusMode={() => setIsSyllabusMode(true)}
+                        onOpenSchemaHelp={() => setIsSchemaModalOpen(true)}
+                      />
+                    )}
                   </div>
                 </div>
               </div>

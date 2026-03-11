@@ -27,7 +27,8 @@ export const ResultsView: React.FC = () => {
 
     useEffect(() => {
         // Trigger grading if we have ungraded questions and pending flag or auto-start
-        if (ungradedQuestions.length > 0 && !isGrading) {
+        // Do not trigger grading if we are viewing a past result.
+        if (!isViewingPastResult && ungradedQuestions.length > 0 && !isGrading) {
             if (apiKey) {
                 runGrading();
             } else if (!pendingGrading) {
@@ -37,7 +38,7 @@ export const ResultsView: React.FC = () => {
                 setShowKeyModal(true);
             }
         }
-    }, [apiKey, evaluations, isGrading]);
+    }, [apiKey, evaluations, isGrading, isViewingPastResult]);
 
     const runGrading = async () => {
         if (!apiKey || isGrading || ungradedQuestions.length === 0) return;
@@ -174,10 +175,10 @@ export const ResultsView: React.FC = () => {
                         )}
                     </div>
                     <h2 className="text-3xl font-bold text-glass-primary mb-2">
-                        {isGrading ? 'Grading in Progress...' : 'Quiz Completed!'}
+                        {isGrading && !isViewingPastResult ? 'Grading in Progress...' : 'Quiz Completed!'}
                     </h2>
 
-                    {isGrading && (
+                    {isGrading && !isViewingPastResult && (
                         <p className="text-sm text-indigo-400 mb-4 animate-pulse">
                             AI is evaluating your text answers...
                         </p>

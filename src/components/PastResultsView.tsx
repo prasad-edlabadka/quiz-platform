@@ -22,8 +22,8 @@ export const PastResultsView: React.FC<PastResultsViewProps> = ({ onBack }) => {
     };
 
     return (
-        <div className="w-full max-w-6xl mx-auto flex-1 flex flex-col pt-6 md:pt-10">
-            <div className="flex items-center justify-between mb-8">
+        <div className="w-full max-h-[80vh] flex flex-col glass-panel rounded-3xl p-6 md:p-8 relative min-h-[500px]">
+            <div className="flex items-center justify-between mb-6 flex-shrink-0">
                 <div className="flex items-center gap-4">
                     <button
                         onClick={onBack}
@@ -38,7 +38,7 @@ export const PastResultsView: React.FC<PastResultsViewProps> = ({ onBack }) => {
             </div>
 
             {pastResults.length === 0 ? (
-                <div className="glass-panel p-16 rounded-2xl flex flex-col items-center justify-center text-center">
+                <div className="glass-panel p-16 rounded-2xl flex flex-col items-center justify-center text-center flex-1">
                     <Award className="w-16 h-16 mb-4 text-indigo-400/50" />
                     <h2 className="text-2xl font-bold mb-2 text-glass-primary">No Past Results Yet</h2>
                     <p className="text-glass-secondary mb-8">Complete a quiz to see your history here.</p>
@@ -50,14 +50,33 @@ export const PastResultsView: React.FC<PastResultsViewProps> = ({ onBack }) => {
                     </button>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 overflow-y-auto pr-2 custom-scrollbar flex-1 pb-4">
                     {pastResults.map((result) => {
-                        const scoreInfo = result.evaluations
-                            ? Object.values(result.evaluations).reduce((acc, curr) => ({
-                                score: acc.score + curr.score,
-                                max: acc.max + curr.maxScore
-                            }), { score: 0, max: 0 })
-                            : { score: 0, max: 0 };
+                        let totalScore = 0;
+                        let maxScore = 0;
+
+                        if (result.config && result.config.questions) {
+                            result.config.questions.forEach(q => {
+                                const selected = result.answers?.[q.id] || [];
+                                const questionPoints = q.points || 1;
+                                maxScore += questionPoints;
+
+                                if (q.options) {
+                                    const correctOptions = q.options.filter(o => o.isCorrect).map(o => o.id);
+                                    if (correctOptions.length > 0) {
+                                        const isCorrect = selected.length === correctOptions.length &&
+                                            selected.every(id => correctOptions.includes(id));
+                                        if (isCorrect) totalScore += questionPoints;
+                                    }
+                                } else if (q.type === 'text') {
+                                    if (result.evaluations?.[q.id]) {
+                                        totalScore += result.evaluations[q.id].score;
+                                    }
+                                }
+                            });
+                        }
+
+                        const scoreInfo = { score: totalScore, max: maxScore };
 
                         const timeSpent = Object.values(result.questionTimeTaken || {}).reduce((a, b) => a + b, 0);
 
