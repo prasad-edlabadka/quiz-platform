@@ -1,23 +1,23 @@
 import React, { useEffect } from 'react';
-import { useQuizStore } from '../store/quizStore';
+import { useTestStore } from '../store/testStore';
 import { QuestionCard } from './QuestionCard';
 import { ResultsView } from './ResultsView';
 import { PrintableView } from './PrintableView';
 import { ArrowRight, ArrowLeft, Printer, Download } from 'lucide-react';
 import { ReviseLayout } from './ReviseLayout';
 
-export const QuizRenderer: React.FC = () => {
+export const TestRenderer: React.FC = () => {
   const {
     config,
     status,
     currentQuestionIndex,
     nextQuestion,
     prevQuestion,
-    startQuiz,
-    printQuiz,
+    startTest,
+    printTest,
     tick,
-    finishQuiz
-  } = useQuizStore();
+    finishTest
+  } = useTestStore();
 
   useEffect(() => {
     let interval: any;
@@ -40,7 +40,7 @@ export const QuizRenderer: React.FC = () => {
         )}
 
         <div className="glass-panel p-6 rounded-xl mb-10 inline-block text-left max-w-2xl">
-          <h3 className="font-semibold text-glass-primary mb-4">Quiz Details:</h3>
+          <h3 className="font-semibold text-glass-primary mb-4">Test Details:</h3>
           <ul className="space-y-2 text-glass-secondary">
             <li>• {config.questions.length} Questions</li>
             {config.globalTimeLimit && <li>• {Math.floor(config.globalTimeLimit / 60)} Minutes Time Limit</li>}
@@ -50,10 +50,10 @@ export const QuizRenderer: React.FC = () => {
 
         <div className="flex justify-center gap-4 flex-wrap">
           <button
-            onClick={startQuiz}
+            onClick={startTest}
             className="inline-flex items-center px-8 py-4 glass-button-primary rounded-full text-lg font-bold shadow-lg transform hover:scale-105 transition-all w-full md:w-auto justify-center"
           >
-            Start Quiz
+            Start Test
             <ArrowRight className="ml-2 h-5 w-5" />
           </button>
 
@@ -63,7 +63,7 @@ export const QuizRenderer: React.FC = () => {
               const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(config, null, 2));
               const downloadAnchorNode = document.createElement('a');
               downloadAnchorNode.setAttribute("href", dataStr);
-              downloadAnchorNode.setAttribute("download", `${config.title || 'quiz'}.json`);
+              downloadAnchorNode.setAttribute("download", `${config.title || 'test'}.json`);
               document.body.appendChild(downloadAnchorNode);
               downloadAnchorNode.click();
               downloadAnchorNode.remove();
@@ -71,11 +71,11 @@ export const QuizRenderer: React.FC = () => {
             className="inline-flex items-center px-8 py-4 glass-button rounded-full text-lg font-bold shadow-lg transform hover:scale-105 transition-all text-indigo-600 hover:text-indigo-700 w-full md:w-auto justify-center"
           >
             <Download className="mr-2 h-5 w-5" />
-            Download Quiz
+            Download Test
           </button>
 
           <button
-            onClick={printQuiz}
+            onClick={printTest}
             className="inline-flex items-center px-8 py-4 glass-button rounded-full text-lg font-bold shadow-lg transform hover:scale-105 transition-all text-glass-secondary hover:text-glass-primary w-full md:w-auto justify-center"
           >
             <Printer className="mr-2 h-5 w-5" />
@@ -112,10 +112,10 @@ export const QuizRenderer: React.FC = () => {
         </button>
 
         <button
-          onClick={isLastQuestion ? finishQuiz : nextQuestion}
+          onClick={isLastQuestion ? finishTest : nextQuestion}
           className="flex items-center px-6 py-3 glass-button-primary rounded-lg font-medium shadow-md transition-colors"
         >
-          {isLastQuestion ? 'Finish Quiz' : 'Next Question'}
+          {isLastQuestion ? 'Finish Test' : 'Next Question'}
           {!isLastQuestion && <ArrowRight className="ml-2 w-5 h-5" />}
         </button>
       </div>

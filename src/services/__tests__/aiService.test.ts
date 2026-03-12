@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { generateQuizFromSyllabus } from '../aiService';
+import { generateTestFromSyllabus } from '../aiService';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 // Mock the Google Generative AI SDK
@@ -21,9 +21,9 @@ describe('aiService', () => {
         vi.clearAllMocks();
     });
 
-    it('should generate quiz successfully', async () => {
+    it('should generate test successfully', async () => {
         const mockResponseText = JSON.stringify({
-            title: 'Generated Quiz',
+            title: 'Generated Test',
             questions: []
         });
 
@@ -40,7 +40,7 @@ describe('aiService', () => {
             })
         }));
 
-        const result = await generateQuizFromSyllabus(mockApiKey, mockSyllabus);
+        const result = await generateTestFromSyllabus(mockApiKey, mockSyllabus);
 
         expect(GoogleGenerativeAI).toHaveBeenCalledWith(mockApiKey);
         expect(mockGenerateContent).toHaveBeenCalled();
@@ -49,7 +49,7 @@ describe('aiService', () => {
     });
 
     it('should handle JSON cleanup (markdown code blocks)', async () => {
-        const rawResponse = '```json\n{"title": "Cleaned Quiz", "questions": []}\n```';
+        const rawResponse = '```json\n{"title": "Cleaned Test", "questions": []}\n```';
         
          const mockGenerateContent = vi.fn().mockResolvedValue({
             response: {
@@ -63,8 +63,8 @@ describe('aiService', () => {
             })
         }));
 
-        const result = await generateQuizFromSyllabus(mockApiKey, mockSyllabus);
-        expect(result).toEqual(expect.objectContaining({ title: "Cleaned Quiz", questions: [] }));
+        const result = await generateTestFromSyllabus(mockApiKey, mockSyllabus);
+        expect(result).toEqual(expect.objectContaining({ title: "Cleaned Test", questions: [] }));
         expect(result.id).toBeDefined();
     });
 
@@ -81,6 +81,6 @@ describe('aiService', () => {
             })
         }));
 
-        await expect(generateQuizFromSyllabus(mockApiKey, mockSyllabus)).rejects.toThrow();
+        await expect(generateTestFromSyllabus(mockApiKey, mockSyllabus)).rejects.toThrow();
     });
 });

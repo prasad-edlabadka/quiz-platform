@@ -1,10 +1,10 @@
-export interface QuizSection {
+export interface TestSection {
   id: string;
   title?: string;
   content: string; // Markdown background info
 }
 
-export interface QuizConfig {
+export interface TestConfig {
   id: string;
   title: string;
   description?: string;
@@ -15,7 +15,7 @@ export interface QuizConfig {
     backgroundColor: string;
     fontFamily?: string;
   };
-  sections?: QuizSection[];
+  sections?: TestSection[];
   questions: Question[];
 }
 
@@ -38,20 +38,22 @@ export interface Option {
   imageUrl?: string; // Optional image for the option
 }
 
-export interface PastQuizResult {
+export interface PastTestResult {
   attemptId: string;
   date: string;
-  config: QuizConfig;
+  config: TestConfig;
   answers: Record<string, string[]>;
   evaluations: Record<string, { score: number; feedback: string; maxScore: number }>;
   timeRemaining: number;
   questionTimeTaken: Record<string, number>;
+  isOffline?: boolean;
+  uploadedSheets?: string[]; // Array of base64 images
 }
 
-export interface QuizState {
-  config: QuizConfig | null;
+export interface TestState {
+  config: TestConfig | null;
   status: 'idle' | 'intro' | 'active' | 'completed' | 'printable';
-  pastResults: PastQuizResult[];
+  pastResults: PastTestResult[];
   isViewingPastResult: boolean;
 
   currentQuestionIndex: number;
@@ -63,24 +65,25 @@ export interface QuizState {
   apiKey: string | null;
   evaluations: Record<string, { score: number; feedback: string; maxScore: number }>;
 
-  setConfig: (config: QuizConfig) => void;
+  setConfig: (config: TestConfig) => void;
   setApiKey: (key: string) => void;
   addEvaluation: (questionId: string, evaluation: { score: number; feedback: string; maxScore: number }) => void;
   addBatchEvaluations: (evaluations: Record<string, { score: number; feedback: string; maxScore: number }>) => void;
-  startQuiz: () => void;
-  printQuiz: () => void;
+  startTest: () => void;
+  printTest: () => void;
   answerQuestion: (questionId: string, optionIds: string[]) => void;
   toggleFlag: (questionId: string) => void;
   jumpToQuestion: (index: number) => void;
   nextQuestion: () => void;
   prevQuestion: () => void;
-  finishQuiz: () => void;
+  finishTest: () => void;
   tick: () => void; // Called every second
-  resetQuiz: () => void;
+  resetTest: () => void;
   clearState: () => void; // Reset everything including config
   
   // History actions
   saveCurrentResult: () => void;
+  saveOfflineResult: (config: TestConfig, evaluations: Record<string, { score: number; feedback: string; maxScore: number }>, uploadedSheets: string[]) => void;
   loadPastResult: (attemptId: string) => void;
   deletePastResult: (attemptId: string) => void;
 

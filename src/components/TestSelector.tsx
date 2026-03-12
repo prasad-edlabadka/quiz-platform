@@ -7,7 +7,7 @@ interface TestSelectorProps {
 
 export const TestSelector: React.FC<TestSelectorProps> = ({ onSelect }) => {
   // Eagerly load all JSON and TS files from the data directory
-  const modules = import.meta.glob(['../data/*.json', '../data/sampleQuiz.ts'], { eager: true });
+  const modules = import.meta.glob(['../data/*.json', '../data/sampleTest.ts'], { eager: true });
   
   const tests = Object.entries(modules).map(([path, mod]: [string, any]) => {
     // Extract filename from path
@@ -17,7 +17,7 @@ export const TestSelector: React.FC<TestSelectorProps> = ({ onSelect }) => {
     // Handle different export types:
     // 1. JSON files (default export or module structure)
     // 2. TS files (look for 'sampleQuiz' or default export)
-    const data = mod.sampleQuiz || mod.default || mod;
+    const data = mod.sampleTest || mod.default || mod;
 
     return { name, path, data };
   }).sort((a, b) => b.name.localeCompare(a.name)); 
@@ -43,7 +43,7 @@ export const TestSelector: React.FC<TestSelectorProps> = ({ onSelect }) => {
             <div className="w-full border-t border-white/10"></div>
         </div>
         <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-transparent text-glass-secondary">Available Quizzes</span>
+            <span className="px-2 bg-transparent text-glass-secondary">Available Tests</span>
         </div>
       </div>
       

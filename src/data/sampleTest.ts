@@ -1,8 +1,8 @@
-import type { QuizConfig } from '../types/quiz';
+import type { TestConfig } from '../types/test';
 
-export const sampleQuiz: QuizConfig = {
+export const sampleTest: TestConfig = {
   id: 'math-101',
-  title: 'Calculus & Algebra Quiz',
+  title: 'Calculus & Algebra Test',
   description: 'Test your knowledge of basic calculus and linear algebra concepts. Good luck!',
   globalTimeLimit: 300, // 5 minutes
   questions: [

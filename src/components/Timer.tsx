@@ -1,7 +1,7 @@
 import React from 'react';
 import { Clock } from 'lucide-react';
 import { clsx } from 'clsx';
-import { useQuizStore } from '../store/quizStore';
+import { useTestStore } from '../store/testStore';
 
 interface TimerProps {
   seconds: number;
@@ -16,7 +16,7 @@ export const Timer: React.FC<TimerProps> = ({ seconds, label, variant = 'default
     return `${minutes}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const { themeMode } = useQuizStore();
+  const { themeMode } = useTestStore();
   const isDark = themeMode === 'dark';
 
   const isUrgent = seconds < 10 || variant === 'urgent';

@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Option } from '../types/quiz';
+import type { Option } from '../types/test';
 import { MarkdownRenderer } from './MarkdownRenderer';
 import { clsx } from 'clsx';
 import { CheckCircle2, Circle } from 'lucide-react';

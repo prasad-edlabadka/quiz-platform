@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useQuizStore } from '../store/quizStore';
+import { useTestStore } from '../store/testStore';
 import { MarkdownRenderer } from './MarkdownRenderer';
 import { RefreshCw, CheckCircle, XCircle, Clock, Printer, Download, Sparkles, AlertCircle, MessageSquare, Send, ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -7,7 +7,7 @@ import { evaluateBatchAnswers, evaluateTextAnswer } from '../services/aiService'
 import { ApiKeyModal } from './ApiKeyModal';
 
 export const ResultsView: React.FC = () => {
-    const { config, answers, resetQuiz, clearState, questionTimeTaken, apiKey, evaluations, addBatchEvaluations, addEvaluation, themeMode, isViewingPastResult } = useQuizStore();
+    const { config, answers, resetTest, clearState, questionTimeTaken, apiKey, evaluations, addBatchEvaluations, addEvaluation, themeMode, isViewingPastResult } = useTestStore();
     const isDark = themeMode === 'dark';
     const [isGrading, setIsGrading] = useState(false);
     const [showKeyModal, setShowKeyModal] = useState(false);
@@ -109,7 +109,12 @@ export const ResultsView: React.FC = () => {
 
         maxScore += questionPoints;
 
-        if (q.options) {
+        if (evaluations[q.id]) {
+            totalScore += evaluations[q.id].score;
+            if (evaluations[q.id].score === evaluations[q.id].maxScore) {
+                correctCount++;
+            }
+        } else if (q.options) {
             const correctOptions = q.options.filter(o => o.isCorrect).map(o => o.id);
             const isCorrect = selected.length === correctOptions.length &&
                 selected.every(id => correctOptions.includes(id));
@@ -117,14 +122,6 @@ export const ResultsView: React.FC = () => {
             if (isCorrect) {
                 correctCount++;
                 totalScore += questionPoints;
-            }
-        } else if (q.type === 'text') {
-            // Add evaluation score if available
-            if (evaluations[q.id]) {
-                totalScore += evaluations[q.id].score;
-                if (evaluations[q.id].score === evaluations[q.id].maxScore) {
-                    correctCount++;
-                }
             }
         }
     });
@@ -157,7 +154,7 @@ export const ResultsView: React.FC = () => {
                         const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(config, null, 2));
                         const downloadAnchorNode = document.createElement('a');
                         downloadAnchorNode.setAttribute("href", dataStr);
-                        downloadAnchorNode.setAttribute("download", `${config.title || 'quiz'}.json`);
+                        downloadAnchorNode.setAttribute("download", `${config.title || 'test'}.json`);
                         document.body.appendChild(downloadAnchorNode);
                         downloadAnchorNode.click();
                         downloadAnchorNode.remove();
@@ -187,7 +184,7 @@ export const ResultsView: React.FC = () => {
                         )}
                     </div>
                     <h2 className="text-3xl font-bold text-glass-primary mb-2">
-                        {isGrading && !isViewingPastResult ? 'Grading in Progress...' : 'Quiz Completed!'}
+                        {isGrading && !isViewingPastResult ? 'Grading in Progress...' : 'Test Completed!'}
                     </h2>
 
                     {isGrading && !isViewingPastResult && (
@@ -220,12 +217,10 @@ export const ResultsView: React.FC = () => {
                         let isCorrect = false;
                         let pointsAwarded = 0;
 
-                        if (q.type === 'text') {
+                        if (evaluations[q.id]) {
                             const evaluation = evaluations[q.id];
-                            if (evaluation) {
-                                isCorrect = evaluation.score === evaluation.maxScore;
-                                pointsAwarded = evaluation.score;
-                            }
+                            isCorrect = evaluation.score === evaluation.maxScore;
+                            pointsAwarded = evaluation.score;
                         } else if (q.options) {
                             const correctOptions = q.options.filter(o => o.isCorrect).map(o => o.id);
                             isCorrect = selected.length === correctOptions.length &&
@@ -241,12 +236,10 @@ export const ResultsView: React.FC = () => {
                                 <div className="flex justify-between items-start mb-3">
                                     <div className="flex items-center gap-3">
                                         <div className="flex-shrink-0">
-                                            {q.type === 'text' ? (
-                                                evaluations[q.id] ? (
-                                                    isCorrect ? <CheckCircle className="text-green-500 w-6 h-6" /> : <Sparkles className="text-indigo-500 w-6 h-6" />
-                                                ) : (
-                                                    <div className="w-6 h-6 rounded-full border-2 border-indigo-500/30 border-t-indigo-500 animate-spin" />
-                                                )
+                                            {evaluations[q.id] ? (
+                                                isCorrect ? <CheckCircle className="text-green-500 w-6 h-6" /> : <Sparkles className="text-indigo-500 w-6 h-6" />
+                                            ) : q.type === 'text' ? (
+                                                <div className="w-6 h-6 rounded-full border-2 border-indigo-500/30 border-t-indigo-500 animate-spin" />
                                             ) : (
                                                 isCorrect ? <CheckCircle className={`w-6 h-6 ${isDark ? 'text-green-400' : 'text-green-500'}`} /> : <XCircle className={`w-6 h-6 ${isDark ? 'text-red-400' : 'text-red-500'}`} />
                                             )}
@@ -254,7 +247,7 @@ export const ResultsView: React.FC = () => {
                                         <div>
                                             <p className="font-medium text-glass-primary text-base">Question {idx + 1}</p>
                                             <p className="text-xs text-glass-secondary font-medium">
-                                                {q.type === 'text' && evaluations[q.id]
+                                                {evaluations[q.id]
                                                     ? `${evaluations[q.id].score} / ${q.points || 1} points`
                                                     : `${pointsAwarded} / ${q.points || 1} points`
                                                 }
@@ -284,6 +277,8 @@ export const ResultsView: React.FC = () => {
                                                 <div className={`p-3 rounded-lg text-sm text-glass-primary min-h-[50px] ${isDark ? 'bg-white/5' : 'bg-black/10'}`}>
                                                     {selected[0] ? (
                                                         <div dangerouslySetInnerHTML={{ __html: selected[0] }} />
+                                                    ) : evaluations[q.id] ? (
+                                                        <span className="italic font-medium text-emerald-400/80">Answer evaluated from uploaded sheets.</span>
                                                     ) : (
                                                         <span className="italic text-glass-secondary">No answer provided</span>
                                                     )}
@@ -392,6 +387,8 @@ export const ResultsView: React.FC = () => {
                                                                 );
                                                             })}
                                                         </ul>
+                                                    ) : evaluations[q.id] ? (
+                                                        <span className="italic font-medium text-emerald-400/80">Answer evaluated from uploaded sheets.</span>
                                                     ) : (
                                                         <p className="text-sm text-glass-secondary italic">No answer selected</p>
                                                     )}
@@ -425,6 +422,25 @@ export const ResultsView: React.FC = () => {
                                                         </div>
                                                     </div>
                                                 )}
+
+                                                {evaluations[q.id] && (
+                                                    <motion.div
+                                                        initial={{ opacity: 0, y: 10 }}
+                                                        animate={{ opacity: 1, y: 0 }}
+                                                        className="mt-3 p-4 bg-indigo-500/10 rounded-md border border-indigo-500/30"
+                                                    >
+                                                        <div className="flex items-start justify-between gap-4 mb-2">
+                                                            <div className="flex items-center gap-2">
+                                                                <Sparkles className="w-4 h-4 text-indigo-400" />
+                                                                <p className="text-xs font-bold text-indigo-400 uppercase tracking-wide">AI Feedback:</p>
+                                                            </div>
+                                                        </div>
+                                                        <MarkdownRenderer
+                                                            content={evaluations[q.id].feedback}
+                                                            className="text-sm text-glass-primary leading-relaxed"
+                                                        />
+                                                    </motion.div>
+                                                )}
                                             </div>
                                         )
                                     )}
@@ -437,7 +453,7 @@ export const ResultsView: React.FC = () => {
 
             <div className="mt-8 flex justify-center">
                 <button
-                    onClick={isViewingPastResult ? clearState : resetQuiz}
+                    onClick={isViewingPastResult ? clearState : resetTest}
                     className="inline-flex items-center px-6 py-3 glass-button-primary text-base font-medium rounded-md shadow-sm transition-colors print:hidden"
                 >
                     {isViewingPastResult ? (
@@ -448,7 +464,7 @@ export const ResultsView: React.FC = () => {
                     ) : (
                         <>
                             <RefreshCw className="mr-2 -ml-1 h-5 w-5" />
-                            Restart Quiz
+                            Restart Test
                         </>
                     )}
                 </button>

@@ -1,8 +1,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { QuizState, QuizConfig } from '../types/quiz';
+import type { TestState, TestConfig } from '../types/test';
 
-export const useQuizStore = create<QuizState>()(
+export const useTestStore = create<TestState>()(
   persist(
     (set, get) => ({
       config: null,
@@ -26,7 +26,7 @@ export const useQuizStore = create<QuizState>()(
           [questionId]: evaluation
         };
 
-        // If we are grading the current live quiz, update its saved past result instance as well
+        // If we are grading the current live test, update its saved past result instance as well
         let updatedPastResults = state.pastResults;
         if (!state.isViewingPastResult && state.pastResults.length > 0) {
           updatedPastResults = [
@@ -50,7 +50,7 @@ export const useQuizStore = create<QuizState>()(
           ...newEvaluations
         };
 
-        // If we are grading the current live quiz, update its saved past result instance as well
+        // If we are grading the current live test, update its saved past result instance as well
         let updatedPastResults = state.pastResults;
         if (!state.isViewingPastResult && state.pastResults.length > 0) {
           updatedPastResults = [
@@ -68,7 +68,7 @@ export const useQuizStore = create<QuizState>()(
         };
       }),
 
-      setConfig: (config: QuizConfig) => set({ 
+      setConfig: (config: TestConfig) => set({ 
         config, 
         status: 'intro',
         isViewingPastResult: false,
@@ -83,9 +83,9 @@ export const useQuizStore = create<QuizState>()(
         }, {} as Record<string, number>)
       }),
 
-      startQuiz: () => set({ status: 'active' }),
+      startTest: () => set({ status: 'active' }),
 
-      printQuiz: () => set({ status: 'printable' }),
+      printTest: () => set({ status: 'printable' }),
 
       answerQuestion: (questionId, optionIds) => set((state) => {
         // Enforce timer: Cannot answer if time runs out for this question
@@ -122,7 +122,7 @@ export const useQuizStore = create<QuizState>()(
         }
       },
 
-      finishQuiz: () => {
+      finishTest: () => {
         set({ status: 'completed' });
         get().saveCurrentResult();
       },
@@ -130,7 +130,7 @@ export const useQuizStore = create<QuizState>()(
       tick: () => set((state) => {
         if (state.status !== 'active' || !state.config) return {};
 
-        const updates: Partial<QuizState> = {};
+        const updates: Partial<TestState> = {};
 
         // Global Timer
         if (state.config.globalTimeLimit && state.timeRemaining > 0) {
@@ -164,7 +164,7 @@ export const useQuizStore = create<QuizState>()(
         return updates;
       }),
 
-      resetQuiz: () => {
+      resetTest: () => {
          const state = get();
          if(!state.config) return;
          
@@ -230,6 +230,25 @@ export const useQuizStore = create<QuizState>()(
         };
       }),
 
+      saveOfflineResult: (config, evaluations, uploadedSheets) => set((state) => {
+        const attemptId = `attempt-${Date.now()}`;
+        const newResult = {
+          attemptId,
+          date: new Date().toISOString(),
+          config,
+          answers: {}, // No digital answers for offline tests
+          evaluations,
+          timeRemaining: 0,
+          questionTimeTaken: {},
+          isOffline: true,
+          uploadedSheets,
+        };
+
+        return {
+          pastResults: [newResult, ...state.pastResults]
+        };
+      }),
+
       loadPastResult: (attemptId: string) => set((state) => {
         const result = state.pastResults.find(r => r.attemptId === attemptId);
         if (!result) return state;
@@ -252,7 +271,7 @@ export const useQuizStore = create<QuizState>()(
       })),
     }),
     {
-      name: 'quiz-storage',
+      name: 'test-storage',
       partialize: (state) => ({ 
         config: state.config,
         status: state.status,

@@ -1,11 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { ResultsView } from '../ResultsView';
-import { useQuizStore } from '../../store/quizStore';
+import { useTestStore } from '../../store/testStore';
 
 // Mock the store
-vi.mock('../../store/quizStore', () => ({
-    useQuizStore: vi.fn()
+vi.mock('../../store/testStore', () => ({
+    useTestStore: vi.fn()
 }));
 
 // Mock react-to-print
@@ -38,7 +38,7 @@ vi.mock('@react-pdf/renderer', () => ({
 
 describe('ResultsView', () => {
     const mockConfig = {
-        title: 'Test Quiz',
+        title: 'Test',
         questions: [
             {
                 id: 'q1',
@@ -67,13 +67,14 @@ describe('ResultsView', () => {
             'q1': ['opt1'], // Correct
             'q2': ['opt4']  // Wrong
         },
-        resetQuiz: vi.fn(),
-        questionTimeTaken: { 'q1': 10, 'q2': 20 }
+        resetTest: vi.fn(),
+        questionTimeTaken: { 'q1': 10, 'q2': 20 },
+        evaluations: {}
     };
 
     beforeEach(() => {
         vi.clearAllMocks();
-        (useQuizStore as any).mockReturnValue(mockStore);
+        (useTestStore as any).mockReturnValue(mockStore);
     });
 
     it('should calculate and display score correctly', () => {
@@ -109,14 +110,14 @@ describe('ResultsView', () => {
         expect(screen.getByText('Correct Answer:')).toBeInTheDocument();
     });
 
-    it('should call resetQuiz on restart', () => {
+    it('should call resetTest on restart', () => {
         render(<ResultsView />);
-        fireEvent.click(screen.getByText('Restart Quiz'));
-        expect(mockStore.resetQuiz).toHaveBeenCalled();
+        fireEvent.click(screen.getByText('Restart Test'));
+        expect(mockStore.resetTest).toHaveBeenCalled();
     });
 
     it('should handle missing config', () => {
-        (useQuizStore as any).mockReturnValue({ ...mockStore, config: null });
+        (useTestStore as any).mockReturnValue({ ...mockStore, config: null });
         const { container } = render(<ResultsView />);
         expect(container).toBeEmptyDOMElement();
     });

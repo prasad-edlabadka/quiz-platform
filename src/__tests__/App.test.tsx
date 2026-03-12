@@ -13,27 +13,30 @@ const initialStoreState = {
     questionTimeRemaining: {},
     questionTimeTaken: {},
     setConfig: vi.fn(),
-    startQuiz: vi.fn(),
+    startTest: vi.fn(),
     clearState: vi.fn()
 };
 
 let storeState = { ...initialStoreState };
 
-// We need to support implementation of useQuizStore
-vi.mock('../store/quizStore', async () => {
-    const actual = await vi.importActual('../store/quizStore');
+// We need to support implementation of useTestStore
+vi.mock('../store/testStore', async () => {
+    const actual = await vi.importActual('../store/testStore');
+    const mockUseTestStore: any = (selector: any) => {
+       if(selector) return selector(storeState);
+       return storeState;
+    };
+    mockUseTestStore.getState = () => storeState;
+    
     return {
         ...actual,
-        useQuizStore: (selector: any) => {
-           if(selector) return selector(storeState);
-           return storeState;
-        }
+        useTestStore: mockUseTestStore
     };
 });
 
 // Mock dependencies
-vi.mock('../components/QuizRenderer', () => ({
-    QuizRenderer: () => <div data-testid="quiz-renderer">Quiz Renderer Active</div>
+vi.mock('../components/TestRenderer', () => ({
+    TestRenderer: () => <div data-testid="test-renderer">Test Renderer Active</div>
 }));
 
 vi.mock('../components/SyllabusInput', () => ({
@@ -51,41 +54,42 @@ describe('App Integration', () => {
         storeState = { ...initialStoreState };
     });
 
-    it('should render loading/intro screen initially', () => {
+    it('should render correct default tab initially', () => {
         render(<App />);
-        expect(screen.getByText(/Get Started/i)).toBeInTheDocument();
-        expect(screen.getByText(/Choose how you want to begin/i)).toBeInTheDocument();
-        // Since AI is the default tab, its button should be visible
-        expect(screen.getByText(/Generate Quiz with AI/i)).toBeInTheDocument();
+        // Since AI is the default tab, Syllabus Input should be visible immediately
+        expect(screen.getByText(/Syllabus Input/i)).toBeInTheDocument();
     });
 
-    it('should switch to syllabus mode', () => {
+    it('should switch tabs', () => {
         render(<App />);
-        // Ensure AI tab is active (default)
-        fireEvent.click(screen.getByText(/Generate Quiz with AI/i));
-        expect(screen.getByText('Syllabus Input')).toBeInTheDocument();
         
-        fireEvent.click(screen.getByText('Cancel'));
-        expect(screen.getByText(/Get Started/i)).toBeInTheDocument();
+        // Switch to Dashboard tab and verify landing features
+        const buttons = screen.getAllByRole('button');
+        fireEvent.click(buttons[0]); // Dashboard is the first button in the sidebar nav
+        expect(screen.getByText(/Ace Your Exams/i)).toBeInTheDocument();
+        
+        // Switch back to AI tab
+        fireEvent.click(screen.getByText(/New Test/i));
+        expect(screen.getByText(/Syllabus Input/i)).toBeInTheDocument();
     });
 
-    it('should load sample quiz', () => {
+    it('should load sample test', () => {
         storeState.setConfig = vi.fn((config) => {
             storeState.config = config;
         });
 
         const { container } = render(<App />);
         // Switch to the library tab first
-        fireEvent.click(screen.getByText('Library'));
+        fireEvent.click(screen.getByText('My Library'));
         
         // Use a generic assertion for this as the tests loaded depend on the mock module glob
-        expect(container.textContent).toMatch(/Available Quizzes/i);
+        expect(container.textContent).toMatch(/Available Tests/i);
     });
 
-    it('should render QuizRenderer when config is present', () => {
+    it('should render TestRenderer when config is present', () => {
         storeState.config = { id: 'test', questions: [] } as any;
         render(<App />);
-        expect(screen.getByTestId('quiz-renderer')).toBeInTheDocument();
+        expect(screen.getByTestId('test-renderer')).toBeInTheDocument();
     });
 
     it('should open reset modal', () => {

@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AlertTriangle, X } from 'lucide-react';
-import { useQuizStore } from '../store/quizStore';
+import { useTestStore } from '../store/testStore';
 
 interface ConfirmationModalProps {
   isOpen: boolean;
@@ -24,7 +24,7 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   cancelLabel = 'Cancel',
   variant = 'danger',
 }) => {
-  const { themeMode } = useQuizStore();
+  const { themeMode } = useTestStore();
   const isDark = themeMode === 'dark';
 
   if (!isOpen) return null;

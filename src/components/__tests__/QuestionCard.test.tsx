@@ -1,11 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { QuestionCard } from '../QuestionCard';
-import { useQuizStore } from '../../store/quizStore';
+import { useTestStore } from '../../store/testStore';
 
 // Mock the store
-vi.mock('../../store/quizStore', () => ({
-    useQuizStore: vi.fn()
+vi.mock('../../store/testStore', () => ({
+    useTestStore: vi.fn()
 }));
 
 // Mock Markdown Rendering (simplify text output)
@@ -41,7 +41,7 @@ describe('QuestionCard', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
-        (useQuizStore as any).mockReturnValue(mockStore);
+        (useTestStore as any).mockReturnValue(mockStore);
     });
 
     it('should render question content and options', () => {
@@ -73,7 +73,7 @@ describe('QuestionCard', () => {
     });
 
     it('should show flagged status', () => {
-         (useQuizStore as any).mockReturnValue({
+         (useTestStore as any).mockReturnValue({
             ...mockStore,
             flaggedQuestions: ['q1']
         });
@@ -123,7 +123,7 @@ describe('QuestionCard', () => {
     });
 
     it('should disable options when time is up', () => {
-        (useQuizStore as any).mockReturnValue({
+        (useTestStore as any).mockReturnValue({
             ...mockStore,
             questionTimeRemaining: { q1: 0 }
         });
