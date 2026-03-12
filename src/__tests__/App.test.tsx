@@ -22,12 +22,15 @@ let storeState = { ...initialStoreState };
 // We need to support implementation of useTestStore
 vi.mock('../store/testStore', async () => {
     const actual = await vi.importActual('../store/testStore');
+    const mockUseTestStore: any = (selector: any) => {
+       if(selector) return selector(storeState);
+       return storeState;
+    };
+    mockUseTestStore.getState = () => storeState;
+    
     return {
         ...actual,
-        useTestStore: (selector: any) => {
-           if(selector) return selector(storeState);
-           return storeState;
-        }
+        useTestStore: mockUseTestStore
     };
 });
 
@@ -51,22 +54,23 @@ describe('App Integration', () => {
         storeState = { ...initialStoreState };
     });
 
-    it('should render loading/intro screen initially', () => {
+    it('should render correct default tab initially', () => {
         render(<App />);
-        expect(screen.getByText(/Get Started/i)).toBeInTheDocument();
-        expect(screen.getByText(/Choose how you want to begin/i)).toBeInTheDocument();
-        // Since AI is the default tab, its button should be visible
-        expect(screen.getByText(/Generate Test with AI/i)).toBeInTheDocument();
+        // Since AI is the default tab, Syllabus Input should be visible immediately
+        expect(screen.getByText(/Syllabus Input/i)).toBeInTheDocument();
     });
 
-    it('should switch to syllabus mode', () => {
+    it('should switch tabs', () => {
         render(<App />);
-        // Ensure AI tab is active (default)
-        fireEvent.click(screen.getByText(/Generate Test with AI/i));
-        expect(screen.getByText('Syllabus Input')).toBeInTheDocument();
         
-        fireEvent.click(screen.getByText('Cancel'));
-        expect(screen.getByText(/Get Started/i)).toBeInTheDocument();
+        // Switch to Dashboard tab and verify landing features
+        const buttons = screen.getAllByRole('button');
+        fireEvent.click(buttons[0]); // Dashboard is the first button in the sidebar nav
+        expect(screen.getByText(/Ace Your Exams/i)).toBeInTheDocument();
+        
+        // Switch back to AI tab
+        fireEvent.click(screen.getByText(/New Test/i));
+        expect(screen.getByText(/Syllabus Input/i)).toBeInTheDocument();
     });
 
     it('should load sample test', () => {
@@ -76,10 +80,10 @@ describe('App Integration', () => {
 
         const { container } = render(<App />);
         // Switch to the library tab first
-        fireEvent.click(screen.getByText('Library'));
+        fireEvent.click(screen.getByText('My Library'));
         
         // Use a generic assertion for this as the tests loaded depend on the mock module glob
-        expect(container.textContent).toMatch(/Available Testzes/i);
+        expect(container.textContent).toMatch(/Available Tests/i);
     });
 
     it('should render TestRenderer when config is present', () => {

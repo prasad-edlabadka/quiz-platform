@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { ResultsView } from '../ResultsView';
-import { useTestStore } from '../../store/quizStore';
+import { useTestStore } from '../../store/testStore';
 
 // Mock the store
-vi.mock('../../store/quizStore', () => ({
+vi.mock('../../store/testStore', () => ({
     useTestStore: vi.fn()
 }));
 
@@ -38,7 +38,7 @@ vi.mock('@react-pdf/renderer', () => ({
 
 describe('ResultsView', () => {
     const mockConfig = {
-        title: 'Test Quiz',
+        title: 'Test',
         questions: [
             {
                 id: 'q1',
@@ -68,7 +68,8 @@ describe('ResultsView', () => {
             'q2': ['opt4']  // Wrong
         },
         resetTest: vi.fn(),
-        questionTimeTaken: { 'q1': 10, 'q2': 20 }
+        questionTimeTaken: { 'q1': 10, 'q2': 20 },
+        evaluations: {}
     };
 
     beforeEach(() => {
@@ -111,7 +112,7 @@ describe('ResultsView', () => {
 
     it('should call resetTest on restart', () => {
         render(<ResultsView />);
-        fireEvent.click(screen.getByText('Restart Quiz'));
+        fireEvent.click(screen.getByText('Restart Test'));
         expect(mockStore.resetTest).toHaveBeenCalled();
     });
 

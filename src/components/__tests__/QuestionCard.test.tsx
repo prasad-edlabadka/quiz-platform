@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { QuestionCard } from '../QuestionCard';
-import { useTestStore } from '../../store/quizStore';
+import { useTestStore } from '../../store/testStore';
 
 // Mock the store
-vi.mock('../../store/quizStore', () => ({
+vi.mock('../../store/testStore', () => ({
     useTestStore: vi.fn()
 }));
 

@@ -230,6 +230,25 @@ export const useTestStore = create<TestState>()(
         };
       }),
 
+      saveOfflineResult: (config, evaluations, uploadedSheets) => set((state) => {
+        const attemptId = `attempt-${Date.now()}`;
+        const newResult = {
+          attemptId,
+          date: new Date().toISOString(),
+          config,
+          answers: {}, // No digital answers for offline tests
+          evaluations,
+          timeRemaining: 0,
+          questionTimeTaken: {},
+          isOffline: true,
+          uploadedSheets,
+        };
+
+        return {
+          pastResults: [newResult, ...state.pastResults]
+        };
+      }),
+
       loadPastResult: (attemptId: string) => set((state) => {
         const result = state.pastResults.find(r => r.attemptId === attemptId);
         if (!result) return state;

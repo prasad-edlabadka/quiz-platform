@@ -1,10 +1,10 @@
 import React from 'react';
-import { BrainCircuit, Timer, Printer, CheckCircle2, Sun, Moon } from 'lucide-react';
+import { BrainCircuit, Timer, Printer, CheckCircle2, Lightbulb, TrendingUp, Target, LockIcon } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useTestStore } from '../store/testStore';
 
 export const LandingFeatures: React.FC = () => {
-  const { themeMode, toggleTheme } = useTestStore();
+  const { themeMode } = useTestStore();
   const isDark = themeMode === 'dark';
   const container = {
     hidden: { opacity: 0 },
@@ -22,44 +22,28 @@ export const LandingFeatures: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col justify-center h-full px-4 lg:px-8 py-12 lg:py-0">
+    <div className="flex flex-col justify-center h-full py-6 lg:py-0">
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
-        {/* Brand lockup */}
-        <div className="mb-6">
-          <div className="flex items-center gap-5 mb-4">
-            <img src="/revise-logo.png" alt="Revise logo" className="w-24 h-24 rounded-3xl object-contain shadow-2xl shadow-indigo-500/10" />
-            <div>
-              <div className="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 leading-none tracking-tight">
-                Revise
-              </div>
-              <div className="text-base text-glass-secondary/70 font-medium tracking-widest uppercase leading-none mt-2">
-                AI-Powered Exam Practice
-              </div>
+        <motion.div layoutId="app-header-title" className="mb-10 flex items-center gap-6">
+          <motion.img
+            layoutId="main-logo"
+            src="/revise-logo.png"
+            alt="Revise logo"
+            className="w-20 h-20 lg:w-24 lg:h-24 rounded-3xl object-contain shadow-2xl shadow-indigo-500/10"
+          />
+          <div>
+            <div className="text-4xl lg:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 leading-none tracking-tight mb-2">
+              Revise
+            </div>
+            <div className="text-sm font-semibold tracking-[0.2em] text-glass-secondary uppercase">
+              AI-Powered Exam Practice
             </div>
           </div>
-
-          <div className="flex items-center gap-3">
-            <button
-              onClick={toggleTheme}
-              className={`flex items-center gap-3 px-4 py-2.5 rounded-2xl transition-all duration-300 group hover:scale-[1.02] active:scale-[0.98] ${isDark
-                ? 'bg-white/5 hover:bg-white/10 text-yellow-300 border border-white/10'
-                : 'bg-black/5 hover:bg-black/10 text-indigo-600 border border-black/10'
-                }`}
-            >
-              <div className="relative">
-                {isDark ? <Sun className="w-5 h-5 flex-shrink-0" /> : <Moon className="w-5 h-5 flex-shrink-0" />}
-              </div>
-              <span className={`text-sm font-bold tracking-wide uppercase ${isDark ? 'text-glass-primary' : 'text-indigo-900/70'}`}>
-                {isDark ? 'Light' : 'Dark'} Mode
-              </span>
-            </button>
-
-          </div>
-        </div>
+        </motion.div>
 
         <h1 className="text-4xl md:text-5xl lg:text-5xl font-extrabold text-glass-primary mb-4 drop-shadow-sm leading-tight">
           Ace Your Exams with <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400">AI-Powered</span> Practice
@@ -74,7 +58,7 @@ export const LandingFeatures: React.FC = () => {
         variants={container}
         initial="hidden"
         animate="show"
-        className="grid grid-cols-1 md:grid-cols-2 gap-3"
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-10"
       >
         <motion.div variants={item} className={`glass-panel p-4 rounded-2xl transition-colors group ${isDark ? 'hover:bg-white/5' : 'hover:bg-black/5'}`}>
           <div className="w-10 h-10 rounded-xl bg-indigo-500/20 flex items-center justify-center text-indigo-400 mb-2 group-hover:scale-110 transition-transform">
@@ -105,8 +89,49 @@ export const LandingFeatures: React.FC = () => {
             <CheckCircle2 className="w-5 h-5" />
           </div>
           <h3 className="text-base font-bold text-glass-primary mb-1">Automated Grading</h3>
-          <p className="text-sm text-glass-secondary">Get immediate, rich feedback on your text answers aligned with strict curriculum markschemes.</p>
+          <p className="text-sm text-glass-secondary">Get immediate, rich feedback on your text answers aligned with IB assessment criteria.</p>
         </motion.div>
+        <motion.div variants={item} className={`glass-panel p-5 rounded-2xl transition-colors group ${isDark ? 'hover:bg-white/5' : 'hover:bg-black/5'}`}>
+          <div className="w-12 h-12 rounded-xl bg-amber-500/20 flex items-center justify-center text-amber-500 mb-3 group-hover:scale-110 transition-transform">
+            <Lightbulb className="w-6 h-6" />
+          </div>
+          <h3 className="text-base font-bold text-glass-primary mb-1.5">Instant Explanations</h3>
+          <p className="text-sm text-glass-secondary leading-relaxed">Detailed, step-by-step AI breakdowns for every answer to help you learn from mistakes.</p>
+        </motion.div>
+
+        <motion.div variants={item} className={`glass-panel p-5 rounded-2xl transition-colors group ${isDark ? 'hover:bg-white/5' : 'hover:bg-black/5'}`}>
+          <div className="w-12 h-12 rounded-xl bg-emerald-500/20 flex items-center justify-center text-emerald-500 mb-3 group-hover:scale-110 transition-transform">
+            <TrendingUp className="w-6 h-6" />
+          </div>
+          <h3 className="text-base font-bold text-glass-primary mb-1.5">Progress Sharing</h3>
+          <p className="text-sm text-glass-secondary leading-relaxed">Share your results with teachers or peers to track progress together with easy to export PDF.</p>
+        </motion.div>
+
+        <motion.div variants={item} className={`glass-panel p-5 rounded-2xl transition-colors group ${isDark ? 'hover:bg-white/5' : 'hover:bg-black/5'}`}>
+          <div className="w-12 h-12 rounded-xl bg-rose-500/20 flex items-center justify-center text-rose-500 mb-3 group-hover:scale-110 transition-transform">
+            <Target className="w-6 h-6" />
+          </div>
+          <h3 className="text-base font-bold text-glass-primary mb-1.5">Targeted Practice</h3>
+          <p className="text-sm text-glass-secondary leading-relaxed">Identify weak areas and let AI generate specific questions to turn weaknesses into strengths.</p>
+        </motion.div>
+
+        <motion.div variants={item} className={`glass-panel p-5 rounded-2xl transition-colors group ${isDark ? 'hover:bg-white/5' : 'hover:bg-black/5'}`}>
+          <div className="w-12 h-12 rounded-xl bg-cyan-500/20 flex items-center justify-center text-cyan-500 mb-3 group-hover:scale-110 transition-transform">
+            <LockIcon className="w-6 h-6" />
+
+          </div>
+          <h3 className="text-base font-bold text-glass-primary mb-1.5">Fully Secured</h3>
+          <p className="text-sm text-glass-secondary leading-relaxed">All data stays in your browser and NOTHING is sent to our servers. No Signups. No tracking. 100% private.</p>
+        </motion.div>
+      </motion.div>
+
+      <motion.div
+        variants={container}
+        initial="hidden"
+        animate="show"
+        // className="flex flex-col sm:flex-row items-center gap-4 mt-auto pt-6"
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 pt-6"
+      >
         <motion.div variants={item} className={`glass-panel p-4 rounded-2xl transition-colors flex items-center gap-4 ${isDark ? 'hover:bg-white/5' : 'hover:bg-black/5'}`}>
           <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-indigo-500/30 via-purple-500/30 to-pink-500/30 border border-indigo-500/20 flex items-center justify-center text-indigo-400 shrink-0 font-extrabold text-sm select-none">
             PE

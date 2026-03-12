@@ -46,6 +46,8 @@ export interface PastTestResult {
   evaluations: Record<string, { score: number; feedback: string; maxScore: number }>;
   timeRemaining: number;
   questionTimeTaken: Record<string, number>;
+  isOffline?: boolean;
+  uploadedSheets?: string[]; // Array of base64 images
 }
 
 export interface TestState {
@@ -81,6 +83,7 @@ export interface TestState {
   
   // History actions
   saveCurrentResult: () => void;
+  saveOfflineResult: (config: TestConfig, evaluations: Record<string, { score: number; feedback: string; maxScore: number }>, uploadedSheets: string[]) => void;
   loadPastResult: (attemptId: string) => void;
   deletePastResult: (attemptId: string) => void;
 

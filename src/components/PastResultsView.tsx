@@ -1,7 +1,8 @@
 import React from 'react';
 import { useTestStore } from '../store/testStore';
-import { Clock, Award, Trash2, Eye, Calendar } from 'lucide-react';
+import { Clock, Award, Trash2, Eye, Calendar, X } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useState } from 'react';
 
 interface PastResultsViewProps {
     onBack: () => void;
@@ -9,6 +10,7 @@ interface PastResultsViewProps {
 
 export const PastResultsView: React.FC<PastResultsViewProps> = ({ onBack }) => {
     const { pastResults, loadPastResult, deletePastResult } = useTestStore();
+    const [viewingSheets, setViewingSheets] = useState<string[] | null>(null);
 
     const formatDate = (dateString: string) => {
         return new Date(dateString).toLocaleString(undefined, {
@@ -47,16 +49,14 @@ export const PastResultsView: React.FC<PastResultsViewProps> = ({ onBack }) => {
                                 const questionPoints = q.points || 1;
                                 maxScore += questionPoints;
 
-                                if (q.options) {
+                                if (result.evaluations?.[q.id]) {
+                                    totalScore += result.evaluations[q.id].score;
+                                } else if (q.options) {
                                     const correctOptions = q.options.filter(o => o.isCorrect).map(o => o.id);
                                     if (correctOptions.length > 0) {
                                         const isCorrect = selected.length === correctOptions.length &&
                                             selected.every(id => correctOptions.includes(id));
                                         if (isCorrect) totalScore += questionPoints;
-                                    }
-                                } else if (q.type === 'text') {
-                                    if (result.evaluations?.[q.id]) {
-                                        totalScore += result.evaluations[q.id].score;
                                     }
                                 }
                             });
@@ -75,8 +75,11 @@ export const PastResultsView: React.FC<PastResultsViewProps> = ({ onBack }) => {
                                 className="glass-panel p-4 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between group transition-all hover:bg-white/5 border border-white/5 hover:border-white/10"
                             >
                                 <div className="flex-1 min-w-0 pr-4 mb-3 sm:mb-0">
-                                    <h3 className="font-bold text-base text-glass-primary mb-1" title={result.config.title}>
+                                    <h3 className="font-bold text-base text-glass-primary mb-1 flex items-center gap-2" title={result.config.title}>
                                         {result.config.title || 'Untitled Test'}
+                                        {result.isOffline && (
+                                            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">OFFLINE</span>
+                                        )}
                                     </h3>
                                     <div className="flex flex-wrap items-center gap-3 md:gap-4 text-[11px] text-glass-secondary font-medium">
                                         <span className="flex items-center gap-1"><Calendar className="w-3 h-3 text-indigo-400/70" /> {formatDate(result.date)}</span>
@@ -86,6 +89,16 @@ export const PastResultsView: React.FC<PastResultsViewProps> = ({ onBack }) => {
                                 </div>
 
                                 <div className="flex items-center gap-2 flex-shrink-0 w-full sm:w-auto mt-2 sm:mt-0 pt-2 sm:pt-0 border-t border-white/5 sm:border-t-0">
+                                    {result.isOffline && result.uploadedSheets && result.uploadedSheets.length > 0 && (
+                                        <button
+                                            onClick={() => setViewingSheets(result.uploadedSheets!)}
+                                            className="flex-1 sm:flex-none flex items-center justify-center gap-2 p-2 px-3 glass-button rounded-lg text-emerald-400 font-medium hover:text-emerald-300 hover:bg-emerald-500/10 transition-colors"
+                                            title="View Uploaded Sheets"
+                                        >
+                                            <Eye className="w-4 h-4" />
+                                            <span className="text-xs">Sheets</span>
+                                        </button>
+                                    )}
                                     <button
                                         onClick={() => loadPastResult(result.attemptId)}
                                         className="flex-1 sm:flex-none flex items-center justify-center gap-2 p-2 px-3 glass-button rounded-lg text-indigo-400 font-medium hover:text-indigo-300 hover:bg-indigo-500/10 transition-colors"
@@ -109,6 +122,22 @@ export const PastResultsView: React.FC<PastResultsViewProps> = ({ onBack }) => {
                             </motion.div>
                         );
                     })}
+                </div>
+            )}
+
+            {viewingSheets && (
+                <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/90 backdrop-blur-md p-4 animate-in fade-in zoom-in-95 duration-200">
+                    <button
+                        onClick={() => setViewingSheets(null)}
+                        className="absolute top-4 right-4 p-2 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors"
+                    >
+                        <X className="w-6 h-6" />
+                    </button>
+                    <div className="w-full max-w-4xl max-h-[90vh] overflow-y-auto custom-scrollbar flex flex-col gap-4 p-4">
+                        {viewingSheets.map((sheet, idx) => (
+                            <img key={idx} src={sheet} alt={`Uploaded Sheet ${idx + 1}`} className="w-full h-auto rounded-xl border border-white/10 shadow-2xl" />
+                        ))}
+                    </div>
                 </div>
             )}
         </div>

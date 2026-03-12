@@ -236,8 +236,112 @@ export type TimeBoundMode = 'none' | 'overall' | 'per_question' | 'both';
   }
 };
 
+/**
+ * Extracts a structured TestConfig from a supplied PDF file using Gemini's multimodal capabilities.
+ */
+export const extractTestConfigFromPDF = async (
+    apiKey: string,
+    pdfBase64: string
+): Promise<TestConfig> => {
+    if (!apiKey) throw new Error('API Key is required');
+    if (!pdfBase64) throw new Error('PDF content is required');
 
+    // Similar schema as generation but strictly for extraction
+    const EXTRACT_SCHEMA = `
+    {
+      "title": "string (extract from pdf title if possible, else 'Extracted Test')",
+      "description": "string",
+      "questions": [
+        {
+          "content": "string (Markdown supported, can include LaTeX)",
+          "type": "single_choice OR multiple_choice OR text",
+          "options": [
+            { "content": "string", "isCorrect": boolean }
+          ],
+          "justification": "string (explanation/markscheme of correct answer)"
+        }
+      ]
+    }
+    `;
 
+    const prompt = `
+      You are an expert International Baccalaureate (IB) Examiner and educational content creator.
+      Your task is to carefully read the provided PDF test paper/worksheet and extract EVERY question exactly as it appears.
+      
+      INSTRUCTIONS:
+      1. Extract ALL questions from the PDF.
+      2. If a question is multiple choice, extract all options and mark the correct one if possible (otherwise guess intelligently or mark first as true).
+      3. If a question is open-ended, set type to "text" and omit options.
+      4. Auto-generate a "justification" (markscheme/explanation) for every question to help with automated grading later.
+      5. Include math equations using LaTeX formats where appropriate (use $x^2$ and double escape backslashes e.g. \\\\frac).
+      6. Do NOT invent new questions. ONLY extract what is in the document.
+      
+      OUTPUT FORMAT:
+      Return ONLY a valid JSON object matching this schema:
+      ${EXTRACT_SCHEMA}
+    `;
+
+    const parts = [
+        { text: prompt },
+        {
+            inlineData: {
+                data: pdfBase64,
+                mimeType: "application/pdf"
+            }
+        }
+    ];
+
+    try {
+        const genAI = new GoogleGenerativeAI(apiKey);
+        let text = "";
+        let lastError: any;
+        
+        for (const modelName of MODELS) {
+          try {
+              console.log(`Attempting PDF extraction with model: ${modelName}`);
+              const model = genAI.getGenerativeModel({ model: modelName });
+              const result = await model.generateContent(parts);
+              const response = await result.response;
+              text = response.text();
+              break; 
+          } catch (error: any) {
+              console.warn(`Model ${modelName} failed for PDF extraction:`, error.message);
+              lastError = error;
+          }
+        }
+
+        if (!text) {
+           throw new Error(lastError?.message || "All models failed to extract PDF.");
+        }
+
+        let cleanJson = text.replace(/```json\n?|\n?```/g, '').trim();
+        const firstBrace = cleanJson.indexOf('{');
+        const lastBrace = cleanJson.lastIndexOf('}');
+        if (firstBrace >= 0 && lastBrace > firstBrace) {
+            cleanJson = cleanJson.substring(firstBrace, lastBrace + 1);
+        }
+
+        const testData = JSON.parse(cleanJson);
+
+        const processedTest: any = {
+            ...testData,
+            id: `extracted-${Date.now()}`,
+            questions: testData.questions?.map((q: any, i: number) => ({
+                ...q,
+                id: `eq-${i + 1}`,
+                points: q.points || 1,
+                options: q.options?.map((opt: any, j: number) => ({
+                    ...opt,
+                    id: `eopt-${i}-${j}`
+                })) || []
+            })) || []
+        };
+
+        return processedTest as TestConfig;
+    } catch (error: any) {
+        throw new Error(error.message || "Failed to extract test from PDF.");
+    }
+};
 
 export const evaluateTextAnswer = async (
     apiKey: string,
@@ -389,5 +493,132 @@ export const evaluateBatchAnswers = async (
         console.error("Batch Grading Error:", error);
         // Return empty or error states for all
         return {};
+    }
+};
+
+/**
+ * Evaluates student's handwritten work from uploaded images against the provided test configuration.
+ * Uses Gemini's vision capabilities.
+ */
+export const evaluateOfflineImages = async (
+    apiKey: string,
+    testConfig: TestConfig,
+    imagesBase64: string[] // Array of base64 data URLs: "data:image/jpeg;base64,..."
+): Promise<Record<string, { score: number; feedback: string; maxScore: number }>> => {
+    if (!apiKey) throw new Error('API Key is required for grading');
+    if (!imagesBase64 || imagesBase64.length === 0) throw new Error('At least one image is required');
+    if (!testConfig || !testConfig.questions) throw new Error('Test configuration is required');
+
+    // Build parts array for the Gemini model
+    const parts: any[] = [];
+    
+    const promptText = `
+      You are an expert International Baccalaureate (IB) Examiner grading a student's handwritten test submission.
+      
+      INSTRUCTIONS:
+      1. Review the provided images of the student's handwritten work.
+      2. Match the handwritten answers to the corresponding questions from the test paper provided below.
+      3. Evaluate EACH identified student answer based on IB assessment criteria (Knowledge & Understanding, Application, Communication).
+      4. Give a score between 0 and the MAX POINTS for that question. If the answer is completely missing, give 0.
+      5. Provide concise, constructive feedback in the style of an IB Markscheme (e.g., "Award [1] for...").
+      6. CRITICAL: If the answer is incorrect or incomplete, EXPLICITLY state what the correct answer should be.
+      
+      TEST PAPER CONFIGURATION (JSON):
+      ${JSON.stringify({ 
+        title: testConfig.title, 
+        questions: testConfig.questions.map(q => ({
+            id: q.id,
+            content: q.content,
+            justification: q.justification,
+            points: q.points || 1,
+            options: q.options?.map(o => ({ content: o.content, isCorrect: o.isCorrect }))
+        }))
+      })}
+      
+      OUTPUT FORMAT:
+      Return ONLY a valid JSON object mapping Question IDs to their evaluation.
+      If you cannot find an answer for a specific question, omit it from the evaluations or give it a score of 0 with feedback "No answer found in the uploaded sheets".
+      
+      Structure:
+      {
+        "evaluations": {
+          "question_id_1": { "score": number, "feedback": "string" },
+          "question_id_2": { "score": number, "feedback": "string" }
+        }
+      }
+    `;
+
+    parts.push({ text: promptText });
+
+    // Assuming imagesBase64 are in format "data:image/jpeg;base64,..."
+    for (const dataUrl of imagesBase64) {
+        // Extract mime type and base64 data
+        const matches = dataUrl.match(/^data:(image\/[a-zA-Z+]+);base64,(.+)$/);
+        if (matches && matches.length === 3) {
+            const mimeType = matches[1];
+            const base64Data = matches[2];
+            parts.push({
+                inlineData: {
+                    data: base64Data,
+                    mimeType: mimeType
+                }
+            });
+        } else {
+             console.warn("Invalid image data URL format encountered, skipping.");
+        }
+    }
+
+    try {
+        const genAI = new GoogleGenerativeAI(apiKey);
+        // Vision tasks often require specific models or the standard ones if they support it
+        // We will try gemini-2.5-flash as it supports multimodal 
+        let text = "";
+        let lastError: any;
+        for (const modelName of MODELS) {
+          try {
+              console.log(`Attempting vision generation with model: ${modelName}`);
+              const model = genAI.getGenerativeModel({ model: modelName });
+              const result = await model.generateContent(parts);
+              const response = await result.response;
+              text = response.text();
+              break; // Success
+          } catch (error: any) {
+              console.warn(`Model ${modelName} failed for vision:`, error.message);
+              lastError = error;
+          }
+        }
+        
+        if (!text) {
+           throw new Error(lastError?.message || "All models failed to evaluate images.");
+        }
+
+        let cleanJson = text.replace(/```json\n?|\n?```/g, '').trim();
+        const firstBrace = cleanJson.indexOf('{');
+        const lastBrace = cleanJson.lastIndexOf('}');
+        if (firstBrace >= 0 && lastBrace > firstBrace) {
+            cleanJson = cleanJson.substring(firstBrace, lastBrace + 1);
+        }
+
+        const data = JSON.parse(cleanJson);
+        const evaluations = data.evaluations || {};
+        
+        // Normalize result against testConfig to ensure maxScore is correct
+        const finalResults: Record<string, any> = {};
+        testConfig.questions.forEach(q => {
+            if (evaluations[q.id]) {
+                const evalData = evaluations[q.id];
+                finalResults[q.id] = {
+                    score: typeof evalData?.score === 'number' ? evalData.score : 0,
+                    feedback: evalData?.feedback || "Evaluation failed or not provided.",
+                    maxScore: q.points || 1
+                };
+            }
+        });
+
+        return finalResults;
+
+    } catch (error: any) {
+        console.error("Offline Grading Error:", error);
+        throw new Error("Failed to evaluate uploaded sheets. " + error.message);
     }
 };
