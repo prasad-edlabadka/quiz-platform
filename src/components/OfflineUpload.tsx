@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Upload, FileText, FileImage, Cpu, CheckCircle2, ChevronRight, X, AlertCircle } from 'lucide-react';
+import { Upload, FileText, FileImage, Cpu, CheckCircle2, X, AlertCircle } from 'lucide-react';
 import { useTestStore } from '../store/testStore';
 import { evaluateOfflineImages, extractTestConfigFromPDF } from '../services/aiService';
 import type { TestConfig } from '../types/test';
@@ -28,56 +28,56 @@ export const OfflineUpload: React.FC<OfflineUploadProps> = ({ onSuccess }) => {
 
     // If it's a JSON file
     if (file.type === 'application/json' || file.name.endsWith('.json')) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          try {
-            const content = e.target?.result as string;
-            const parsed = JSON.parse(content) as TestConfig;
-            if (!parsed.questions || !Array.isArray(parsed.questions)) {
-              throw new Error("Invalid Test JSON: Missing questions array.");
-            }
-            setTestConfig(parsed);
-          } catch (err: any) {
-            setError(err.message || "Failed to parse Test JSON file.");
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const content = e.target?.result as string;
+          const parsed = JSON.parse(content) as TestConfig;
+          if (!parsed.questions || !Array.isArray(parsed.questions)) {
+            throw new Error("Invalid Test JSON: Missing questions array.");
           }
-        };
-        reader.onerror = () => setError("Failed to read file.");
-        reader.readAsText(file);
-    } 
+          setTestConfig(parsed);
+        } catch (err: any) {
+          setError(err.message || "Failed to parse Test JSON file.");
+        }
+      };
+      reader.onerror = () => setError("Failed to read file.");
+      reader.readAsText(file);
+    }
     // If it's a PDF file
     else if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
-        if (!apiKey) {
-            setError("Please set your API key in the bottom left settings first to extract from PDF.");
-            return;
+      if (!apiKey) {
+        setError("Please set your API key in the bottom left settings first to extract from PDF.");
+        return;
+      }
+
+      setIsProcessing(true);
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        try {
+          const dataUrl = e.target?.result as string;
+          // Extract base64 part
+          const match = dataUrl.match(/^data:application\/pdf;base64,(.+)$/);
+          if (!match) throw new Error("Could not parse PDF file data.");
+          const base64Pdf = match[1];
+
+          const extractedConfig = await extractTestConfigFromPDF(apiKey, base64Pdf);
+          setTestConfig(extractedConfig);
+        } catch (err: any) {
+          setError(err.message || "Failed to extract test from PDF.");
+        } finally {
+          setIsProcessing(false);
         }
-
-        setIsProcessing(true);
-        const reader = new FileReader();
-        reader.onload = async (e) => {
-            try {
-                const dataUrl = e.target?.result as string;
-                // Extract base64 part
-                const match = dataUrl.match(/^data:application\/pdf;base64,(.+)$/);
-                if (!match) throw new Error("Could not parse PDF file data.");
-                const base64Pdf = match[1];
-
-                const extractedConfig = await extractTestConfigFromPDF(apiKey, base64Pdf);
-                setTestConfig(extractedConfig);
-            } catch (err: any) {
-                setError(err.message || "Failed to extract test from PDF.");
-            } finally {
-                setIsProcessing(false);
-            }
-        };
-        reader.onerror = () => {
-            setError("Failed to read PDF file.");
-            setIsProcessing(false);
-        };
-        reader.readAsDataURL(file);
+      };
+      reader.onerror = () => {
+        setError("Failed to read PDF file.");
+        setIsProcessing(false);
+      };
+      reader.readAsDataURL(file);
     } else {
-        setError("Please upload a .json or .pdf file.");
+      setError("Please upload a .json or .pdf file.");
     }
-    
+
     event.target.value = '';
   };
 
@@ -158,7 +158,7 @@ export const OfflineUpload: React.FC<OfflineUploadProps> = ({ onSuccess }) => {
             Test Definition
           </h4>
           <p className="text-xs text-glass-secondary mb-4">Upload the original Test JSON or PDF file that the student solved.</p>
-          
+
           <input
             type="file"
             ref={configFileInputRef}
@@ -166,7 +166,7 @@ export const OfflineUpload: React.FC<OfflineUploadProps> = ({ onSuccess }) => {
             accept=".json,.pdf"
             className="hidden"
           />
-          
+
           {testConfig ? (
             <div className={`p-3 rounded-lg flex items-center gap-3 ${isDark ? 'bg-white/5' : 'bg-black/5'}`}>
               <FileText className="w-8 h-8 text-emerald-400 shrink-0" />
@@ -191,16 +191,16 @@ export const OfflineUpload: React.FC<OfflineUploadProps> = ({ onSuccess }) => {
         {/* Step 2: Upload Images */}
         <div className={`glass-panel p-6 rounded-2xl border ${images.length > 0 ? 'border-emerald-500/50 relative overflow-hidden' : isDark ? 'border-white/10' : 'border-black/5'}`}>
           {images.length > 0 && (
-             <div className="absolute top-0 right-0 w-16 h-16 bg-emerald-500/10 rounded-bl-full flex items-start justify-end p-3">
-               <CheckCircle2 className="w-5 h-5 text-emerald-500" />
-             </div>
+            <div className="absolute top-0 right-0 w-16 h-16 bg-emerald-500/10 rounded-bl-full flex items-start justify-end p-3">
+              <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+            </div>
           )}
           <h4 className="font-bold text-glass-primary mb-2 flex items-center gap-2">
             <span className="flex items-center justify-center w-6 h-6 rounded-full bg-indigo-500/20 text-indigo-400 text-xs font-bold">2</span>
             Handwritten Work
           </h4>
           <p className="text-xs text-glass-secondary mb-4">Upload one or more photos of the student's answered sheets.</p>
-          
+
           <input
             type="file"
             ref={imageFilesInputRef}
@@ -209,7 +209,7 @@ export const OfflineUpload: React.FC<OfflineUploadProps> = ({ onSuccess }) => {
             multiple
             className="hidden"
           />
-          
+
           <button
             onClick={() => imageFilesInputRef.current?.click()}
             className={`w-full flex justify-center items-center py-3 mb-4 glass-button transition-all text-sm font-medium ${isDark ? 'text-indigo-300 border border-indigo-500/30 hover:bg-indigo-500/10' : 'text-indigo-600 border border-indigo-500/20 hover:bg-indigo-500/5'}`}
@@ -223,7 +223,7 @@ export const OfflineUpload: React.FC<OfflineUploadProps> = ({ onSuccess }) => {
               {images.map((img, idx) => (
                 <div key={idx} className="relative shrink-0 w-16 h-16 rounded-md border border-white/10 overflow-hidden group">
                   <img src={img} alt={`Sheet ${idx + 1}`} className="w-full h-full object-cover" />
-                  <button 
+                  <button
                     onClick={() => removeImage(idx)}
                     className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-white"
                   >
