@@ -1,5 +1,5 @@
 import React from 'react';
-import { useQuizStore } from '../store/quizStore';
+import { useTestStore } from '../store/testStore';
 import { Clock, Award, Trash2, Eye, Calendar } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -8,7 +8,7 @@ interface PastResultsViewProps {
 }
 
 export const PastResultsView: React.FC<PastResultsViewProps> = ({ onBack }) => {
-    const { pastResults, loadPastResult, deletePastResult } = useQuizStore();
+    const { pastResults, loadPastResult, deletePastResult } = useTestStore();
 
     const formatDate = (dateString: string) => {
         return new Date(dateString).toLocaleString(undefined, {
@@ -27,7 +27,7 @@ export const PastResultsView: React.FC<PastResultsViewProps> = ({ onBack }) => {
                 <div className="glass-panel p-16 rounded-2xl flex flex-col items-center justify-center text-center flex-1">
                     <Award className="w-16 h-16 mb-4 text-indigo-400/50" />
                     <h2 className="text-2xl font-bold mb-2 text-glass-primary">No Past Results Yet</h2>
-                    <p className="text-glass-secondary mb-8">Complete a quiz to see your history here.</p>
+                    <p className="text-glass-secondary mb-8">Complete a test to see your history here.</p>
                     <button
                         onClick={onBack}
                         className="glass-button-primary px-8 py-3 rounded-xl font-bold transition-all hover:scale-105"
@@ -76,7 +76,7 @@ export const PastResultsView: React.FC<PastResultsViewProps> = ({ onBack }) => {
                             >
                                 <div className="flex-1 min-w-0 pr-4 mb-3 sm:mb-0">
                                     <h3 className="font-bold text-base text-glass-primary mb-1" title={result.config.title}>
-                                        {result.config.title || 'Untitled Quiz'}
+                                        {result.config.title || 'Untitled Test'}
                                     </h3>
                                     <div className="flex flex-wrap items-center gap-3 md:gap-4 text-[11px] text-glass-secondary font-medium">
                                         <span className="flex items-center gap-1"><Calendar className="w-3 h-3 text-indigo-400/70" /> {formatDate(result.date)}</span>

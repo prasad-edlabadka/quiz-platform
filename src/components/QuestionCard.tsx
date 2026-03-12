@@ -1,10 +1,10 @@
 import React from 'react';
-import type { Question } from '../types/quiz';
+import type { Question } from '../types/test';
 import { OptionSelector } from './OptionSelector';
 import { MarkdownRenderer } from './MarkdownRenderer';
 import { RichTextEditor } from './RichTextEditor';
 import { Timer } from './Timer';
-import { useQuizStore } from '../store/quizStore';
+import { useTestStore } from '../store/testStore';
 import { Flag, Star } from 'lucide-react';
 import { clsx } from 'clsx';
 
@@ -13,7 +13,7 @@ interface QuestionCardProps {
 }
 
 export const QuestionCard: React.FC<QuestionCardProps> = ({ question }) => {
-  const { answers, answerQuestion, questionTimeRemaining, toggleFlag, flaggedQuestions, config, themeMode } = useQuizStore();
+  const { answers, answerQuestion, questionTimeRemaining, toggleFlag, flaggedQuestions, config, themeMode } = useTestStore();
   const isDark = themeMode === 'dark';
   const selectedOptions = answers[question.id] || [];
   const timeRemaining = questionTimeRemaining[question.id];

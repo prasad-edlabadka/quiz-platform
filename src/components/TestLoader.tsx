@@ -1,34 +1,34 @@
 import React, { useState, useRef } from 'react';
 import { Upload, FileText, BrainCircuit, Library, HelpCircle, CheckCircle2 } from 'lucide-react';
 import { TestSelector } from './TestSelector';
-import { useQuizStore } from '../store/quizStore';
+import { useTestStore } from '../store/testStore';
 
-interface QuizLoaderProps {
+interface TestLoaderProps {
   jsonInput: string;
   setJsonInput: (val: string) => void;
   error: string | null;
   onLoadJson: () => void;
   onFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  onProcessQuizData: (data: string | any) => void;
+  onProcessTestData: (data: string | any) => void;
   onStartSyllabusMode: () => void;
   onOpenSchemaHelp?: () => void;
 }
 
 import { PastResultsView } from './PastResultsView';
 
-export const QuizLoader: React.FC<QuizLoaderProps> = ({
+export const TestLoader: React.FC<TestLoaderProps> = ({
   jsonInput,
   setJsonInput,
   error,
   onLoadJson,
   onFileUpload,
-  onProcessQuizData,
+  onProcessTestData,
   onStartSyllabusMode,
   onOpenSchemaHelp
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [activeTab, setActiveTab] = useState<'ai' | 'upload' | 'library' | 'history'>('ai');
-  const { themeMode } = useQuizStore();
+  const { themeMode } = useTestStore();
   const isDark = themeMode === 'dark';
 
   const tabsConfig = [
@@ -69,8 +69,7 @@ export const QuizLoader: React.FC<QuizLoaderProps> = ({
       <div className={`grid grid-cols-4 gap-1 ${isDark ? 'bg-black/20' : 'bg-slate-200/50'} rounded-xl p-1 mb-6`}>
         {tabsConfig.map((tab) => {
           const isActive = activeTab === tab.id;
-          // const isDark = themeMode === 'dark'; // Removed redundant declaration
-
+          
           return (
             <button
               key={tab.id}
@@ -109,7 +108,7 @@ export const QuizLoader: React.FC<QuizLoaderProps> = ({
               className="w-full flex justify-center items-center px-4 py-4 bg-gradient-to-r from-indigo-500/80 via-purple-500/80 to-pink-500/80 backdrop-blur-md border border-white/20 text-white rounded-xl font-medium hover:opacity-90 transition-all shadow-lg hover:shadow-indigo-500/25 hover:-translate-y-0.5"
             >
               <BrainCircuit className="w-5 h-5 mr-2" />
-              Generate Quiz with AI
+              Generate Test with AI
             </button>
           </div>
         )}
@@ -118,12 +117,12 @@ export const QuizLoader: React.FC<QuizLoaderProps> = ({
         {activeTab === 'library' && (
           <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
             <div className="text-center mb-6">
-              <h3 className="text-lg font-medium text-glass-primary mb-2">Sample Quizzes</h3>
+              <h3 className="text-lg font-medium text-glass-primary mb-2">Sample Tests</h3>
               <p className="text-sm text-glass-secondary">Try out our platform using one of the pre-made sample tests below.</p>
             </div>
 
             <div className={`rounded-xl p-4 border ${isDark ? 'bg-black/10 border-white/5' : 'bg-black/5 border-black/5'}`}>
-              <TestSelector onSelect={onProcessQuizData} />
+              <TestSelector onSelect={onProcessTestData} />
             </div>
           </div>
         )}
@@ -133,7 +132,7 @@ export const QuizLoader: React.FC<QuizLoaderProps> = ({
           <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
             <div className="text-center mb-6">
               <h3 className="text-lg font-medium text-glass-primary mb-2">Custom JSON</h3>
-              <p className="text-sm text-glass-secondary">Have an existing quiz JSON? Upload the file directly or paste the raw contents.</p>
+              <p className="text-sm text-glass-secondary">Have an existing test JSON? Upload the file directly or paste the raw contents.</p>
             </div>
 
             <input
@@ -166,7 +165,7 @@ export const QuizLoader: React.FC<QuizLoaderProps> = ({
               <textarea
                 value={jsonInput}
                 onChange={(e) => setJsonInput(e.target.value)}
-                placeholder="Paste your Quiz JSON here..."
+                placeholder="Paste your Test JSON here..."
                 className="w-full h-32 p-4 rounded-xl glass-input outline-none font-mono text-xs resize-none focus:h-48 transition-all duration-300"
               />
               {error && (

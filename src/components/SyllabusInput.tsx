@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { generateQuizFromSyllabus, type QuestionTypeFilter, type StructureMode, type TimeBoundMode } from '../services/aiService';
-import type { QuizConfig } from '../types/quiz';
+import { generateTestFromSyllabus, type QuestionTypeFilter, type StructureMode, type TimeBoundMode } from '../services/aiService';
+import type { TestConfig } from '../types/test';
 import { BrainCircuit, Loader2, AlertCircle, Key, BookOpen, Hash, HelpCircle, Layout, ListChecks, Timer, Info } from 'lucide-react';
 import { ApiKeyHelpModal } from './ApiKeyHelpModal';
 
-interface SyllabusInputProps {
-    onQuizGenerated: (config: QuizConfig) => void;
+interface TestInputProps {
+    onTestGenerated: (config: TestConfig) => void;
     onCancel: () => void;
 }
 
-export const SyllabusInput: React.FC<SyllabusInputProps> = ({ onQuizGenerated, onCancel }) => {
+export const SyllabusInput: React.FC<TestInputProps> = ({ onTestGenerated, onCancel }) => {
     const [apiKey, setApiKey] = useState('');
     const [syllabus, setSyllabus] = useState('');
     const [questionCount, setQuestionCount] = useState(5);
@@ -42,10 +42,10 @@ export const SyllabusInput: React.FC<SyllabusInputProps> = ({ onQuizGenerated, o
         localStorage.setItem('gemini_api_key', apiKey.trim());
 
         try {
-            const quizConfig = await generateQuizFromSyllabus(apiKey, syllabus, questionCount, structureMode, questionType, timeBoundMode);
-            onQuizGenerated(quizConfig);
+            const testConfig = await generateTestFromSyllabus(apiKey, syllabus, questionCount, structureMode, questionType, timeBoundMode);
+            onTestGenerated(testConfig);
         } catch (err: any) {
-            setError(err.message || 'Failed to generate quiz');
+            setError(err.message || 'Failed to generate test');
         } finally {
             setLoading(false);
         }
@@ -67,8 +67,8 @@ export const SyllabusInput: React.FC<SyllabusInputProps> = ({ onQuizGenerated, o
                     <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-indigo-500/20 text-indigo-300 mb-4 backdrop-blur-sm border border-indigo-500/30">
                         <BrainCircuit className="w-6 h-6" />
                     </div>
-                    <h1 className="text-xl md:text-2xl font-bold text-glass-primary mb-2">Generate Quiz from Syllabus</h1>
-                    <p className="text-glass-secondary text-sm">Use AI to create a tailored quiz from your study materials.</p>
+                    <h1 className="text-xl md:text-2xl font-bold text-glass-primary mb-2">Generate Test from Syllabus</h1>
+                    <p className="text-glass-secondary text-sm">Use AI to create a tailored test from your study materials.</p>
                 </div>
 
                 <div className="space-y-8">
@@ -146,7 +146,7 @@ export const SyllabusInput: React.FC<SyllabusInputProps> = ({ onQuizGenerated, o
                                             <div>
                                                 <strong className="text-indigo-300 text-sm block mb-1">Standard (Flat)</strong>
                                                 <p className="text-gray-300 mb-1">A simple, consecutive list of standalone questions.</p>
-                                                <p className="text-gray-400 italic">Example: A math quiz with 10 independent equations (Q1, Q2, Q3...).</p>
+                                                <p className="text-gray-400 italic">Example: A math test with 10 independent equations (Q1, Q2, Q3...).</p>
                                             </div>
                                             <div>
                                                 <strong className="text-indigo-300 text-sm block mb-1">Section-Based</strong>
@@ -229,7 +229,7 @@ export const SyllabusInput: React.FC<SyllabusInputProps> = ({ onQuizGenerated, o
                         ) : (
                             <>
                                 <BrainCircuit className="w-5 h-5 mr-2" />
-                                Generate Quiz
+                                Generate Test
                             </>
                         )}
                     </button>

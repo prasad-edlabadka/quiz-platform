@@ -13,18 +13,18 @@ const initialStoreState = {
     questionTimeRemaining: {},
     questionTimeTaken: {},
     setConfig: vi.fn(),
-    startQuiz: vi.fn(),
+    startTest: vi.fn(),
     clearState: vi.fn()
 };
 
 let storeState = { ...initialStoreState };
 
-// We need to support implementation of useQuizStore
-vi.mock('../store/quizStore', async () => {
-    const actual = await vi.importActual('../store/quizStore');
+// We need to support implementation of useTestStore
+vi.mock('../store/testStore', async () => {
+    const actual = await vi.importActual('../store/testStore');
     return {
         ...actual,
-        useQuizStore: (selector: any) => {
+        useTestStore: (selector: any) => {
            if(selector) return selector(storeState);
            return storeState;
         }
@@ -32,8 +32,8 @@ vi.mock('../store/quizStore', async () => {
 });
 
 // Mock dependencies
-vi.mock('../components/QuizRenderer', () => ({
-    QuizRenderer: () => <div data-testid="quiz-renderer">Quiz Renderer Active</div>
+vi.mock('../components/TestRenderer', () => ({
+    TestRenderer: () => <div data-testid="test-renderer">Test Renderer Active</div>
 }));
 
 vi.mock('../components/SyllabusInput', () => ({
@@ -56,20 +56,20 @@ describe('App Integration', () => {
         expect(screen.getByText(/Get Started/i)).toBeInTheDocument();
         expect(screen.getByText(/Choose how you want to begin/i)).toBeInTheDocument();
         // Since AI is the default tab, its button should be visible
-        expect(screen.getByText(/Generate Quiz with AI/i)).toBeInTheDocument();
+        expect(screen.getByText(/Generate Test with AI/i)).toBeInTheDocument();
     });
 
     it('should switch to syllabus mode', () => {
         render(<App />);
         // Ensure AI tab is active (default)
-        fireEvent.click(screen.getByText(/Generate Quiz with AI/i));
+        fireEvent.click(screen.getByText(/Generate Test with AI/i));
         expect(screen.getByText('Syllabus Input')).toBeInTheDocument();
         
         fireEvent.click(screen.getByText('Cancel'));
         expect(screen.getByText(/Get Started/i)).toBeInTheDocument();
     });
 
-    it('should load sample quiz', () => {
+    it('should load sample test', () => {
         storeState.setConfig = vi.fn((config) => {
             storeState.config = config;
         });
@@ -79,13 +79,13 @@ describe('App Integration', () => {
         fireEvent.click(screen.getByText('Library'));
         
         // Use a generic assertion for this as the tests loaded depend on the mock module glob
-        expect(container.textContent).toMatch(/Available Quizzes/i);
+        expect(container.textContent).toMatch(/Available Testzes/i);
     });
 
-    it('should render QuizRenderer when config is present', () => {
+    it('should render TestRenderer when config is present', () => {
         storeState.config = { id: 'test', questions: [] } as any;
         render(<App />);
-        expect(screen.getByTestId('quiz-renderer')).toBeInTheDocument();
+        expect(screen.getByTestId('test-renderer')).toBeInTheDocument();
     });
 
     it('should open reset modal', () => {

@@ -1,10 +1,10 @@
 import React from 'react';
 import { BrainCircuit, Timer, Printer, CheckCircle2, Sun, Moon } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useQuizStore } from '../store/quizStore';
+import { useTestStore } from '../store/testStore';
 
 export const LandingFeatures: React.FC = () => {
-  const { themeMode, toggleTheme } = useQuizStore();
+  const { themeMode, toggleTheme } = useTestStore();
   const isDark = themeMode === 'dark';
   const container = {
     hidden: { opacity: 0 },
@@ -81,7 +81,7 @@ export const LandingFeatures: React.FC = () => {
             <BrainCircuit className="w-5 h-5" />
           </div>
           <h3 className="text-base font-bold text-glass-primary mb-1">Smart Generation</h3>
-          <p className="text-sm text-glass-secondary">Instantly convert syllabuses into dynamic quizzes with multiple-choice and open-ended questions.</p>
+          <p className="text-sm text-glass-secondary">Instantly convert syllabuses into dynamic tests with multiple-choice and open-ended questions.</p>
         </motion.div>
 
         <motion.div variants={item} className={`glass-panel p-4 rounded-2xl transition-colors group ${isDark ? 'hover:bg-white/5' : 'hover:bg-black/5'}`}>

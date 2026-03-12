@@ -1,5 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import type { QuizConfig } from '../types/quiz';
+import type { TestConfig } from '../types/test';
 
 
 
@@ -30,14 +30,14 @@ export type TimeBoundMode = 'none' | 'overall' | 'per_question' | 'both';
       throw new Error(lastError?.message || "All models failed to generate content.");
   };
 
-  export const generateQuizFromSyllabus = async (
+  export const generateTestFromSyllabus = async (
     apiKey: string, 
     syllabus: string, 
     questionCount: number = 5,
     structure: StructureMode = 'flat',
     questionType: QuestionTypeFilter = 'mixed',
     timeBoundMode: TimeBoundMode = 'none'
-): Promise<QuizConfig> => {
+): Promise<TestConfig> => {
   if (!apiKey) throw new Error('API Key is required');
   if (!syllabus) throw new Error('Syllabus content is required');
 
@@ -100,7 +100,7 @@ export type TimeBoundMode = 'none' | 'overall' | 'per_question' | 'both';
     : 'Create a flat list of questions.';
 
   const prompt = `
-    You are an expert International Baccalaureate (IB) Examiner and educational content creator. Create a quiz based on the following syllabus.
+    You are an expert International Baccalaureate (IB) Examiner and educational content creator. Create a test based on the following syllabus.
     
     SYLLABUS:
     "${syllabus}"
@@ -175,13 +175,13 @@ export type TimeBoundMode = 'none' | 'overall' | 'per_question' | 'both';
        cleanJson = text.replace(/```json\n?|\n?```/g, '').trim();
     }
     
-    const quizData = JSON.parse(cleanJson);
+    const testData = JSON.parse(cleanJson);
     
     // Auto-generate IDs if missing (model might skip them to save tokens)
     // Auto-generate IDs if missing
-    const processedQuiz: any = {
-      ...quizData,
-      id: quizData.id || `gen-quiz-${Date.now()}`
+    const processedTest: any = {
+      ...testData,
+      id: testData.id || `gen-test-${Date.now()}`
     };
 
     const processQuestions = (questions: any[], prefix: string = '') => {
@@ -195,10 +195,10 @@ export type TimeBoundMode = 'none' | 'overall' | 'per_question' | 'both';
         })) || [];
     };
 
-    if (quizData.sections) {
+    if (testData.sections) {
         const flattenedBroadQuestions: any[] = [];
         
-        processedQuiz.sections = quizData.sections.map((section: any, i: number) => {
+        processedTest.sections = testData.sections.map((section: any, i: number) => {
             const sectionId = section.id || `section-${i + 1}`;
             
             // Process questions for this section
@@ -221,18 +221,18 @@ export type TimeBoundMode = 'none' | 'overall' | 'per_question' | 'both';
         // CRITICAL FIX: If sections are present, ignore top-level 'questions' to prevent duplicates 
         // (LLM sometimes duplicates content in both places).
         // Only if we explicitly requested mixed content would we merge, but for now, assume Sections > Questions
-        processedQuiz.questions = [...flattenedBroadQuestions];
+        processedTest.questions = [...flattenedBroadQuestions];
         
-    } else if (quizData.questions) {
-        processedQuiz.questions = processQuestions(quizData.questions);
+    } else if (testData.questions) {
+        processedTest.questions = processQuestions(testData.questions);
     } else {
-        processedQuiz.questions = [];
+        processedTest.questions = [];
     }
 
-    return processedQuiz as QuizConfig;
+    return processedTest as TestConfig;
 
   } catch (error: any) {
-    throw new Error(error.message || "Failed to generate quiz. Please check your API key and try again.");
+    throw new Error(error.message || "Failed to generate test. Please check your API key and try again.");
   }
 };
 

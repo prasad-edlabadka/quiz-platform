@@ -1,10 +1,10 @@
 import React from 'react';
-import { useQuizStore } from '../store/quizStore';
+import { useTestStore } from '../store/testStore';
 import { clsx } from 'clsx';
 import { Flag } from 'lucide-react';
 
 export const NavigationGrid: React.FC = () => {
-    const { config, currentQuestionIndex, answers, flaggedQuestions, jumpToQuestion } = useQuizStore();
+    const { config, currentQuestionIndex, answers, flaggedQuestions, jumpToQuestion } = useTestStore();
 
     if (!config) return null;
 

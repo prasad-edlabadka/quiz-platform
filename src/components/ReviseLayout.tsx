@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useQuizStore } from '../store/quizStore';
+import { useTestStore } from '../store/testStore';
 import { Timer } from './Timer';
 import { Calculator } from './Tools/Calculator';
 import { Notepad } from './Tools/Notepad';
@@ -12,7 +12,7 @@ interface ReviseLayoutProps {
 }
 
 export const ReviseLayout: React.FC<ReviseLayoutProps> = ({ children }) => {
-    const { config, timeRemaining, answers, flaggedQuestions, currentQuestionIndex, jumpToQuestion, status, themeMode } = useQuizStore();
+    const { config, timeRemaining, answers, flaggedQuestions, currentQuestionIndex, jumpToQuestion, status, themeMode } = useTestStore();
     const isDark = themeMode === 'dark';
     const [showCalculator, setShowCalculator] = useState(false);
     const [showNotepad, setShowNotepad] = useState(false);
@@ -46,7 +46,7 @@ export const ReviseLayout: React.FC<ReviseLayoutProps> = ({ children }) => {
 
                 <div className="flex items-center gap-2">
                     <button
-                        onClick={() => useQuizStore.getState().toggleTheme()}
+                        onClick={() => useTestStore.getState().toggleTheme()}
                         className="p-2 text-glass-secondary hover:text-glass-primary transition-colors rounded-full hover:bg-white/5"
                         title="Toggle Theme"
                     >
@@ -57,7 +57,7 @@ export const ReviseLayout: React.FC<ReviseLayoutProps> = ({ children }) => {
                     <button
                         onClick={() => {
                             if (window.confirm('Are you sure you want to reset the quiz? All progress will be lost.')) {
-                                useQuizStore.getState().resetQuiz();
+                                useTestStore.getState().resetTest();
                             }
                         }}
                         className="p-2 text-glass-secondary hover:text-red-400 transition-colors rounded-full hover:bg-white/5"
@@ -209,7 +209,7 @@ export const ReviseLayout: React.FC<ReviseLayoutProps> = ({ children }) => {
                         </div>
 
                         <button
-                            onClick={() => useQuizStore.getState().finishQuiz()}
+                            onClick={() => useTestStore.getState().finishTest()}
                             className="w-full mt-4 flex items-center justify-center gap-2 p-3 bg-red-500/10 text-red-500 hover:bg-red-500/20 hover:text-red-400 border border-red-500/20 rounded-xl transition-all font-medium text-sm"
                         >
                             <LogOut className="w-4 h-4" />

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Key, Lock, AlertCircle } from 'lucide-react';
-import { useQuizStore } from '../store/quizStore';
+import { useTestStore } from '../store/testStore';
 
 interface ApiKeyModalProps {
   isOpen: boolean;
@@ -11,7 +11,7 @@ interface ApiKeyModalProps {
 export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose, onSuccess }) => {
   const [key, setKey] = useState('');
   const [error, setError] = useState('');
-  const { setApiKey } = useQuizStore();
+  const { setApiKey } = useTestStore();
 
   if (!isOpen) return null;
 

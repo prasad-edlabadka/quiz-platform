@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { useQuizStore } from './store/quizStore';
-import { QuizRenderer } from './components/QuizRenderer';
+import { useTestStore } from './store/testStore';
+import { TestRenderer } from './components/TestRenderer';
 import { ConfirmationModal } from './components/ConfirmationModal';
 import { SchemaHelpModal } from './components/SchemaHelpModal';
 import { Trash2, Sun, Moon, Download } from 'lucide-react';
 import { SyllabusInput } from './components/SyllabusInput';
-import type { QuizConfig } from './types/quiz';
+import type { TestConfig } from './types/test';
 
-import { QuizLoader } from './components/QuizLoader';
+import { TestLoader } from './components/TestLoader';
 import { LandingFeatures } from './components/LandingFeatures';
 import { ErrorBoundary } from './components/ErrorBoundary';
 
 function App() {
-  const { config, setConfig, clearState, themeMode, toggleTheme } = useQuizStore();
+  const { config, setConfig, clearState, themeMode, toggleTheme } = useTestStore();
   const [jsonInput, setJsonInput] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isResetModalOpen, setIsResetModalOpen] = useState(false);
@@ -28,7 +28,7 @@ function App() {
     }
   }, [themeMode]);
 
-  const processQuizData = (data: string | any) => {
+  const processTestData = (data: string | any) => {
     try {
       const parsed = typeof data === 'string' ? JSON.parse(data) : data;
 
@@ -76,7 +76,7 @@ function App() {
 
       // Handle questions array validation
       if (rawQuestions.length === 0) {
-        throw new Error('Quiz must have at least one question (in sections or top-level)');
+        throw new Error('Test must have at least one question (in sections or top-level)');
       }
 
       // Normalize and validate questions
@@ -113,9 +113,9 @@ function App() {
       });
 
       // Construct final config
-      const cleanConfig: QuizConfig = {
-        id: parsed.id || `quiz-${Date.now()}`,
-        title: parsed.title || 'Untitled Quiz',
+      const cleanConfig: TestConfig = {
+        id: parsed.id || `test-${Date.now()}`,
+        title: parsed.title || 'Untitled Test',
         description: parsed.description || '',
         globalTimeLimit: parsed.globalTimeLimit,
         shuffleQuestions: !!parsed.shuffleQuestions,
@@ -128,13 +128,13 @@ function App() {
       setError(null);
       setJsonInput(JSON.stringify(cleanConfig, null, 2)); // Update input to show cleaned version
     } catch (e: any) {
-      console.error('Quiz processing error:', e);
+      console.error('Test processing error:', e);
       setError(e.message || 'Invalid JSON format');
     }
   };
 
   const handleLoadJson = () => {
-    processQuizData(jsonInput);
+    processTestData(jsonInput);
   };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -144,7 +144,7 @@ function App() {
     const reader = new FileReader();
     reader.onload = (e) => {
       const content = e.target?.result as string;
-      processQuizData(content);
+      processTestData(content);
       // Optional: also populate the text area for visibility
       setJsonInput(content);
     };
@@ -188,20 +188,20 @@ function App() {
               </button>
 
               {/* Only show floating download when NOT in intro or completed (where specialized buttons exist) */}
-              {useQuizStore.getState().status === 'active' && (
+              {useTestStore.getState().status === 'active' && (
                 <button
                   onClick={() => {
                     if (!config) return;
                     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(config, null, 2));
                     const downloadAnchorNode = document.createElement('a');
                     downloadAnchorNode.setAttribute("href", dataStr);
-                    downloadAnchorNode.setAttribute("download", `${config.title || 'quiz'}.json`);
+                    downloadAnchorNode.setAttribute("download", `${config.title || 'test'}.json`);
                     document.body.appendChild(downloadAnchorNode);
                     downloadAnchorNode.click();
                     downloadAnchorNode.remove();
                   }}
                   className={`p-2 glass-button rounded-full shadow-sm transition-all ${themeMode === 'dark' ? 'text-indigo-400 hover:text-indigo-300' : 'text-indigo-500 hover:text-indigo-600'}`}
-                  title="Export Quiz JSON"
+                  title="Export Test JSON"
                 >
                   <Download className="w-5 h-5" />
                 </button>
@@ -215,14 +215,14 @@ function App() {
                 <Trash2 className="w-5 h-5" />
               </button>
             </div>
-            <QuizRenderer />
+            <TestRenderer />
           </>
         ) : (
           <div className="min-h-screen flex flex-col justify-center items-center p-4">
             {/* ... existing loading screen content ... */}
             {isSyllabusMode ? (
               <SyllabusInput
-                onQuizGenerated={(config) => {
+                onTestGenerated={(config) => {
                   setConfig(config);
                   setIsSyllabusMode(false);
                 }}
@@ -234,13 +234,13 @@ function App() {
                 <div className="grid grid-cols-1 lg:grid-cols-[4fr_5fr] gap-8 lg:gap-16 items-stretch w-full mt-16 md:mt-0">
                   <LandingFeatures />
                   <div className="flex flex-col h-full pt-6 md:pt-[60px]">
-                    <QuizLoader
+                    <TestLoader
                       jsonInput={jsonInput}
                       setJsonInput={setJsonInput}
                       error={error}
                       onLoadJson={handleLoadJson}
                       onFileUpload={handleFileUpload}
-                      onProcessQuizData={processQuizData}
+                      onProcessTestData={processTestData}
                       onStartSyllabusMode={() => setIsSyllabusMode(true)}
                       onOpenSchemaHelp={() => setIsSchemaModalOpen(true)}
                     />
@@ -259,7 +259,7 @@ function App() {
         onClose={() => setIsResetModalOpen(false)}
         onConfirm={clearState}
         title="Reset Application?"
-        description="This will clear all your current quiz progress, answers, and the loaded quiz configuration. You will be returned to the loading screen. This action cannot be undone."
+        description="This will clear all your current test progress, answers, and the loaded test configuration. You will be returned to the loading screen. This action cannot be undone."
         confirmLabel="Reset Everything"
         variant="danger"
       />

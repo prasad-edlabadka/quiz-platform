@@ -14,7 +14,7 @@ export const SchemaHelpModal: React.FC<SchemaHelpModalProps> = ({ isOpen, onClos
 
   const exampleJson = `{
   "id": "quiz_01",
-  "title": "My Quiz",
+  "title": "My Test",
   "questions": [
     {
       "id": "q1",
@@ -59,7 +59,7 @@ export const SchemaHelpModal: React.FC<SchemaHelpModalProps> = ({ isOpen, onClos
               <div className="p-2 bg-indigo-500/20 text-indigo-300 rounded-lg backdrop-blur-sm">
                 <FileJson className="w-5 h-5" />
               </div>
-              <h3 className="text-xl font-bold text-glass-primary">Quiz JSON Schema</h3>
+              <h3 className="text-xl font-bold text-glass-primary">Test JSON Schema</h3>
             </div>
             <button onClick={onClose} className="text-glass-secondary hover:text-glass-primary transition-colors">
               <X className="w-6 h-6" />
@@ -74,7 +74,7 @@ export const SchemaHelpModal: React.FC<SchemaHelpModalProps> = ({ isOpen, onClos
               <h4 className="text-glass-primary font-semibold mt-4 mb-2">Required Fields</h4>
               <ul className="list-disc pl-5 space-y-1">
                 <li><code>id</code> (string): Unique identifier</li>
-                <li><code>title</code> (string): Quiz title</li>
+                <li><code>title</code> (string): Test title</li>
                 <li><code>questions</code> (array): List of Question objects</li>
               </ul>
 

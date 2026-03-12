@@ -1,7 +1,7 @@
 {
   "id": "section-demo",
   "title": "Reading Comprehension Test",
-  "description": "A sample quiz demonstrating sections with shared background information.",
+  "description": "A sample test demonstrating sections with shared background information.",
   "globalTimeLimit": 600,
   "sections": [
     {

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useQuizStore } from '../store/quizStore';
+import { useTestStore } from '../store/testStore';
 import { MarkdownRenderer } from './MarkdownRenderer';
 import { RefreshCw, CheckCircle, XCircle, Clock, Printer, Download, Sparkles, AlertCircle, MessageSquare, Send, ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -7,7 +7,7 @@ import { evaluateBatchAnswers, evaluateTextAnswer } from '../services/aiService'
 import { ApiKeyModal } from './ApiKeyModal';
 
 export const ResultsView: React.FC = () => {
-    const { config, answers, resetQuiz, clearState, questionTimeTaken, apiKey, evaluations, addBatchEvaluations, addEvaluation, themeMode, isViewingPastResult } = useQuizStore();
+    const { config, answers, resetTest, clearState, questionTimeTaken, apiKey, evaluations, addBatchEvaluations, addEvaluation, themeMode, isViewingPastResult } = useTestStore();
     const isDark = themeMode === 'dark';
     const [isGrading, setIsGrading] = useState(false);
     const [showKeyModal, setShowKeyModal] = useState(false);
@@ -157,7 +157,7 @@ export const ResultsView: React.FC = () => {
                         const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(config, null, 2));
                         const downloadAnchorNode = document.createElement('a');
                         downloadAnchorNode.setAttribute("href", dataStr);
-                        downloadAnchorNode.setAttribute("download", `${config.title || 'quiz'}.json`);
+                        downloadAnchorNode.setAttribute("download", `${config.title || 'test'}.json`);
                         document.body.appendChild(downloadAnchorNode);
                         downloadAnchorNode.click();
                         downloadAnchorNode.remove();
@@ -187,7 +187,7 @@ export const ResultsView: React.FC = () => {
                         )}
                     </div>
                     <h2 className="text-3xl font-bold text-glass-primary mb-2">
-                        {isGrading && !isViewingPastResult ? 'Grading in Progress...' : 'Quiz Completed!'}
+                        {isGrading && !isViewingPastResult ? 'Grading in Progress...' : 'Test Completed!'}
                     </h2>
 
                     {isGrading && !isViewingPastResult && (
@@ -437,7 +437,7 @@ export const ResultsView: React.FC = () => {
 
             <div className="mt-8 flex justify-center">
                 <button
-                    onClick={isViewingPastResult ? clearState : resetQuiz}
+                    onClick={isViewingPastResult ? clearState : resetTest}
                     className="inline-flex items-center px-6 py-3 glass-button-primary text-base font-medium rounded-md shadow-sm transition-colors print:hidden"
                 >
                     {isViewingPastResult ? (
@@ -448,7 +448,7 @@ export const ResultsView: React.FC = () => {
                     ) : (
                         <>
                             <RefreshCw className="mr-2 -ml-1 h-5 w-5" />
-                            Restart Quiz
+                            Restart Test
                         </>
                     )}
                 </button>

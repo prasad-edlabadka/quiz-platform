@@ -1,10 +1,10 @@
 import React from 'react';
-import { useQuizStore } from '../store/quizStore';
+import { useTestStore } from '../store/testStore';
 import { ArrowLeft, Printer } from 'lucide-react';
 import { MarkdownRenderer } from './MarkdownRenderer';
 
 export const PrintableView: React.FC = () => {
-  const { config, resetQuiz } = useQuizStore();
+  const { config, resetTest } = useTestStore();
 
   if (!config) return null;
 
@@ -15,11 +15,11 @@ export const PrintableView: React.FC = () => {
       <div className="print:hidden sticky top-0 bg-white border-b border-gray-200 z-50 p-4 shadow-sm mb-4">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <button
-            onClick={resetQuiz}
+            onClick={resetTest}
             className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
           >
             <ArrowLeft className="mr-2 w-5 h-5" />
-            Back to Quiz Select
+            Back to Test Select
           </button>
           <button
             onClick={() => window.print()}

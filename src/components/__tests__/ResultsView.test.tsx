@@ -1,11 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { ResultsView } from '../ResultsView';
-import { useQuizStore } from '../../store/quizStore';
+import { useTestStore } from '../../store/quizStore';
 
 // Mock the store
 vi.mock('../../store/quizStore', () => ({
-    useQuizStore: vi.fn()
+    useTestStore: vi.fn()
 }));
 
 // Mock react-to-print
@@ -67,13 +67,13 @@ describe('ResultsView', () => {
             'q1': ['opt1'], // Correct
             'q2': ['opt4']  // Wrong
         },
-        resetQuiz: vi.fn(),
+        resetTest: vi.fn(),
         questionTimeTaken: { 'q1': 10, 'q2': 20 }
     };
 
     beforeEach(() => {
         vi.clearAllMocks();
-        (useQuizStore as any).mockReturnValue(mockStore);
+        (useTestStore as any).mockReturnValue(mockStore);
     });
 
     it('should calculate and display score correctly', () => {
@@ -109,14 +109,14 @@ describe('ResultsView', () => {
         expect(screen.getByText('Correct Answer:')).toBeInTheDocument();
     });
 
-    it('should call resetQuiz on restart', () => {
+    it('should call resetTest on restart', () => {
         render(<ResultsView />);
         fireEvent.click(screen.getByText('Restart Quiz'));
-        expect(mockStore.resetQuiz).toHaveBeenCalled();
+        expect(mockStore.resetTest).toHaveBeenCalled();
     });
 
     it('should handle missing config', () => {
-        (useQuizStore as any).mockReturnValue({ ...mockStore, config: null });
+        (useTestStore as any).mockReturnValue({ ...mockStore, config: null });
         const { container } = render(<ResultsView />);
         expect(container).toBeEmptyDOMElement();
     });
