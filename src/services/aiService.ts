@@ -6,28 +6,76 @@ import type { TestConfig } from '../types/test';
 export type QuestionTypeFilter = 'mixed' | 'mcq' | 'text';
 export type StructureMode = 'flat' | 'sections';
 export type TimeBoundMode = 'none' | 'overall' | 'per_question' | 'both';
+export type ApiKeyStatus = 'unknown' | 'checking' | 'valid' | 'invalid';
+
+/**
+ * Pings the Gemini API with a minimal prompt to verify the API key is active and valid.
+ */
+export const validateApiKey = async (apiKey: string): Promise<ApiKeyStatus> => {
+  if (!apiKey || !apiKey.trim()) return 'invalid';
+  try {
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    await model.generateContent('ping');
+    return 'valid';
+  } catch (error: any) {
+    const msg: string = (error.message || '').toLowerCase();
+    // Only flag as INVALID for clear authentication failures
+    const isAuthError =
+      msg.includes('api_key_invalid') ||
+      msg.includes('api key not valid') ||
+      msg.includes('invalid api key') ||
+      msg.includes('unauthorized') ||
+      (msg.includes('401') && (msg.includes('key') || msg.includes('auth'))) ||
+      (msg.includes('403') && !msg.includes('quota'));
+    if (isAuthError) return 'invalid';
+    // Everything else (quota, model not found, network, etc.) → key is fine
+    return 'valid';
+  }
+};
 
   // Fallback models in order of preference (based on available quota)
-  const MODELS = ["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-3-flash"];
+  const MODELS = [
+    "gemini-1.5-flash", 
+    "gemini-2.0-flash", 
+    "gemini-1.5-pro",
+    "gemini-2.5-flash", 
+    "gemini-2.5-flash-lite", 
+    "gemini-3-flash"
+  ];
 
-  const generateWithFallback = async (apiKey: string, prompt: string): Promise<string> => {
+  const runWithFallback = async (apiKey: string, parts: any[] | string): Promise<string> => {
       const genAI = new GoogleGenerativeAI(apiKey);
+      const promptParts = typeof parts === 'string' ? [{ text: parts }] : parts;
       
       let lastError: any;
       for (const modelName of MODELS) {
           try {
-              console.log(`Attempting generation with model: ${modelName}`);
+              console.log(`[AI] Attempting task with model: ${modelName}`);
               const model = genAI.getGenerativeModel({ model: modelName });
-              const result = await model.generateContent(prompt);
+              const result = await model.generateContent(promptParts);
               const response = await result.response;
-              return response.text();
+              const text = response.text();
+              
+              if (text) {
+                  console.log(`[AI] Success with ${modelName}. Response length: ${text.length}`);
+                  return text;
+              }
           } catch (error: any) {
-              console.warn(`Model ${modelName} failed:`, error.message);
+              const isQuotaError = error.message?.toLowerCase().includes('quota') || error.message?.includes('429');
+              console.warn(`[AI] Model ${modelName} failed ${isQuotaError ? '(QUOTA)' : ''}:`, error.message);
               lastError = error;
-              // Continue to next model if available
+              // If it's not a quota error or transient error, we might want to still try others
           }
       }
-      throw new Error(lastError?.message || "All models failed to generate content.");
+      
+      const FinalErrorMessage = lastError?.message || "All AI models failed to respond.";
+      console.error(`[AI] Final Failure: ${FinalErrorMessage}`);
+      throw new Error(FinalErrorMessage);
+  };
+
+  const generateWithFallback = async (apiKey: string, prompt: string): Promise<string> => {
+      return runWithFallback(apiKey, prompt);
   };
 
   export const generateTestFromSyllabus = async (
@@ -175,6 +223,9 @@ export type TimeBoundMode = 'none' | 'overall' | 'per_question' | 'both';
        cleanJson = text.replace(/```json\n?|\n?```/g, '').trim();
     }
     
+    // Sanitize JSON
+    cleanJson = cleanJson.replace(/\\([^"\\/bfnrt])/g, '\\\\$1');
+    
     const testData = JSON.parse(cleanJson);
     
     // Auto-generate IDs if missing (model might skip them to save tokens)
@@ -292,27 +343,8 @@ export const extractTestConfigFromPDF = async (
     ];
 
     try {
-        const genAI = new GoogleGenerativeAI(apiKey);
-        let text = "";
-        let lastError: any;
-        
-        for (const modelName of MODELS) {
-          try {
-              console.log(`Attempting PDF extraction with model: ${modelName}`);
-              const model = genAI.getGenerativeModel({ model: modelName });
-              const result = await model.generateContent(parts);
-              const response = await result.response;
-              text = response.text();
-              break; 
-          } catch (error: any) {
-              console.warn(`Model ${modelName} failed for PDF extraction:`, error.message);
-              lastError = error;
-          }
-        }
+        const text = await runWithFallback(apiKey, parts);
 
-        if (!text) {
-           throw new Error(lastError?.message || "All models failed to extract PDF.");
-        }
 
         let cleanJson = text.replace(/```json\n?|\n?```/g, '').trim();
         const firstBrace = cleanJson.indexOf('{');
@@ -320,6 +352,10 @@ export const extractTestConfigFromPDF = async (
         if (firstBrace >= 0 && lastBrace > firstBrace) {
             cleanJson = cleanJson.substring(firstBrace, lastBrace + 1);
         }
+
+        // Sanitize JSON by double-escaping backslashes that don't form valid JSON escapes
+        // This fixes errors where the LLM produces \+ or \- in LaTeX equations instead of \\+
+        cleanJson = cleanJson.replace(/\\([^"\\/bfnrt])/g, '\\\\$1');
 
         const testData = JSON.parse(cleanJson);
 
@@ -405,6 +441,9 @@ export const evaluateTextAnswer = async (
             cleanJson = cleanJson.substring(firstBrace, lastBrace + 1);
         }
 
+        // Sanitize JSON
+        cleanJson = cleanJson.replace(/\\([^"\\/bfnrt])/g, '\\\\$1');
+
         const data = JSON.parse(cleanJson);
         return {
             score: typeof data.score === 'number' ? data.score : 0,
@@ -472,6 +511,9 @@ export const evaluateBatchAnswers = async (
         if (firstBrace >= 0 && lastBrace > firstBrace) {
             cleanJson = cleanJson.substring(firstBrace, lastBrace + 1);
         }
+
+        // Sanitize JSON
+        cleanJson = cleanJson.replace(/\\([^"\\/bfnrt])/g, '\\\\$1');
 
         const data = JSON.parse(cleanJson);
         const evaluations = data.evaluations || {};
@@ -569,28 +611,8 @@ export const evaluateOfflineImages = async (
     }
 
     try {
-        const genAI = new GoogleGenerativeAI(apiKey);
-        // Vision tasks often require specific models or the standard ones if they support it
-        // We will try gemini-2.5-flash as it supports multimodal 
-        let text = "";
-        let lastError: any;
-        for (const modelName of MODELS) {
-          try {
-              console.log(`Attempting vision generation with model: ${modelName}`);
-              const model = genAI.getGenerativeModel({ model: modelName });
-              const result = await model.generateContent(parts);
-              const response = await result.response;
-              text = response.text();
-              break; // Success
-          } catch (error: any) {
-              console.warn(`Model ${modelName} failed for vision:`, error.message);
-              lastError = error;
-          }
-        }
-        
-        if (!text) {
-           throw new Error(lastError?.message || "All models failed to evaluate images.");
-        }
+        const text = await runWithFallback(apiKey, parts);
+
 
         let cleanJson = text.replace(/```json\n?|\n?```/g, '').trim();
         const firstBrace = cleanJson.indexOf('{');
@@ -598,6 +620,9 @@ export const evaluateOfflineImages = async (
         if (firstBrace >= 0 && lastBrace > firstBrace) {
             cleanJson = cleanJson.substring(firstBrace, lastBrace + 1);
         }
+
+        // Sanitize JSON
+        cleanJson = cleanJson.replace(/\\([^"\\/bfnrt])/g, '\\\\$1');
 
         const data = JSON.parse(cleanJson);
         const evaluations = data.evaluations || {};

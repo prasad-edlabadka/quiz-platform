@@ -12,6 +12,8 @@ interface TestLoaderProps {
   onProcessTestData: (data: string | any) => void;
   onOpenSchemaHelp?: () => void;
   activeTab: 'ai' | 'upload' | 'library' | 'offline' | 'history';
+  setActiveTab?: (tab: 'ai' | 'upload' | 'library' | 'offline' | 'history' | null) => void;
+  onOpenSettings?: () => void;
 }
 
 import { PastResultsView } from './PastResultsView';
@@ -26,7 +28,9 @@ export const TestLoader: React.FC<TestLoaderProps> = ({
   onFileUpload,
   onProcessTestData,
   onOpenSchemaHelp,
-  activeTab
+  activeTab,
+  setActiveTab,
+  onOpenSettings
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { themeMode } = useTestStore();
@@ -39,7 +43,8 @@ export const TestLoader: React.FC<TestLoaderProps> = ({
         {activeTab === 'ai' && (
           <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 flex flex-col items-center justify-center">
             <SyllabusInput 
-              onTestGenerated={(config) => useTestStore.getState().setConfig(config)} 
+              onTestGenerated={(config) => useTestStore.getState().setConfig(config)}
+              onOpenSettings={onOpenSettings}
             />
           </div>
         )}
@@ -135,7 +140,7 @@ export const TestLoader: React.FC<TestLoaderProps> = ({
         {/* Tab Content: Offline Upload */}
         {activeTab === 'offline' && (
           <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 h-full flex flex-col">
-            <OfflineUpload onSuccess={() => {}} />
+            <OfflineUpload onSuccess={() => setActiveTab && setActiveTab('history')} onOpenSettings={onOpenSettings} />
           </div>
         )}
       </div>

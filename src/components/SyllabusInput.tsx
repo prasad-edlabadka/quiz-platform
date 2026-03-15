@@ -1,35 +1,36 @@
 import React, { useState, useEffect } from 'react';
 import { generateTestFromSyllabus, type QuestionTypeFilter, type StructureMode, type TimeBoundMode } from '../services/aiService';
 import type { TestConfig } from '../types/test';
-import { BrainCircuit, Loader2, AlertCircle, Key, BookOpen, Hash, HelpCircle, Layout, ListChecks, Timer, Info } from 'lucide-react';
-import { ApiKeyHelpModal } from './ApiKeyHelpModal';
+import { BrainCircuit, Loader2, AlertCircle, BookOpen, Hash, Layout, ListChecks, Timer, Info, Settings } from 'lucide-react';
+import { useTestStore } from '../store/testStore';
 
 interface TestInputProps {
     onTestGenerated: (config: TestConfig) => void;
     onCancel?: () => void;
+    onOpenSettings?: () => void;
 }
 
-export const SyllabusInput: React.FC<TestInputProps> = ({ onTestGenerated, onCancel }) => {
-    const [apiKey, setApiKey] = useState('');
+export const SyllabusInput: React.FC<TestInputProps> = ({ onTestGenerated, onCancel, onOpenSettings }) => {
+    const { apiKey } = useTestStore();
     const [syllabus, setSyllabus] = useState('');
     const [questionCount, setQuestionCount] = useState(5);
     const [structureMode, setStructureMode] = useState<StructureMode>('flat');
     const [questionType, setQuestionType] = useState<QuestionTypeFilter>('mixed');
     const [timeBoundMode, setTimeBoundMode] = useState<TimeBoundMode>('none');
-    const [isHelpOpen, setIsHelpOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
+    // Auto-open settings popup if no API key on mount
     useEffect(() => {
-        const storedKey = localStorage.getItem('gemini_api_key');
-        if (storedKey) {
-            setApiKey(storedKey);
+        if (!apiKey && onOpenSettings) {
+            onOpenSettings();
         }
-    }, []);
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     const handleGenerate = async () => {
-        if (!apiKey.trim()) {
-            setError('Please provide a valid Google Gemini API Key');
+        if (!apiKey?.trim()) {
+            setError('No API key found. Please set your Gemini API key in Settings.');
+            onOpenSettings?.();
             return;
         }
         if (!syllabus.trim()) {
@@ -39,7 +40,6 @@ export const SyllabusInput: React.FC<TestInputProps> = ({ onTestGenerated, onCan
 
         setLoading(true);
         setError(null);
-        localStorage.setItem('gemini_api_key', apiKey.trim());
 
         try {
             const testConfig = await generateTestFromSyllabus(apiKey, syllabus, questionCount, structureMode, questionType, timeBoundMode);
@@ -70,6 +70,25 @@ export const SyllabusInput: React.FC<TestInputProps> = ({ onTestGenerated, onCan
                     <p className="text-glass-secondary text-base">Use AI to create a tailored test from your study materials.</p>
                 </div>
 
+                {/* API key missing banner */}
+                {!apiKey && (
+                    <button
+                        onClick={onOpenSettings}
+                        className="w-full mb-6 flex items-center gap-3 p-4 rounded-2xl bg-red-500/10 border border-red-500/30 text-left hover:bg-red-500/20 transition-all group"
+                    >
+                        <div className="w-9 h-9 rounded-xl bg-red-500/20 flex items-center justify-center text-red-400 shrink-0 group-hover:scale-110 transition-transform">
+                            <Settings className="w-5 h-5" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                            <p className="text-sm font-bold text-red-400">Gemini API Key Required</p>
+                            <p className="text-xs text-red-400/70">Click here to open Settings and add your key to enable AI generation.</p>
+                        </div>
+                        <span className="text-xs font-semibold text-red-400 border border-red-400/40 px-3 py-1 rounded-lg shrink-0 group-hover:bg-red-400/10 transition-colors">
+                            Open Settings →
+                        </span>
+                    </button>
+                )}
+
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10">
                     {/* Left Column: Syllabus Textarea (Primary Focus) */}
                     <div className="lg:col-span-7 flex flex-col h-full space-y-3">
@@ -80,43 +99,13 @@ export const SyllabusInput: React.FC<TestInputProps> = ({ onTestGenerated, onCan
                         <textarea
                             value={syllabus}
                             onChange={(e) => setSyllabus(e.target.value)}
-                            placeholder="Paste your syllabus, topic list, or notes here...&#10;For example:&#10;- Introduction to React&#10;- Components and Props&#10;- State and Lifecycle"
+                            placeholder={`Paste your syllabus, topic list, or notes here...\nFor example:\n- Introduction to React\n- Components and Props\n- State and Lifecycle`}
                             className="w-full flex-1 min-h-[300px] lg:min-h-full p-4 rounded-xl glass-input outline-none resize-none placeholder:text-gray-500 text-sm md:text-base leading-relaxed"
                         />
                     </div>
 
                     {/* Right Column: Configuration & Actions */}
                     <div className="lg:col-span-5 space-y-6 flex flex-col">
-                        {/* API Key Input */}
-                        <div className="space-y-3 bg-white/5 p-4 rounded-xl border border-white/5">
-                            <div className="flex justify-between items-end mb-1">
-                                <label className="text-sm font-bold text-glass-primary flex items-center gap-2">
-                                    <Key className="w-4 h-4 text-indigo-300" />
-                                    Gemini API Key
-                                </label>
-                                <button
-                                    onClick={() => setIsHelpOpen(true)}
-                                    className="text-xs text-indigo-300 hover:text-white hover:underline flex items-center gap-1 font-medium transition-colors"
-                                >
-                                    <HelpCircle className="w-3 h-3" />
-                                    How do I get a key?
-                                </button>
-                            </div>
-
-                            <div>
-                                <input
-                                    type="password"
-                                    value={apiKey}
-                                    onChange={(e) => setApiKey(e.target.value)}
-                                    placeholder="Enter your Gemini API Key"
-                                    className="w-full p-3 rounded-xl glass-input outline-none text-sm placeholder:text-gray-500"
-                                />
-                                <p className="text-xs text-glass-secondary mt-2 opacity-80">
-                                    Stored locally in your browser, never sent to our servers.
-                                </p>
-                            </div>
-                        </div>
-
                         {/* Test Settings Background Box */}
                         <div className="bg-white/5 p-4 rounded-xl border border-white/5 space-y-5">
                             {/* Configuration Grid */}
@@ -221,8 +210,8 @@ export const SyllabusInput: React.FC<TestInputProps> = ({ onTestGenerated, onCan
                         <div className="mt-auto pt-2">
                             <button
                                 onClick={handleGenerate}
-                                disabled={loading}
-                                className="w-full flex justify-center items-center px-4 py-4 glass-button-primary rounded-xl font-bold transition-colors shadow-lg hover:shadow-indigo-500/20 hover:-translate-y-0.5"
+                                disabled={loading || !apiKey}
+                                className="w-full flex justify-center items-center px-4 py-4 glass-button-primary rounded-xl font-bold transition-colors shadow-lg hover:shadow-indigo-500/20 hover:-translate-y-0.5 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0"
                             >
                                 {loading ? (
                                     <>
@@ -239,8 +228,6 @@ export const SyllabusInput: React.FC<TestInputProps> = ({ onTestGenerated, onCan
                         </div>
                     </div>
                 </div>
-
-                <ApiKeyHelpModal isOpen={isHelpOpen} onClose={() => setIsHelpOpen(false)} />
             </div>
         </>
     );

@@ -3,20 +3,33 @@ import { useTestStore } from './store/testStore';
 import { TestRenderer } from './components/TestRenderer';
 import { ConfirmationModal } from './components/ConfirmationModal';
 import { SchemaHelpModal } from './components/SchemaHelpModal';
-import { Trash2, Sun, Moon, Download, Plus, Library, CheckCircle2, FileText, Upload, Home } from 'lucide-react';
+import { Trash2, Sun, Moon, Download, Plus, Library, CheckCircle2, FileText, Upload, Home, Settings, Key, X, Info } from 'lucide-react';
 import { motion } from 'framer-motion';
 import type { TestConfig } from './types/test';
 
 import { TestLoader } from './components/TestLoader';
 import { LandingFeatures } from './components/LandingFeatures';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { validateApiKey, type ApiKeyStatus } from './services/aiService';
 
 function App() {
-  const { config, setConfig, clearState, themeMode, toggleTheme } = useTestStore();
+  const { config, setConfig, clearState, themeMode, toggleTheme, apiKey, setApiKey } = useTestStore();
   const isDark = themeMode === 'dark';
   const [jsonInput, setJsonInput] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'ai' | 'upload' | 'library' | 'offline' | 'history' | null>('ai');
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [keyStatus, setKeyStatus] = useState<ApiKeyStatus>('unknown');
+
+  // Validate API key on mount and whenever the key changes
+  useEffect(() => {
+    if (!apiKey) {
+      setKeyStatus('invalid');
+      return;
+    }
+    setKeyStatus('checking');
+    validateApiKey(apiKey).then(setKeyStatus);
+  }, [apiKey]);
 
   const tabsConfig = [
     { id: 'ai' as const, icon: Plus, label: 'New Test' },
@@ -288,6 +301,27 @@ function App() {
                 >
                   {themeMode === 'light' ? <Moon className="w-5 h-5 text-indigo-600" /> : <Sun className="w-5 h-5 text-yellow-300" />}
                 </button>
+
+                {/* Settings / API Key button */}
+                <button
+                  onClick={() => setIsSettingsOpen(true)}
+                  className={`relative w-full flex flex-col items-center justify-center py-3 rounded-xl transition-all ${
+                    isDark ? 'text-slate-400 hover:bg-white/5 hover:text-slate-50' : 'text-slate-500 hover:bg-slate-100 hover:text-indigo-600'
+                  }`}
+                  title="AI Engine Settings"
+                >
+                  <Settings className="w-5 h-5" />
+                  {/* Status indicator dot */}
+                  {!apiKey ? (
+                    <span className="absolute top-2 right-3 w-2.5 h-2.5 rounded-full bg-red-500 shadow-sm shadow-red-500/60 animate-pulse" />
+                  ) : keyStatus === 'checking' ? (
+                    <span className="absolute top-2 right-3 w-2.5 h-2.5 rounded-full bg-amber-400 shadow-sm shadow-amber-400/60 animate-pulse" />
+                  ) : keyStatus === 'valid' ? (
+                    <span className="absolute top-2 right-3 w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-sm shadow-emerald-400/50" />
+                  ) : (
+                    <span className="absolute top-2 right-3 w-2.5 h-2.5 rounded-full bg-red-500 shadow-sm shadow-red-500/60 animate-pulse" />
+                  )}
+                </button>
               </div>
             </div>
 
@@ -321,6 +355,8 @@ function App() {
                         onProcessTestData={processTestData}
                         onOpenSchemaHelp={() => setIsSchemaModalOpen(true)}
                         activeTab={activeTab}
+                        setActiveTab={setActiveTab}
+                        onOpenSettings={() => setIsSettingsOpen(true)}
                       />
                     </motion.div>
                   )}
@@ -330,6 +366,124 @@ function App() {
           </div>
         )}
       </ErrorBoundary>
+
+      {/* API Key Settings Popup Modal */}
+      {isSettingsOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => setIsSettingsOpen(false)}>
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: -10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.2 }}
+            onClick={(e) => e.stopPropagation()}
+            className={`relative w-full max-w-lg glass-panel rounded-3xl p-6 border shadow-2xl ${
+              isDark ? 'border-white/10 bg-[#0f111a]' : 'border-indigo-100 bg-white'
+            }`}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${
+                  keyStatus === 'valid' ? 'bg-emerald-500/20 text-emerald-400' 
+                  : keyStatus === 'invalid' ? 'bg-red-500/20 text-red-400'
+                  : keyStatus === 'checking' ? 'bg-amber-500/20 text-amber-400'
+                  : 'bg-indigo-500/20 text-indigo-400'
+                }`}>
+                  <Key className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-glass-primary">AI Engine Settings</h3>
+                  {keyStatus === 'valid' && (
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 uppercase tracking-widest font-extrabold">✓ Connected</span>
+                  )}
+                  {keyStatus === 'invalid' && apiKey && (
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-red-500/20 text-red-400 uppercase tracking-widest font-extrabold">✗ Invalid Key</span>
+                  )}
+                  {keyStatus === 'invalid' && !apiKey && (
+                    <p className="text-xs text-red-400 font-semibold">No API key set</p>
+                  )}
+                  {keyStatus === 'checking' && (
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 uppercase tracking-widest font-extrabold animate-pulse">Verifying…</span>
+                  )}
+                  {keyStatus === 'unknown' && (
+                    <p className="text-xs text-glass-secondary">Add your Gemini API key</p>
+                  )}
+                </div>
+              </div>
+              <button
+                onClick={() => setIsSettingsOpen(false)}
+                className="p-2 rounded-xl text-glass-secondary hover:text-glass-primary hover:bg-white/5 transition-all"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Key Input */}
+            <div className="space-y-4">
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-xs font-bold text-glass-secondary uppercase tracking-widest">Google Gemini API Key</label>
+                  <a
+                    href="https://aistudio.google.com/app/apikey"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[11px] text-indigo-400 hover:text-indigo-300 flex items-center gap-1 transition-colors"
+                  >
+                    <Info className="w-3 h-3" />
+                    Get a free key
+                  </a>
+                </div>
+                <div className="relative">
+                  <input
+                    type="password"
+                    value={apiKey || ''}
+                    onChange={(e) => setApiKey(e.target.value)}
+                    placeholder="Paste your key here (AIza...)"
+                    autoFocus
+                    className={`w-full rounded-xl px-4 py-3 text-sm outline-none font-mono transition-all border ${
+                      isDark
+                        ? 'bg-black/40 border-white/10 focus:border-indigo-500/60 focus:ring-1 focus:ring-indigo-500/40 text-white placeholder:text-slate-600'
+                        : 'bg-slate-50 border-slate-200 focus:border-indigo-400 focus:ring-1 focus:ring-indigo-300 text-slate-900 placeholder:text-slate-400'
+                    }`}
+                  />
+                  {apiKey && (
+                    <button
+                      onClick={() => setApiKey('')}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded-lg text-glass-secondary hover:text-red-400 hover:bg-red-500/10 transition-all"
+                      title="Remove key"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
+                <p className="text-[11px] text-glass-secondary mt-2 italic">
+                  Stored only on your device. Never sent to any server.
+                </p>
+              </div>
+
+              <div className={`rounded-2xl p-4 border ${
+                isDark ? 'bg-indigo-500/5 border-indigo-500/10' : 'bg-indigo-50 border-indigo-100'
+              }`}>
+                <h4 className="text-xs font-bold text-indigo-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+                  <Info className="w-3.5 h-3.5" />
+                  Why a key?
+                </h4>
+                <p className="text-[11px] text-glass-secondary leading-relaxed">
+                  Revise uses <strong>Gemini Flash</strong> to power AI features. Your key ensures data privacy and gives you full control.
+                </p>
+              </div>
+
+              <button
+                onClick={() => setIsSettingsOpen(false)}
+                className="w-full py-2.5 rounded-xl font-bold text-sm bg-indigo-600 hover:bg-indigo-500 text-white transition-all"
+              >
+                {apiKey ? 'Save & Close' : 'Close'}
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
 
 
 
