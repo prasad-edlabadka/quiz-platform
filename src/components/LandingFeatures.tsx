@@ -129,7 +129,6 @@ export const LandingFeatures: React.FC = () => {
         variants={container}
         initial="hidden"
         animate="show"
-        // className="flex flex-col sm:flex-row items-center gap-4 mt-auto pt-6"
         className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 pt-6"
       >
         <motion.div variants={item} className={`glass-panel p-4 rounded-2xl transition-colors flex items-center gap-4 ${isDark ? 'hover:bg-white/5' : 'hover:bg-black/5'}`}>

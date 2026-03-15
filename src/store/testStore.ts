@@ -272,21 +272,32 @@ export const useTestStore = create<TestState>()(
     }),
     {
       name: 'test-storage',
-      partialize: (state) => ({ 
-        config: state.config,
-        status: state.status,
-        pastResults: state.pastResults,
-        isViewingPastResult: state.isViewingPastResult,
-        currentQuestionIndex: state.currentQuestionIndex,
-        answers: state.answers,
-        flaggedQuestions: state.flaggedQuestions,
-        timeRemaining: state.timeRemaining,
-        questionTimeRemaining: state.questionTimeRemaining,
-        questionTimeTaken: state.questionTimeTaken,
-        evaluations: state.evaluations,
-        apiKey: state.apiKey,
-        themeMode: state.themeMode 
-      }),
+      partialize: (state) => {
+        // Strip large base64 images from pastResults to prevent QuotaExceeded errors in localStorage
+        const sanitizedPastResults = state.pastResults.map(result => {
+           if (result.isOffline && result.uploadedSheets) {
+               const { uploadedSheets, ...rest } = result;
+               return rest;
+           }
+           return result;
+        });
+
+        return { 
+          config: state.config,
+          status: state.status,
+          pastResults: sanitizedPastResults,
+          isViewingPastResult: state.isViewingPastResult,
+          currentQuestionIndex: state.currentQuestionIndex,
+          answers: state.answers,
+          flaggedQuestions: state.flaggedQuestions,
+          timeRemaining: state.timeRemaining,
+          questionTimeRemaining: state.questionTimeRemaining,
+          questionTimeTaken: state.questionTimeTaken,
+          evaluations: state.evaluations,
+          apiKey: state.apiKey,
+          themeMode: state.themeMode 
+        };
+      },
     }
   )
 );
