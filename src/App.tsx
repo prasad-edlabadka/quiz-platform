@@ -17,7 +17,7 @@ function App() {
   const isDark = themeMode === 'dark';
   const [jsonInput, setJsonInput] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'ai' | 'upload' | 'library' | 'offline' | 'history' | null>('ai');
+  const [activeTab, setActiveTab] = useState<'ai' | 'upload' | 'library' | 'offline' | 'history' | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [keyStatus, setKeyStatus] = useState<ApiKeyStatus>('unknown');
 
