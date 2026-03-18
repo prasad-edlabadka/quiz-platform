@@ -9,6 +9,46 @@ export type TimeBoundMode = 'none' | 'overall' | 'per_question' | 'both';
 export type ApiKeyStatus = 'unknown' | 'checking' | 'valid' | 'invalid';
 
 /**
+ * Fixes invalid JSON escape sequences produced by LLMs (e.g. \{ \+ \l from LaTeX)
+ * without corrupting already-valid escape sequences like \\ or \n.
+ *
+ * The previous regex approach was broken: it would match the second \ in a valid
+ * \\\ pair and then process \{ as a single invalid escape, turning \\ { into \\\{ which
+ * is itself invalid on re-parse. This state machine processes \  characters in order,
+ * treating every valid two-char escape as a single atomic unit.
+ */
+const fixJsonEscapes = (json: string): string => {
+  const validSingleEscapes = new Set(['"', '\\', '/', 'b', 'f', 'n', 'r', 't']);
+  let result = '';
+  let i = 0;
+  while (i < json.length) {
+    if (json[i] === '\\') {
+      const next = json[i + 1];
+      if (next === undefined) {
+        // Trailing lone backslash - discard it
+        i++;
+      } else if (validSingleEscapes.has(next)) {
+        // Valid single-char escape (includes \\) — keep as-is and skip both chars
+        result += json[i] + next;
+        i += 2;
+      } else if (next === 'u' && /^[0-9a-fA-F]{4}$/.test(json.slice(i + 2, i + 6))) {
+        // Valid unicode escape \uXXXX — keep as-is
+        result += json.slice(i, i + 6);
+        i += 6;
+      } else {
+        // Invalid escape (e.g. \{ \l \+ \R) — double the backslash to make it valid
+        result += '\\\\' + next;
+        i += 2;
+      }
+    } else {
+      result += json[i];
+      i++;
+    }
+  }
+  return result;
+};
+
+/**
  * Pings the Gemini API with a minimal prompt to verify the API key is active and valid.
  */
 export const validateApiKey = async (apiKey: string): Promise<ApiKeyStatus> => {
@@ -224,7 +264,9 @@ export const validateApiKey = async (apiKey: string): Promise<ApiKeyStatus> => {
     }
     
     // Sanitize JSON
-    cleanJson = cleanJson.replace(/\\([^"\\/bfnrt])/g, '\\\\$1');
+    cleanJson = fixJsonEscapes(cleanJson);
+
+    console.log("Cleaned JSON: ", cleanJson);
     
     const testData = JSON.parse(cleanJson);
     
@@ -353,9 +395,8 @@ export const extractTestConfigFromPDF = async (
             cleanJson = cleanJson.substring(firstBrace, lastBrace + 1);
         }
 
-        // Sanitize JSON by double-escaping backslashes that don't form valid JSON escapes
-        // This fixes errors where the LLM produces \+ or \- in LaTeX equations instead of \\+
-        cleanJson = cleanJson.replace(/\\([^"\\/bfnrt])/g, '\\\\$1');
+        // Sanitize JSON using state-machine (handles properly double-escaped LaTeX correctly)
+        cleanJson = fixJsonEscapes(cleanJson);
 
         const testData = JSON.parse(cleanJson);
 
@@ -442,7 +483,7 @@ export const evaluateTextAnswer = async (
         }
 
         // Sanitize JSON
-        cleanJson = cleanJson.replace(/\\([^"\\/bfnrt])/g, '\\\\$1');
+        cleanJson = fixJsonEscapes(cleanJson);
 
         const data = JSON.parse(cleanJson);
         return {
@@ -513,7 +554,7 @@ export const evaluateBatchAnswers = async (
         }
 
         // Sanitize JSON
-        cleanJson = cleanJson.replace(/\\([^"\\/bfnrt])/g, '\\\\$1');
+        cleanJson = fixJsonEscapes(cleanJson);
 
         const data = JSON.parse(cleanJson);
         const evaluations = data.evaluations || {};
@@ -622,7 +663,7 @@ export const evaluateOfflineImages = async (
         }
 
         // Sanitize JSON
-        cleanJson = cleanJson.replace(/\\([^"\\/bfnrt])/g, '\\\\$1');
+        cleanJson = fixJsonEscapes(cleanJson);
 
         const data = JSON.parse(cleanJson);
         const evaluations = data.evaluations || {};
