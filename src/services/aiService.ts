@@ -203,8 +203,12 @@ export const validateApiKey = async (apiKey: string): Promise<ApiKeyStatus> => {
     7. CRITICAL: Do NOT include any 'imageUrl' fields or references to images. Use descriptive text or ASCII diagrams if needed.
     ${timeInstruction ? `8. ${timeInstruction}` : ''}
     
+    CONTENT SAFETY:
+    If the syllabus content is offensive, illegal, promotes self-harm, sexually explicit, related to sex, pornography or is otherwise inappropriate for an educational tool, you MUST NOT generate questions. Instead, return ONLY the following JSON object:
+    { "error": "safety_violation", "message": "This content is inappropriate for study practice. Please provide a different topic." }
+
     OUTPUT FORMAT:
-    Return ONLY a valid JSON object matching the detailed structure below.
+    Return ONLY a valid JSON object matching the detailed structure below (or the safety rejection object above).
     
     STRUCTURE:
     ${FINAL_SCHEMA}
@@ -269,6 +273,11 @@ export const validateApiKey = async (apiKey: string): Promise<ApiKeyStatus> => {
     console.log("Cleaned JSON: ", cleanJson);
     
     const testData = JSON.parse(cleanJson);
+
+    // Handle safety rejection
+    if (testData.error === 'safety_violation') {
+      throw new Error(testData.message || "This content is not allowed.");
+    }
     
     // Auto-generate IDs if missing (model might skip them to save tokens)
     // Auto-generate IDs if missing
@@ -369,8 +378,12 @@ export const extractTestConfigFromPDF = async (
       5. Include math equations using LaTeX formats where appropriate (use $x^2$ and double escape backslashes e.g. \\\\frac).
       6. Do NOT invent new questions. ONLY extract what is in the document.
       
+      CONTENT SAFETY:
+      If the PDF content is offensive, illegal, promotes self-harm, or is otherwise inappropriate for an educational tool, you MUST NOT extract questions. Instead, return ONLY the following JSON object:
+      { "error": "safety_violation", "message": "This PDF contains content that is inappropriate for study practice. Please upload a different file." }
+
       OUTPUT FORMAT:
-      Return ONLY a valid JSON object matching this schema:
+      Return ONLY a valid JSON object matching this schema (or the safety rejection object above):
       ${EXTRACT_SCHEMA}
     `;
 
@@ -399,6 +412,11 @@ export const extractTestConfigFromPDF = async (
         cleanJson = fixJsonEscapes(cleanJson);
 
         const testData = JSON.parse(cleanJson);
+
+        // Handle safety rejection
+        if (testData.error === 'safety_violation') {
+          throw new Error(testData.message || "This content is not allowed.");
+        }
 
         const processedTest: any = {
             ...testData,

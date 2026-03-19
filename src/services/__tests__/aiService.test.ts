@@ -83,4 +83,26 @@ describe('aiService', () => {
 
         await expect(generateTestFromSyllabus(mockApiKey, mockSyllabus)).rejects.toThrow();
     });
+
+    it('should throw specific safety error if AI rejects content', async () => {
+        const safetyRejection = JSON.stringify({
+            error: 'safety_violation',
+            message: 'This content is inappropriate for study practice.'
+        });
+
+        const mockGenerateContent = vi.fn().mockResolvedValue({
+            response: {
+                text: () => safetyRejection
+            }
+        });
+
+        (GoogleGenerativeAI as any).mockImplementation(() => ({
+            getGenerativeModel: vi.fn().mockReturnValue({
+                generateContent: mockGenerateContent
+            })
+        }));
+
+        await expect(generateTestFromSyllabus(mockApiKey, 'inappropriate prompt'))
+            .rejects.toThrow('This content is inappropriate for study practice.');
+    });
 });
