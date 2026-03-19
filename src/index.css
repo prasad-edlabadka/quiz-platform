@@ -250,4 +250,171 @@
   .break-inside-avoid {
     break-inside: avoid-page !important;
   }
+  /* PDF Export document — always hidden on screen, shown only on print */
+  #pdf-print-content { display: none !important; }
+}
+
+/* Print-only doc styles */
+@media print {
+  /* Portal makes #pdf-print-content a direct <body> child.
+     Hide all OTHER direct body children (e.g. #root) so they don't
+     push the PDF content down and create a blank first page. */
+  body > *:not(#pdf-print-content) { display: none !important; }
+  #pdf-print-content {
+    display: block !important;
+    width: 100% !important;
+    background: white !important;
+  }
+
+  .print-doc {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    color: #1a1a1a;
+    max-width: 100%;
+    font-size: 11pt;
+    line-height: 1.5;
+  }
+
+  .print-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+  }
+
+  .print-title {
+    font-size: 18pt;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0 0 4px 0;
+  }
+
+  .print-subtitle {
+    font-size: 10pt;
+    color: #555;
+    margin: 0 0 4px 0;
+  }
+
+  .print-meta {
+    font-size: 9pt;
+    color: #888;
+    margin: 0;
+  }
+
+  .print-score-badge {
+    border: 2px solid;
+    border-radius: 12px;
+    padding: 10px 18px;
+    text-align: center;
+    min-width: 90px;
+    flex-shrink: 0;
+  }
+
+  .print-score-pct {
+    font-size: 22pt;
+    font-weight: 800;
+    line-height: 1;
+  }
+
+  .print-score-raw {
+    font-size: 10pt;
+    color: #555;
+    margin-top: 2px;
+  }
+
+  .print-score-time {
+    font-size: 9pt;
+    color: #888;
+  }
+
+  .print-divider {
+    border: none;
+    border-top: 2px solid #e5e7eb;
+    margin: 16px 0;
+  }
+
+  .print-question {
+    margin-bottom: 20px;
+    padding: 12px 16px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    overflow: visible;
+    /* Intentionally NO break-inside: avoid — Chrome's PDF engine silently
+       drops questions with this property when they don't fit the page */
+  }
+
+  .print-q-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+
+  .print-q-num {
+    font-weight: 700;
+    font-size: 10pt;
+    color: #6366f1;
+  }
+
+  .print-q-score {
+    font-weight: 700;
+    font-size: 12pt;
+  }
+
+  .print-q-content {
+    font-size: 11pt;
+    font-weight: 500;
+    margin: 4px 0 10px 0;
+    color: #111;
+  }
+
+  .print-options {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 8px;
+  }
+
+  .print-option {
+    font-size: 10pt;
+    padding: 5px 10px;
+    border: 1px solid;
+    border-radius: 5px;
+  }
+
+  .print-text-answer {
+    font-size: 10pt;
+    padding: 6px 10px;
+    background: #f1f5f9;
+    border-radius: 5px;
+    margin-bottom: 6px;
+  }
+
+  .print-feedback {
+    font-size: 9.5pt;
+    color: #374151;
+    padding: 6px 10px;
+    background: #eff6ff;
+    border-left: 3px solid #6366f1;
+    border-radius: 0 5px 5px 0;
+    margin-top: 6px;
+  }
+
+  .print-justification {
+    font-size: 9.5pt;
+    color: #374151;
+    padding: 6px 10px;
+    background: #f0fdf4;
+    border-left: 3px solid #22c55e;
+    border-radius: 0 5px 5px 0;
+    margin-top: 4px;
+  }
+
+  .print-footer {
+    margin-top: 24px;
+    font-size: 8pt;
+    color: #aaa;
+    text-align: center;
+    border-top: 1px solid #e5e7eb;
+    padding-top: 8px;
+  }
 }
