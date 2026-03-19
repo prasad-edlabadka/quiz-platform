@@ -14,6 +14,7 @@ interface TestLoaderProps {
   activeTab: 'ai' | 'upload' | 'library' | 'offline' | 'history';
   setActiveTab?: (tab: 'ai' | 'upload' | 'library' | 'offline' | 'history' | null) => void;
   onOpenSettings?: () => void;
+  onRetake?: (config: import('../types/test').TestConfig) => void;
 }
 
 import { PastResultsView } from './PastResultsView';
@@ -30,7 +31,8 @@ export const TestLoader: React.FC<TestLoaderProps> = ({
   onOpenSchemaHelp,
   activeTab,
   setActiveTab,
-  onOpenSettings
+  onOpenSettings,
+  onRetake
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { themeMode } = useTestStore();
@@ -133,7 +135,7 @@ export const TestLoader: React.FC<TestLoaderProps> = ({
         {/* Tab Content: Past Results */}
         {activeTab === 'history' && (
           <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 h-full flex flex-col">
-            <PastResultsView onBack={() => {}} />
+            <PastResultsView onBack={() => {}} onRetake={onRetake} />
           </div>
         )}
 
