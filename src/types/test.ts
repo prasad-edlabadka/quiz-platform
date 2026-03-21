@@ -29,6 +29,7 @@ export interface Question {
   imageUrl?: string; // Optional image
   justification?: string; // Explanation for the answer
   points?: number; // Score value for this question (default: 1)
+  requiresDiagram?: boolean; // If true, rendering will include a drawing canvas
 }
 
 export interface Option {
@@ -43,6 +44,7 @@ export interface PastTestResult {
   date: string;
   config: TestConfig;
   answers: Record<string, string[]>;
+  drawnAnswers: Record<string, string>;
   evaluations: Record<string, { score: number; feedback: string; maxScore: number }>;
   timeRemaining: number;
   questionTimeTaken: Record<string, number>;
@@ -58,6 +60,7 @@ export interface TestState {
 
   currentQuestionIndex: number;
   answers: Record<string, string[]>; // questionId -> selectedOptionIds
+  drawnAnswers: Record<string, string>; // questionId -> base64 Image string
   flaggedQuestions: string[]; // ids of flagged questions
   timeRemaining: number; // For global timer
   questionTimeRemaining: Record<string, number>; // For per-question timer
@@ -72,6 +75,7 @@ export interface TestState {
   startTest: () => void;
   printTest: () => void;
   answerQuestion: (questionId: string, optionIds: string[]) => void;
+  answerDrawing: (questionId: string, base64: string) => void;
   toggleFlag: (questionId: string) => void;
   jumpToQuestion: (index: number) => void;
   nextQuestion: () => void;

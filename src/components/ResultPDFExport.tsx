@@ -1,6 +1,7 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
 import type { PastTestResult } from '../types/test';
+import { useTestStore } from '../store/testStore';
 
 interface ResultPDFExportProps {
   result: PastTestResult;
@@ -26,6 +27,8 @@ const calcScore = (result: PastTestResult) => {
 };
 
 export const ResultPDFExport: React.FC<ResultPDFExportProps> = ({ result, onClose }) => {
+  const { themeMode } = useTestStore();
+  const isDark = themeMode === 'dark';
   const { total, max, pct } = calcScore(result);
   const timeSpent = Object.values(result.questionTimeTaken || {}).reduce((a, b) => a + b, 0);
 
@@ -126,17 +129,21 @@ export const ResultPDFExport: React.FC<ResultPDFExportProps> = ({ result, onClos
   return (
     <>
       {/* Screen-only overlay (hidden on print via .no-print) */}
-      <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center p-4 no-print">
-        <div className="bg-slate-900 border border-white/10 rounded-2xl p-6 max-w-sm w-full text-center space-y-4">
-          <h3 className="text-lg font-bold text-white">Export PDF Report</h3>
-          <p className="text-sm text-slate-400">
+      <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center p-4 no-print">
+        <div className={`border rounded-2xl p-6 max-w-sm w-full text-center space-y-4 shadow-xl ${
+          isDark ? 'bg-slate-900 border-white/10' : 'bg-white border-slate-200'
+        }`}>
+          <h3 className={`text-lg font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>Export PDF Report</h3>
+          <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
             A print-ready report will open. Choose <strong>"Save as PDF"</strong> in your browser's print dialog to share with your teacher.
           </p>
           <div className="flex gap-3">
-            <button onClick={onClose} className="flex-1 py-2.5 rounded-xl border border-white/10 text-slate-300 hover:bg-white/5 transition-all text-sm font-medium">
+            <button onClick={onClose} className={`flex-1 py-2.5 rounded-xl border transition-all text-sm font-medium ${
+              isDark ? 'border-white/10 text-slate-300 hover:bg-white/5' : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+            }`}>
               Cancel
             </button>
-            <button onClick={handlePrint} className="flex-1 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition-all text-sm">
+            <button onClick={handlePrint} className="flex-1 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition-all text-sm border border-indigo-500">
               Print / Save PDF
             </button>
           </div>

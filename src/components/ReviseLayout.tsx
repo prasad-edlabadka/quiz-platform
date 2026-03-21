@@ -6,6 +6,7 @@ import { Notepad } from './Tools/Notepad';
 import { Calculator as CalcIcon, StickyNote, LogOut } from 'lucide-react';
 import { clsx } from 'clsx';
 import { DraggableWrapper } from './DraggableWrapper';
+import { Button } from 'antd';
 
 interface ReviseLayoutProps {
     children: React.ReactNode;
@@ -45,26 +46,25 @@ export const ReviseLayout: React.FC<ReviseLayoutProps> = ({ children }) => {
                 </div>
 
                 <div className="flex items-center gap-2">
-                    <button
+                    <Button
+                        type="text"
                         onClick={() => useTestStore.getState().toggleTheme()}
-                        className="p-2 text-glass-secondary hover:text-glass-primary transition-colors rounded-full hover:bg-white/5"
+                        className="text-glass-secondary hover:text-glass-primary transition-colors hover:bg-white/5 flex items-center justify-center p-2"
                         title="Toggle Theme"
-                    >
-                        <span className="sr-only">Toggle Theme</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" /></svg>
-                    </button>
+                        icon={<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" /></svg>}
+                    />
 
-                    <button
+                    <Button
+                        type="text"
                         onClick={() => {
                             if (window.confirm('Are you sure you want to reset the quiz? All progress will be lost.')) {
                                 useTestStore.getState().resetTest();
                             }
                         }}
-                        className="p-2 text-glass-secondary hover:text-red-400 transition-colors rounded-full hover:bg-white/5"
+                        className="text-glass-secondary hover:text-red-400 transition-colors hover:bg-white/5 flex items-center justify-center p-2"
                         title="Reset Quiz"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18" /><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" /><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" /></svg>
-                    </button>
+                        icon={<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18" /><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" /><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" /></svg>}
+                    />
                 </div>
             </header>
 
@@ -111,21 +111,22 @@ export const ReviseLayout: React.FC<ReviseLayoutProps> = ({ children }) => {
                                             const isFlagged = flaggedQuestions.includes(q.id);
 
                                             return (
-                                                <button
+                                                <Button
                                                     key={q.id}
+                                                    type="default"
                                                     onClick={() => jumpToQuestion(idx)}
                                                     className={clsx(
-                                                        "relative w-full aspect-square rounded-lg flex items-center justify-center text-sm font-medium transition-all hover:scale-105 active:scale-95",
+                                                        "relative w-full aspect-square rounded-lg flex items-center justify-center text-sm font-medium transition-all hover:scale-105 active:scale-95 border-none p-0",
                                                         isCurrent
                                                             ? "bg-indigo-600 text-white shadow-lg ring-2 ring-indigo-400/50"
                                                             : isAttempted
-                                                                ? (isDark ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" : "bg-emerald-500/20 text-emerald-600 border border-emerald-500/30")
-                                                                : (isDark ? "bg-slate-700/60 border-slate-500 text-white hover:bg-slate-700/80 border" : "bg-white/50 border-gray-300 text-glass-secondary hover:bg-white/80 border")
+                                                                ? (isDark ? "bg-emerald-500/20 text-emerald-400 !border !border-emerald-500/30" : "bg-emerald-500/20 text-emerald-600 !border !border-emerald-500/30")
+                                                                : (isDark ? "bg-slate-700/60 !border !border-slate-500 text-white hover:bg-slate-700/80" : "bg-white/50 !border !border-gray-300 text-glass-secondary hover:bg-white/80")
                                                     )}
                                                 >
                                                     {idx + 1}
                                                     {isFlagged && <div className="absolute top-1 right-1 w-2 h-2 rounded-full bg-orange-500 ring-2 ring-orange-500/20" />}
-                                                </button>
+                                                </Button>
                                             );
                                         })}
                                     </div>
@@ -182,39 +183,46 @@ export const ReviseLayout: React.FC<ReviseLayoutProps> = ({ children }) => {
                     <div className="p-4 border-t border-white/10 bg-black/5 space-y-3 shrink-0">
                         <h3 className="text-xs font-bold text-glass-secondary uppercase tracking-widest mb-2">Tools</h3>
                         <div className="grid grid-cols-2 gap-2">
-                            <button
+                            <Button
+                                type="text"
                                 onClick={() => setShowCalculator(!showCalculator)}
                                 className={clsx(
-                                    "flex flex-col items-center justify-center gap-2 p-3 rounded-xl border transition-all",
+                                    "p-0 h-auto rounded-xl border transition-all overflow-hidden",
                                     showCalculator
-                                        ? "bg-indigo-500/20 border-indigo-500/40 text-indigo-400"
-                                        : "bg-white/5 border-white/5 text-glass-secondary hover:bg-white/10 hover:text-glass-primary"
+                                        ? "bg-indigo-500/20 !border-indigo-500/40 !text-indigo-400 hover:text-indigo-300 hover:bg-indigo-500/30"
+                                        : "bg-white/5 !border-white/5 text-glass-secondary hover:bg-white/10 hover:text-glass-primary"
                                 )}
                             >
-                                <CalcIcon className="w-5 h-5" />
-                                <span className="text-xs font-medium">Calculator</span>
-                            </button>
-                            <button
+                                <div className="flex flex-col items-center justify-center gap-1.5 p-3 w-full h-full">
+                                    <CalcIcon className="w-5 h-5" />
+                                    <span className="text-xs font-medium leading-none">Calculator</span>
+                                </div>
+                            </Button>
+                            <Button
+                                type="text"
                                 onClick={() => setShowNotepad(!showNotepad)}
                                 className={clsx(
-                                    "flex flex-col items-center justify-center gap-2 p-3 rounded-xl border transition-all",
+                                    "p-0 h-auto rounded-xl border transition-all overflow-hidden",
                                     showNotepad
-                                        ? "bg-indigo-500/20 border-indigo-500/40 text-indigo-400"
-                                        : "bg-white/5 border-white/5 text-glass-secondary hover:bg-white/10 hover:text-glass-primary"
+                                        ? "bg-indigo-500/20 !border-indigo-500/40 !text-indigo-400 hover:text-indigo-300 hover:bg-indigo-500/30"
+                                        : "bg-white/5 !border-white/5 text-glass-secondary hover:bg-white/10 hover:text-glass-primary"
                                 )}
                             >
-                                <StickyNote className="w-5 h-5" />
-                                <span className="text-xs font-medium">Notepad</span>
-                            </button>
+                                <div className="flex flex-col items-center justify-center gap-1.5 p-3 w-full h-full">
+                                    <StickyNote className="w-5 h-5" />
+                                    <span className="text-xs font-medium leading-none">Notepad</span>
+                                </div>
+                            </Button>
                         </div>
 
-                        <button
+                        <Button
+                            type="text"
                             onClick={() => useTestStore.getState().finishTest()}
-                            className="w-full mt-4 flex items-center justify-center gap-2 p-3 bg-red-500/10 text-red-500 hover:bg-red-500/20 hover:text-red-400 border border-red-500/20 rounded-xl transition-all font-medium text-sm"
+                            icon={<LogOut className="w-4 h-4" />}
+                            className="w-full mt-4 flex items-center justify-center gap-2 p-3 h-auto bg-red-500/10 !text-red-500 hover:!bg-red-500/20 hover:!text-red-400 border !border-red-500/20 rounded-xl transition-all font-medium text-sm"
                         >
-                            <LogOut className="w-4 h-4" />
                             End Test
-                        </button>
+                        </Button>
                     </div>
                 </aside>
             </div>

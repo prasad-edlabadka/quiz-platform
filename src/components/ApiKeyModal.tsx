@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Modal, Input, Typography, Button } from 'antd';
 import { Key, Lock, AlertCircle } from 'lucide-react';
 import { useTestStore } from '../store/testStore';
 
@@ -13,10 +14,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose, onSuc
   const [error, setError] = useState('');
   const { setApiKey } = useTestStore();
 
-  if (!isOpen) return null;
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = () => {
     if (!key.trim()) {
         setError('Please enter a valid API key');
         return;
@@ -34,68 +32,58 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose, onSuc
   };
 
   return (
-    <div className="fixed inset-0 z-[100001] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-      <div className="glass-panel w-full max-w-md p-6 rounded-2xl shadow-2xl animate-in fade-in zoom-in duration-200">
-        <div className="text-center mb-6">
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-indigo-500/10 text-indigo-500 mb-4">
+    <Modal
+      open={isOpen}
+      onCancel={onClose}
+      footer={[
+        <Button key="skip" onClick={onClose}>
+          Skip Grading
+        </Button>,
+        <Button key="submit" type="primary" onClick={handleSubmit}>
+          Save & Grade
+        </Button>
+      ]}
+      title={null}
+      centered
+      styles={{ body: { paddingTop: 0 } }}
+    >
+        <div style={{ textAlign: 'center', marginBottom: '24px', marginTop: '24px' }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(99, 102, 241, 0.1)', color: '#6366f1', marginBottom: '16px' }}>
                 <Lock className="w-6 h-6" />
             </div>
-            <h3 className="text-xl font-bold text-glass-primary">Enter Gemini API Key</h3>
-            <p className="text-sm text-glass-secondary mt-2">
+            <Typography.Title level={4} style={{ margin: 0 }}>Enter Gemini API Key</Typography.Title>
+            <Typography.Text type="secondary" style={{ fontSize: '14px', display: 'block', marginTop: '8px' }}>
                 To evaluate text answers with AI, we need your Google Gemini API key. It will be stored locally in your browser.
-            </p>
+            </Typography.Text>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-                <label className="block text-xs font-bold text-glass-secondary uppercase tracking-wider mb-2">
-                    API Key
-                </label>
-                <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <Key className="h-4 w-4 text-glass-secondary" />
-                    </div>
-                    <input
-                        type="password"
-                        value={key}
-                        onChange={(e) => {
-                            setKey(e.target.value);
-                            setError('');
-                        }}
-                        className="glass-input w-full pl-10 py-2.5 rounded-lg text-sm"
-                        placeholder="AIza..."
-                        autoFocus
-                    />
+        <div style={{ marginBottom: '16px' }}>
+            <Typography.Text strong style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'gray' }}>API Key</Typography.Text>
+            <Input.Password
+                prefix={<Key className="h-4 w-4" style={{ color: 'gray' }} />}
+                placeholder="AIza..."
+                value={key}
+                onChange={(e) => {
+                    setKey(e.target.value);
+                    setError('');
+                }}
+                onPressEnter={handleSubmit}
+                autoFocus
+                size="large"
+                style={{ marginTop: '8px' }}
+                status={error ? 'error' : ''}
+            />
+            {error && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px', fontSize: '12px', color: '#ef4444' }}>
+                    <AlertCircle className="w-3 h-3" />
+                    <span>{error}</span>
                 </div>
-                {error && (
-                    <div className="flex items-center gap-2 mt-2 text-xs text-red-500">
-                        <AlertCircle className="w-3 h-3" />
-                        <span>{error}</span>
-                    </div>
-                )}
-            </div>
-
-            <div className="flex gap-3 mt-6">
-                <button
-                    type="button"
-                    onClick={onClose}
-                    className="flex-1 px-4 py-2 glass-button rounded-lg text-sm"
-                >
-                    Skip Grading
-                </button>
-                <button
-                    type="submit"
-                    className="flex-1 px-4 py-2 glass-button-primary rounded-lg text-sm shadow-lg shadow-indigo-500/20"
-                >
-                    Save & Grade
-                </button>
-            </div>
-        </form>
+            )}
+        </div>
         
-        <p className="text-[10px] text-center text-glass-secondary mt-4 opacity-70">
-            Don't have a key? <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="text-indigo-400 hover:underline">Get one here</a>
-        </p>
-      </div>
-    </div>
+        <Typography.Text type="secondary" style={{ fontSize: '10px', textAlign: 'center', display: 'block', marginTop: '16px' }}>
+            Don't have a key? <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer">Get one here</a>
+        </Typography.Text>
+    </Modal>
   );
 };

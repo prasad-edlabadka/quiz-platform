@@ -11,6 +11,7 @@ import { TestLoader } from './components/TestLoader';
 import { LandingFeatures } from './components/LandingFeatures';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { validateApiKey, type ApiKeyStatus } from './services/aiService';
+import { ConfigProvider, theme } from 'antd';
 
 function App() {
   const { config, setConfig, clearState, themeMode, toggleTheme, apiKey, setApiKey } = useTestStore();
@@ -257,7 +258,15 @@ function App() {
   } as React.CSSProperties : {};
 
   return (
-    <div className="min-h-screen transition-colors duration-500" style={themeStyles}>
+    <ConfigProvider
+      theme={{
+        algorithm: isDark ? theme.darkAlgorithm : theme.defaultAlgorithm,
+        token: {
+          colorPrimary: '#6366f1',
+        },
+      }}
+    >
+      <div className="min-h-screen transition-colors duration-500" style={themeStyles}>
 
       {/* Dynamic Background if theme is set - made semi-transparent to blend with mesh */}
       {config?.theme && (
@@ -612,7 +621,8 @@ function App() {
         isOpen={isSchemaModalOpen}
         onClose={() => setIsSchemaModalOpen(false)}
       />
-    </div>
+      </div>
+    </ConfigProvider>
   );
 }
 

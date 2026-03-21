@@ -141,7 +141,8 @@ export const validateApiKey = async (apiKey: string): Promise<ApiKeyStatus> => {
         { "content": "string", "isCorrect": boolean }
       ],` : ''}
       "justification": "string (explanation)"${includeQuestionTime ? `,
-      "timeLimit": "number (seconds, based on difficulty/complexity of this question)"` : ''}
+      "timeLimit": "number (seconds, based on difficulty/complexity of this question)"` : ''},
+      "requiresDiagram": "boolean (true ONLY if the student needs to draw a diagram, graph, or shape to answer)"
     }
   `;
 
@@ -488,10 +489,28 @@ export const evaluateTextAnswer = async (
       }
     `;
 
+    const parts: any[] = [{ text: prompt }];
+    if (question.drawnAnswer) {
+        let b64 = question.drawnAnswer;
+        if (b64.startsWith('{')) {
+            try { b64 = JSON.parse(b64).base64 || b64; } catch {}
+        }
+        const matches = b64.match(/^data:(image\/[a-zA-Z+]+);base64,(.+)$/);
+        if (matches && matches.length === 3) {
+            parts.push({ text: `STUDENT DRAWED THIS DIAGRAM AS PART OF THE ANSWER:` });
+            parts.push({
+                inlineData: {
+                    data: matches[2],
+                    mimeType: matches[1]
+                }
+            });
+        }
+    }
+
 
 
     try {
-        const text = await generateWithFallback(apiKey, prompt);
+        const text = await runWithFallback(apiKey, parts);
         
         let cleanJson = text.replace(/```json\n?|\n?```/g, '').trim();
         const firstBrace = cleanJson.indexOf('{');
@@ -521,23 +540,16 @@ export const evaluateTextAnswer = async (
 
 export const evaluateBatchAnswers = async (
     apiKey: string,
-    items: { question: any; userAnswer: string }[]
+    items: { question: any; userAnswer: string; drawnAnswer?: string }[]
 ): Promise<Record<string, { score: number; feedback: string; maxScore: number }>> => {
     if (!apiKey) throw new Error('API Key is required for grading');
     if (!items || items.length === 0) return {};
 
     // Construct a structured prompt for multiple items
-    const questionsPayload = items.map((item, index) => `
-    [ITEM ${index + 1}]
-    ID: "${item.question.id}"
-    QUESTION: "${item.question.content}"
-    CONTEXT: "${item.question.sectionContent || 'N/A'}"
-    EXPECTED ANSWER/JUSTIFICATION: "${item.question.justification || 'N/A'}"
-    STUDENT ANSWER: "${item.userAnswer}"
-    MAX POINTS: ${item.question.points || 1}
-    `).join('\n-----------------------------------\n');
+    // Construct a structured prompt for multiple items
+    // (Old string payload removed in favor of multipart payload with images)
 
-    const prompt = `
+    const promptText = `
       You are an expert International Baccalaureate (IB) Examiner grading a set of student answers.
       
       INSTRUCTIONS:
@@ -545,9 +557,6 @@ export const evaluateBatchAnswers = async (
       2. Give a score between 0 and MAX POINTS.
       3. Provide concise, constructive feedback in the style of an IB Markscheme (e.g., "Award [1] for...").
       4. CRITICAL: If the answer is incorrect or incomplete, EXPLICITLY state what the correct answer should be.
-      
-      INPUT DATA:
-      ${questionsPayload}
       
       OUTPUT FORMAT:
       Return ONLY a valid JSON object mapping Question IDs to their evaluation.
@@ -561,8 +570,29 @@ export const evaluateBatchAnswers = async (
       }
     `;
 
+    const parts: any[] = [{ text: promptText }];
+    items.forEach((item, index) => {
+        parts.push({ text: `\n[ITEM ${index + 1}]\nID: "${item.question.id}"\nQUESTION: "${item.question.content}"\nCONTEXT: "${item.question.sectionContent || 'N/A'}"\nEXPECTED ANSWER/JUSTIFICATION: "${item.question.justification || 'N/A'}"\nSTUDENT TEXT ANSWER: "${item.userAnswer}"\nMAX POINTS: ${item.question.points || 1}\n` });
+        if (item.drawnAnswer) {
+             let b64 = item.drawnAnswer;
+             if (b64.startsWith('{')) {
+                 try { b64 = JSON.parse(b64).base64 || b64; } catch {}
+             }
+             const matches = b64?.match(/^data:(image\/[a-zA-Z+]+);base64,(.+)$/);
+             if (matches && matches.length === 3) {
+                 parts.push({ text: `STUDENT DRAWING FOR ITEM ${index + 1}:` });
+                 parts.push({
+                     inlineData: {
+                         data: matches[2],
+                         mimeType: matches[1]
+                     }
+                 });
+             }
+        }
+    });
+
     try {
-        const text = await generateWithFallback(apiKey, prompt);
+        const text = await runWithFallback(apiKey, parts);
         
         let cleanJson = text.replace(/```json\n?|\n?```/g, '').trim();
         const firstBrace = cleanJson.indexOf('{');

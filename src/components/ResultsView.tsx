@@ -5,14 +5,19 @@ import { RefreshCw, CheckCircle, XCircle, Clock, Printer, Download, Sparkles, Al
 import { motion } from 'framer-motion';
 import { evaluateBatchAnswers, evaluateTextAnswer } from '../services/aiService';
 import { ApiKeyModal } from './ApiKeyModal';
+import { ResultPDFExport } from './ResultPDFExport';
+import type { PastTestResult } from '../types/test';
+import { Button, Card, Input, Typography, Tag } from 'antd';
+const { Title } = Typography;
 
 export const ResultsView: React.FC = () => {
-    const { config, answers, resetTest, clearState, questionTimeTaken, apiKey, evaluations, addBatchEvaluations, addEvaluation, themeMode, isViewingPastResult } = useTestStore();
+    const { config, answers, drawnAnswers, resetTest, clearState, questionTimeTaken, apiKey, evaluations, addBatchEvaluations, addEvaluation, themeMode, isViewingPastResult } = useTestStore();
     const isDark = themeMode === 'dark';
     const [isGrading, setIsGrading] = useState(false);
     const [showKeyModal, setShowKeyModal] = useState(false);
     const [gradingError, setGradingError] = useState('');
     const [pendingGrading, setPendingGrading] = useState(false);
+    const [isExportingPDF, setIsExportingPDF] = useState(false);
 
     // Re-evaluation State
     const [reEvalQuestionId, setReEvalQuestionId] = useState<string | null>(null);
@@ -22,7 +27,7 @@ export const ResultsView: React.FC = () => {
     if (!config) return null;
 
     // Detect text questions that need grading
-    const textQuestions = config.questions.filter(q => q.type === 'text' && answers[q.id]?.length > 0);
+    const textQuestions = config.questions.filter(q => q.type === 'text' && ((answers[q.id] && answers[q.id].length > 0) || drawnAnswers[q.id]));
     const ungradedQuestions = textQuestions.filter(q => !evaluations[q.id]);
 
     useEffect(() => {
@@ -49,7 +54,8 @@ export const ResultsView: React.FC = () => {
         try {
             const itemsToGrade = ungradedQuestions.map(q => ({
                 question: q,
-                userAnswer: answers[q.id][0]
+                userAnswer: answers[q.id]?.[0] || 'No text answer provided',
+                drawnAnswer: drawnAnswers[q.id]
             }));
 
             const batchResults = await evaluateBatchAnswers(apiKey, itemsToGrade);
@@ -77,7 +83,7 @@ export const ResultsView: React.FC = () => {
 
         setIsReEvaluating(true);
         try {
-            const result = await evaluateTextAnswer(apiKey, question, answers[questionId][0], reEvalComment);
+            const result = await evaluateTextAnswer(apiKey, question, answers[questionId]?.[0] || 'No text answer provided', reEvalComment);
             addEvaluation(questionId, result);
             setReEvalQuestionId(null);
             setReEvalComment('');
@@ -137,18 +143,18 @@ export const ResultsView: React.FC = () => {
         >
             {isViewingPastResult && (
                 <div className="w-full flex justify-start mb-6 print:hidden">
-                    <button
+                    <Button
                         onClick={clearState}
-                        className="flex items-center gap-2 px-4 py-2 glass-button rounded-xl text-glass-secondary hover:text-white transition-colors border border-white/5"
+                        icon={<ArrowLeft className="w-4 h-4" />}
+                        size="large"
                     >
-                        <ArrowLeft className="w-4 h-4" />
                         Back to Past Results
-                    </button>
+                    </Button>
                 </div>
             )}
 
             <div className="flex justify-end gap-3 mb-4 print:hidden">
-                <button
+                <Button
                     onClick={() => {
                         if (!config) return;
                         const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(config, null, 2));
@@ -159,22 +165,22 @@ export const ResultsView: React.FC = () => {
                         downloadAnchorNode.click();
                         downloadAnchorNode.remove();
                     }}
-                    className={`flex items-center gap-2 px-4 py-2 glass-button rounded-lg font-medium transition-colors ${isDark ? 'text-indigo-200 hover:text-indigo-100 border-indigo-500/30' : 'text-glass-primary hover:text-indigo-600 border-indigo-200 hover:border-indigo-300'}`}
+                    icon={<Download className="w-4 h-4" />}
+                    size="large"
                 >
-                    <Download className="w-4 h-4" />
                     Download JSON
-                </button>
+                </Button>
 
-                <button
-                    onClick={() => window.print()}
-                    className={`flex items-center gap-2 px-4 py-2 glass-button rounded-lg font-medium transition-colors ${isDark ? 'text-indigo-200 hover:text-indigo-100 border-indigo-500/30' : 'text-glass-primary hover:text-indigo-600 border-indigo-200 hover:border-indigo-300'}`}
+                <Button
+                    onClick={() => setIsExportingPDF(true)}
+                    icon={<Printer className="w-4 h-4" />}
+                    size="large"
                 >
-                    <Printer className="w-4 h-4" />
                     Export Results (PDF)
-                </button>
+                </Button>
             </div>
 
-            <div className="glass-panel rounded-3xl text-center p-8 md:p-12 mb-8">
+            <Card className="rounded-3xl text-center mb-8 border border-white/10" styles={{ body: { padding: '3rem' } }}>
                 <div className="mb-8 border-b border-white/10 pb-8">
                     <div className={`inline-flex items-center justify-center w-24 h-24 rounded-full backdrop-blur-sm shadow-inner mb-6 ring-4 ${isDark ? 'bg-indigo-500/20 ring-indigo-500/30' : 'bg-indigo-100 ring-indigo-500/10'}`}>
                         {isGrading && ungradedQuestions.length > 0 ? (
@@ -183,13 +189,13 @@ export const ResultsView: React.FC = () => {
                             <span className={`text-4xl font-bold ${isDark ? 'text-indigo-300' : 'text-indigo-600'}`}>{percentage}%</span>
                         )}
                     </div>
-                    <h2 className="text-3xl font-bold text-glass-primary mb-2">
+                    <Title level={2} className="mb-2">
                         {isGrading && !isViewingPastResult ? 'Grading in Progress...' : 'Test Completed!'}
-                    </h2>
+                    </Title>
 
                     {isGrading && !isViewingPastResult && (
                         <p className="text-sm text-indigo-400 mb-4 animate-pulse">
-                            AI is evaluating your text answers...
+                            AI is evaluating your text/diagram answers...
                         </p>
                     )}
 
@@ -205,10 +211,12 @@ export const ResultsView: React.FC = () => {
                         <span className="block text-sm mt-1">({correctCount} out of {config.questions.length} correct)</span>
                     </p>
 
-                    <div className={`inline-flex items-center gap-2 px-4 py-2 border rounded-full text-glass-secondary text-sm font-medium backdrop-blur-sm ${isDark ? 'bg-white/10 border-white/20' : 'bg-black/5 border-black/5'}`}>
-                        <Clock className="w-4 h-4" />
-                        Total Time: {formatTime(totalTimeSpent)}
-                    </div>
+                    <Tag className="px-4 py-1.5 rounded-full text-sm mt-2">
+                        <span className="flex items-center gap-1.5">
+                            <Clock className="w-3.5 h-3.5" />
+                            Total Time: {formatTime(totalTimeSpent)}
+                        </span>
+                    </Tag>
                 </div>
 
                 <div className="space-y-6 text-left">
@@ -232,7 +240,7 @@ export const ResultsView: React.FC = () => {
                         const isThisReEval = reEvalQuestionId === q.id;
 
                         return (
-                            <div key={q.id} className="p-5 rounded-2xl glass-panel break-inside-avoid backdrop-blur-sm">
+                            <Card key={q.id} className="rounded-2xl break-inside-avoid backdrop-blur-sm mb-6 border border-white/10" styles={{ body: { padding: '1.25rem' } }}>
                                 <div className="flex justify-between items-start mb-3">
                                     <div className="flex items-center gap-3">
                                         <div className="flex-shrink-0">
@@ -254,10 +262,12 @@ export const ResultsView: React.FC = () => {
                                             </p>
                                         </div>
                                     </div>
-                                    <div className={`flex items-center gap-1 text-xs font-medium text-glass-secondary px-2 py-1 rounded border ${isDark ? 'bg-white/10 border-white/10' : 'bg-black/5 border-black/5'}`}>
-                                        <Clock className="w-3 h-3" />
-                                        {formatTime(questionTimeTaken[q.id] || 0)}
-                                    </div>
+                                    <Tag className="px-2.5 py-1 rounded">
+                                        <span className="flex items-center gap-1.5">
+                                            <Clock className="w-3.5 h-3.5" />
+                                            {formatTime(questionTimeTaken[q.id] || 0)}
+                                        </span>
+                                    </Tag>
                                 </div>
 
                                 <div className="ml-9">
@@ -275,13 +285,21 @@ export const ResultsView: React.FC = () => {
                                             <div className="p-4 bg-white/5 rounded-md border border-indigo-500/20">
                                                 <p className="text-xs font-bold text-indigo-400 uppercase tracking-wide mb-1">Your Answer:</p>
                                                 <div className={`p-3 rounded-lg text-sm text-glass-primary min-h-[50px] ${isDark ? 'bg-white/5' : 'bg-black/10'}`}>
+                                                    {drawnAnswers[q.id] && (
+                                                        <div className="mb-4">
+                                                            <p className="text-xs text-indigo-400 font-bold mb-2">Drawn Diagram:</p>
+                                                            <div className="p-2 border border-white/10 rounded-lg inline-block bg-white">
+                                                                <img src={drawnAnswers[q.id]} alt="Drawn Answer" className="max-w-full h-auto" style={{ maxHeight: '250px' }} />
+                                                            </div>
+                                                        </div>
+                                                    )}
                                                     {selected[0] ? (
                                                         <div dangerouslySetInnerHTML={{ __html: selected[0] }} />
-                                                    ) : evaluations[q.id] ? (
+                                                    ) : evaluations[q.id] && (!drawnAnswers[q.id]) ? (
                                                         <span className="italic font-medium text-emerald-400/80">Answer evaluated from uploaded sheets.</span>
-                                                    ) : (
+                                                    ) : !drawnAnswers[q.id] ? (
                                                         <span className="italic text-glass-secondary">No answer provided</span>
-                                                    )}
+                                                    ) : null}
                                                 </div>
                                             </div>
 
@@ -335,30 +353,22 @@ export const ResultsView: React.FC = () => {
                                                                 Cancel
                                                             </button>
                                                         </div>
-                                                        <textarea
-                                                            value={reEvalComment}
-                                                            onChange={(e) => setReEvalComment(e.target.value)}
-                                                            placeholder="Explain why you think the grade should be higher or clarify your answer..."
-                                                            className={`w-full h-24 rounded-lg border border-white/10 p-3 text-sm text-glass-primary resize-none focus:ring-1 focus:ring-indigo-500/50 outline-none mb-3 ${isDark ? 'bg-black/40' : 'bg-black/20'}`}
-                                                        />
-                                                        <div className="flex justify-end">
-                                                            <button
+                                                        <div className="flex gap-2">
+                                                            <Input 
+                                                                value={reEvalComment}
+                                                                onChange={(e) => setReEvalComment(e.target.value)}
+                                                                placeholder="Explain why your answer is correct..."
+                                                                className="flex-1 bg-black/20"
+                                                            />
+                                                            <Button
                                                                 onClick={() => handleReEvaluation(q.id)}
-                                                                disabled={!reEvalComment.trim() || isReEvaluating}
-                                                                className="flex items-center gap-2 px-4 py-2 glass-button-primary rounded-lg text-xs font-bold shadow-lg shadow-indigo-500/10 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                                disabled={!reEvalComment.trim()}
+                                                                loading={isReEvaluating}
+                                                                type="primary"
+                                                                icon={<Send className="w-4 h-4" />}
                                                             >
-                                                                {isReEvaluating ? (
-                                                                    <>
-                                                                        <RefreshCw className="w-3 h-3 animate-spin" />
-                                                                        Re-evaluating...
-                                                                    </>
-                                                                ) : (
-                                                                    <>
-                                                                        <Send className="w-3 h-3" />
-                                                                        Submit Appeal
-                                                                    </>
-                                                                )}
-                                                            </button>
+                                                                Submit Appeal
+                                                            </Button>
                                                         </div>
                                                     </div>
                                                 </motion.div>
@@ -445,29 +455,22 @@ export const ResultsView: React.FC = () => {
                                         )
                                     )}
                                 </div>
-                            </div>
+                            </Card>
                         )
                     })}
                 </div>
-            </div>
+            </Card>
 
             <div className="mt-8 flex justify-center">
-                <button
+                <Button
                     onClick={isViewingPastResult ? clearState : resetTest}
-                    className="inline-flex items-center px-6 py-3 glass-button-primary text-base font-medium rounded-md shadow-sm transition-colors print:hidden"
+                    type="primary"
+                    size="large"
+                    icon={isViewingPastResult ? <ArrowLeft className="w-4 h-4" /> : <RefreshCw className="w-4 h-4" />}
+                    className="flex items-center px-6 py-3 print:hidden"
                 >
-                    {isViewingPastResult ? (
-                        <>
-                            <ArrowLeft className="mr-2 -ml-1 h-5 w-5" />
-                            Back to Past Results
-                        </>
-                    ) : (
-                        <>
-                            <RefreshCw className="mr-2 -ml-1 h-5 w-5" />
-                            Restart Test
-                        </>
-                    )}
-                </button>
+                    {isViewingPastResult ? 'Back to Past Results' : 'Restart Test'}
+                </Button>
             </div>
 
             <ApiKeyModal
@@ -478,6 +481,22 @@ export const ResultsView: React.FC = () => {
                     setShowKeyModal(false);
                 }}
             />
+
+            {isExportingPDF && (
+                <ResultPDFExport 
+                    result={{
+                        attemptId: 'current',
+                        date: new Date().toISOString(),
+                        config: config as any,
+                        answers: answers,
+                        drawnAnswers: drawnAnswers,
+                        evaluations: evaluations,
+                        timeRemaining: 0,
+                        questionTimeTaken: questionTimeTaken
+                    } as PastTestResult}
+                    onClose={() => setIsExportingPDF(false)}
+                />
+            )}
 
             <p className="mt-10 text-center text-xs text-glass-secondary/50">Built by Prasad Edlabadkar</p>
         </motion.div>

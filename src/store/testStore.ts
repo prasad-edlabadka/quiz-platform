@@ -11,6 +11,7 @@ export const useTestStore = create<TestState>()(
       isViewingPastResult: false,
       currentQuestionIndex: 0,
       answers: {},
+      drawnAnswers: {},
       flaggedQuestions: [],
       timeRemaining: 0,
       questionTimeRemaining: {},
@@ -76,6 +77,7 @@ export const useTestStore = create<TestState>()(
         flaggedQuestions: [], // Reset flags
         questionTimeTaken: {}, // Reset time taken
         evaluations: {}, // Reset evaluations
+        drawnAnswers: {}, // Reset drawings
         // Initialize question timers if they exist
         questionTimeRemaining: config.questions.reduce((acc, q) => {
           if (q.timeLimit) acc[q.id] = q.timeLimit;
@@ -94,6 +96,14 @@ export const useTestStore = create<TestState>()(
             return {}; // No op
         }
         return { answers: { ...state.answers, [questionId]: optionIds } };
+      }),
+
+      answerDrawing: (questionId, base64) => set((state) => {
+        const qTime = state.questionTimeRemaining[questionId];
+        if (qTime !== undefined && qTime <= 0) {
+            return {};
+        }
+        return { drawnAnswers: { ...state.drawnAnswers, [questionId]: base64 } };
       }),
 
       toggleFlag: (questionId) => set((state) => ({
@@ -178,6 +188,7 @@ export const useTestStore = create<TestState>()(
             isViewingPastResult: false,
             currentQuestionIndex: 0,
             answers: {},
+            drawnAnswers: {},
             flaggedQuestions: [],
             questionTimeTaken: {},
             evaluations: {}, // Reset evaluations
@@ -195,6 +206,7 @@ export const useTestStore = create<TestState>()(
           isViewingPastResult: false,
           currentQuestionIndex: 0,
           answers: {},
+          drawnAnswers: {},
           flaggedQuestions: [],
           questionTimeRemaining: {},
           questionTimeTaken: {},
@@ -220,6 +232,7 @@ export const useTestStore = create<TestState>()(
           date: new Date().toISOString(),
           config: state.config,
           answers: state.answers,
+          drawnAnswers: state.drawnAnswers,
           evaluations: state.evaluations,
           timeRemaining: state.timeRemaining,
           questionTimeTaken: state.questionTimeTaken,
@@ -237,6 +250,7 @@ export const useTestStore = create<TestState>()(
           date: new Date().toISOString(),
           config,
           answers: {}, // No digital answers for offline tests
+          drawnAnswers: {}, // No drawn answers for offline tests
           evaluations,
           timeRemaining: 0,
           questionTimeTaken: {},
@@ -258,6 +272,7 @@ export const useTestStore = create<TestState>()(
           status: 'completed', // Immediately jump to results view
           isViewingPastResult: true,
           answers: result.answers,
+          drawnAnswers: result.drawnAnswers || {},
           evaluations: result.evaluations,
           timeRemaining: result.timeRemaining,
           questionTimeTaken: result.questionTimeTaken,
@@ -289,6 +304,7 @@ export const useTestStore = create<TestState>()(
           isViewingPastResult: state.isViewingPastResult,
           currentQuestionIndex: state.currentQuestionIndex,
           answers: state.answers,
+          drawnAnswers: state.drawnAnswers,
           flaggedQuestions: state.flaggedQuestions,
           timeRemaining: state.timeRemaining,
           questionTimeRemaining: state.questionTimeRemaining,
