@@ -5,6 +5,8 @@ import { ResultsView } from './ResultsView';
 import { PrintableView } from './PrintableView';
 import { ArrowRight, ArrowLeft, Printer, Download } from 'lucide-react';
 import { ReviseLayout } from './ReviseLayout';
+import { Button, Card, Typography } from 'antd';
+const { Title, Text } = Typography;
 
 export const TestRenderer: React.FC = () => {
   const {
@@ -34,30 +36,34 @@ export const TestRenderer: React.FC = () => {
   if (status === 'intro') {
     return (
       <div className="max-w-2xl mx-auto text-center py-20 px-4">
-        <h1 className="text-4xl font-extrabold text-glass-primary mb-6 drop-shadow-lg">{config.title}</h1>
+        <Title level={1} className="mb-6 drop-shadow-lg">{config.title}</Title>
         {config.description && (
-          <p className="text-xl text-glass-secondary mb-10">{config.description}</p>
+          <Text className="text-xl text-glass-secondary mb-10 block">{config.description}</Text>
         )}
 
-        <div className="glass-panel p-6 rounded-xl mb-10 inline-block text-left max-w-2xl">
-          <h3 className="font-semibold text-glass-primary mb-4">Test Details:</h3>
+        <Card className="rounded-xl mb-10 inline-block text-left max-w-2xl border-white/10 bg-black/20 backdrop-blur-md" styles={{ body: { padding: '1.5rem' } }}>
+          <Title level={4} className="mb-4">Test Details:</Title>
           <ul className="space-y-2 text-glass-secondary">
             <li>• {config.questions.length} Questions</li>
             {config.globalTimeLimit && <li>• {Math.floor(config.globalTimeLimit / 60)} Minutes Time Limit</li>}
             <li>• {config.questions.every(q => q.type === 'single_choice') ? 'Single Choice' : 'Multiple Choice'}</li>
           </ul>
-        </div>
+        </Card>
 
-        <div className="flex justify-center gap-4 flex-wrap">
-          <button
+        <div className="flex justify-center gap-4 flex-wrap mt-10">
+          <Button
+            type="primary"
+            size="large"
             onClick={startTest}
-            className="inline-flex items-center px-8 py-4 glass-button-primary rounded-full text-lg font-bold shadow-lg transform hover:scale-105 transition-all w-full md:w-auto justify-center"
+            className="px-8 py-6 rounded-full text-lg font-bold shadow-lg transform hover:scale-105 transition-transform w-full md:w-auto flex items-center justify-center"
+            icon={<ArrowRight className="h-5 w-5" />}
+            iconPosition="end"
           >
             Start Test
-            <ArrowRight className="ml-2 h-5 w-5" />
-          </button>
+          </Button>
 
-          <button
+          <Button
+            size="large"
             onClick={() => {
               if (!config) return;
               const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(config, null, 2));
@@ -68,19 +74,20 @@ export const TestRenderer: React.FC = () => {
               downloadAnchorNode.click();
               downloadAnchorNode.remove();
             }}
-            className="inline-flex items-center px-8 py-4 glass-button rounded-full text-lg font-bold shadow-lg transform hover:scale-105 transition-all text-indigo-600 hover:text-indigo-700 w-full md:w-auto justify-center"
+            className="px-8 py-6 rounded-full text-lg font-bold shadow-lg transform hover:scale-105 transition-transform w-full md:w-auto flex items-center justify-center text-indigo-500 border-indigo-200"
+            icon={<Download className="h-5 w-5" />}
           >
-            <Download className="mr-2 h-5 w-5" />
             Download Test
-          </button>
+          </Button>
 
-          <button
+          <Button
+            size="large"
             onClick={printTest}
-            className="inline-flex items-center px-8 py-4 glass-button rounded-full text-lg font-bold shadow-lg transform hover:scale-105 transition-all text-glass-secondary hover:text-glass-primary w-full md:w-auto justify-center"
+            className="px-8 py-6 rounded-full text-lg font-bold shadow-lg transform hover:scale-105 transition-transform w-full md:w-auto flex items-center justify-center text-glass-secondary bg-black/10 border-white/10"
+            icon={<Printer className="h-5 w-5" />}
           >
-            <Printer className="mr-2 h-5 w-5" />
             Print Question Paper
-          </button>
+          </Button>
         </div>
       </div>
     );
@@ -102,22 +109,27 @@ export const TestRenderer: React.FC = () => {
       <QuestionCard key={currentQuestion.id} question={currentQuestion} />
 
       <div className="mt-8 flex justify-between items-center max-w-6xl mx-auto">
-        <button
+        <Button
           onClick={prevQuestion}
           disabled={currentQuestionIndex === 0}
-          className="flex items-center text-glass-secondary hover:text-glass-primary disabled:opacity-30 disabled:hover:text-glass-secondary font-medium transition-colors"
+          type="text"
+          size="large"
+          className="flex items-center font-medium"
+          icon={<ArrowLeft className="w-5 h-5" />}
         >
-          <ArrowLeft className="mr-2 w-5 h-5" />
           Previous
-        </button>
+        </Button>
 
-        <button
+        <Button
           onClick={isLastQuestion ? finishTest : nextQuestion}
-          className="flex items-center px-6 py-3 glass-button-primary rounded-lg font-medium shadow-md transition-colors"
+          type="primary"
+          size="large"
+          className="flex items-center px-6 py-5 rounded-lg font-medium shadow-md transition-colors"
+          icon={!isLastQuestion ? <ArrowRight className="w-5 h-5" /> : undefined}
+          iconPosition="end"
         >
           {isLastQuestion ? 'Finish Test' : 'Next Question'}
-          {!isLastQuestion && <ArrowRight className="ml-2 w-5 h-5" />}
-        </button>
+        </Button>
       </div>
     </ReviseLayout>
   );

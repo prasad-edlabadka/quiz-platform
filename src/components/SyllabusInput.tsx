@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { generateTestFromSyllabus, type QuestionTypeFilter, type StructureMode, type TimeBoundMode } from '../services/aiService';
 import type { TestConfig } from '../types/test';
-import { BrainCircuit, Loader2, AlertCircle, BookOpen, Hash, Layout, ListChecks, Timer, Info, Settings } from 'lucide-react';
+import { BrainCircuit, AlertCircle, BookOpen, Hash, Layout, ListChecks, Timer, Info, Settings } from 'lucide-react';
 import { useTestStore } from '../store/testStore';
+import { Button, Input, Select, Typography, Alert, Card } from 'antd';
+const { Title, Text } = Typography;
+const { TextArea } = Input;
 
 interface TestInputProps {
     onTestGenerated: (config: TestConfig) => void;
@@ -56,37 +59,40 @@ export const SyllabusInput: React.FC<TestInputProps> = ({ onTestGenerated, onCan
             <div className="max-w-5xl w-full mx-auto relative pt-2 pb-8">
                 {onCancel && (
                     <div className="absolute top-0 right-0">
-                        <button
+                        <Button
+                            type="text"
                             onClick={onCancel}
                             className="text-gray-400 hover:text-white font-medium text-sm transition-colors"
                         >
                             Cancel
-                        </button>
+                        </Button>
                     </div>
                 )}
 
                 <div className="text-center mb-8">
-                    <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-glass-primary mb-2">Generate Test from Syllabus</h1>
-                    <p className="text-glass-secondary text-base">Use AI to create a tailored test from your study materials.</p>
+                    <Title level={2} className="mb-2 text-glass-primary">Generate Test from Syllabus</Title>
+                    <Text className="text-glass-secondary text-base block">Use AI to create a tailored test from your study materials.</Text>
                 </div>
 
                 {/* API key missing banner */}
                 {!apiKey && (
-                    <button
+                    <Card
+                        hoverable
                         onClick={onOpenSettings}
-                        className="w-full mb-6 flex items-center gap-3 p-4 rounded-2xl bg-red-500/10 border border-red-500/30 text-left hover:bg-red-500/20 transition-all group"
+                        className="w-full mb-6 cursor-pointer bg-red-500/10 border-red-500/30 transition-all group"
+                        styles={{ body: { padding: '1rem', display: 'flex', alignItems: 'center', gap: '0.75rem' } }}
                     >
                         <div className="w-9 h-9 rounded-xl bg-red-500/20 flex items-center justify-center text-red-400 shrink-0 group-hover:scale-110 transition-transform">
                             <Settings className="w-5 h-5" />
                         </div>
-                        <div className="flex-1 min-w-0">
-                            <p className="text-sm font-bold text-red-400">Gemini API Key Required</p>
-                            <p className="text-xs text-red-400/70">Click here to open Settings and add your key to enable AI generation.</p>
+                        <div className="flex-1 min-w-0 text-left">
+                            <strong className="text-sm font-bold text-red-400 block">Gemini API Key Required</strong>
+                            <span className="text-xs text-red-400/70 block">Click here to open Settings and add your key to enable AI generation.</span>
                         </div>
                         <span className="text-xs font-semibold text-red-400 border border-red-400/40 px-3 py-1 rounded-lg shrink-0 group-hover:bg-red-400/10 transition-colors">
                             Open Settings →
                         </span>
-                    </button>
+                    </Card>
                 )}
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10">
@@ -96,11 +102,11 @@ export const SyllabusInput: React.FC<TestInputProps> = ({ onTestGenerated, onCan
                             <BookOpen className="w-4 h-4 text-indigo-300" />
                             Syllabus / Topics / Notes
                         </label>
-                        <textarea
+                        <TextArea
                             value={syllabus}
                             onChange={(e) => setSyllabus(e.target.value)}
                             placeholder={`Paste your syllabus, topic list, or notes here...\nFor example:\n- Introduction to React\n- Components and Props\n- State and Lifecycle`}
-                            className="w-full flex-1 min-h-[300px] lg:min-h-full p-4 rounded-xl glass-input outline-none resize-none placeholder:text-gray-500 text-sm md:text-base leading-relaxed"
+                            className="w-full flex-1 min-h-[300px] lg:min-h-full rounded-xl text-sm md:text-base leading-relaxed bg-black/20"
                         />
                     </div>
 
@@ -116,13 +122,13 @@ export const SyllabusInput: React.FC<TestInputProps> = ({ onTestGenerated, onCan
                                         <Hash className="w-3.5 h-3.5 text-indigo-300" />
                                         Count
                                     </label>
-                                    <input
+                                    <Input
                                         type="number"
                                         min={1}
                                         max={20}
                                         value={questionCount}
                                         onChange={(e) => setQuestionCount(Math.max(1, Math.min(20, parseInt(e.target.value) || 5)))}
-                                        className="w-full p-2.5 rounded-lg glass-input outline-none text-sm"
+                                        className="w-full rounded-lg text-sm bg-black/20"
                                     />
                                 </div>
 
@@ -148,14 +154,15 @@ export const SyllabusInput: React.FC<TestInputProps> = ({ onTestGenerated, onCan
                                             </div>
                                         </div>
                                     </label>
-                                    <select
+                                    <Select
                                         value={structureMode}
-                                        onChange={(e) => setStructureMode(e.target.value as any)}
-                                        className="w-full p-2.5 rounded-lg glass-input outline-none text-sm appearance-none bg-black/20"
-                                    >
-                                        <option value="flat">Standard</option>
-                                        <option value="sections">Section-Based</option>
-                                    </select>
+                                        onChange={(value) => setStructureMode(value as any)}
+                                        className="w-full text-sm font-sans [&_.ant-select-selector]:!bg-black/20 [&_.ant-select-selector]:!border-white/10"
+                                        options={[
+                                            { value: 'flat', label: 'Standard' },
+                                            { value: 'sections', label: 'Section-Based' },
+                                        ]}
+                                    />
                                 </div>
 
                                 {/* Time Constraints */}
@@ -164,16 +171,17 @@ export const SyllabusInput: React.FC<TestInputProps> = ({ onTestGenerated, onCan
                                         <Timer className="w-3.5 h-3.5 text-indigo-300" />
                                         Time Constraints
                                     </label>
-                                    <select
+                                    <Select
                                         value={timeBoundMode}
-                                        onChange={(e) => setTimeBoundMode(e.target.value as any)}
-                                        className="w-full p-2.5 rounded-lg glass-input outline-none text-sm appearance-none bg-black/20"
-                                    >
-                                        <option value="none">No Time Limit</option>
-                                        <option value="overall">Overall Test Time</option>
-                                        <option value="per_question">Per-Question Time</option>
-                                        <option value="both">Both</option>
-                                    </select>
+                                        onChange={(value) => setTimeBoundMode(value as any)}
+                                        className="w-full text-sm font-sans [&_.ant-select-selector]:!bg-black/20 [&_.ant-select-selector]:!border-white/10"
+                                        options={[
+                                            { value: 'none', label: 'No Time Limit' },
+                                            { value: 'overall', label: 'Overall Test Time' },
+                                            { value: 'per_question', label: 'Per-Question Time' },
+                                            { value: 'both', label: 'Both' },
+                                        ]}
+                                    />
                                 </div>
 
                                 {/* Question Type */}
@@ -201,30 +209,27 @@ export const SyllabusInput: React.FC<TestInputProps> = ({ onTestGenerated, onCan
                         </div>
 
                         {error && (
-                            <div className={`p-3 rounded-lg flex items-center gap-2 border text-left text-sm ${document.documentElement.classList.contains('dark') ? 'bg-red-500/20 text-red-200 border-red-500/30' : 'bg-red-500/20 text-red-800 border-red-500/30'}`}>
-                                <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                                {error}
-                            </div>
+                            <Alert
+                                message={error}
+                                type="error"
+                                showIcon
+                                icon={<AlertCircle className="w-4 h-4" />}
+                                className={`text-left text-sm ${document.documentElement.classList.contains('dark') ? 'bg-red-500/20 text-red-200 border-red-500/30' : 'bg-red-500/20 text-red-800 border-red-500/30'}`}
+                            />
                         )}
 
                         <div className="mt-auto pt-2">
-                            <button
+                            <Button
+                                type="primary"
+                                size="large"
                                 onClick={handleGenerate}
-                                disabled={loading || !apiKey}
-                                className="w-full flex justify-center items-center px-4 py-4 glass-button-primary rounded-xl font-bold transition-colors shadow-lg hover:shadow-indigo-500/20 hover:-translate-y-0.5 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+                                disabled={!apiKey}
+                                loading={loading}
+                                icon={!loading && <BrainCircuit className="w-6 h-6 mr-1" />}
+                                className="w-full flex justify-center items-center px-4 py-6 rounded-xl font-bold transition-all shadow-lg hover:shadow-indigo-500/20 hover:-translate-y-0.5 min-h-[56px] text-lg"
                             >
-                                {loading ? (
-                                    <>
-                                        <Loader2 className="w-5 h-5 mr-3 animate-spin" />
-                                        Generating Questions...
-                                    </>
-                                ) : (
-                                    <>
-                                        <BrainCircuit className="w-6 h-6 mr-3" />
-                                        Generate Test
-                                    </>
-                                )}
-                            </button>
+                                {loading ? 'Generating Questions...' : 'Generate Test'}
+                            </Button>
                         </div>
                     </div>
                 </div>
