@@ -23,6 +23,32 @@ function App() {
   const [keyStatus, setKeyStatus] = useState<ApiKeyStatus>('unknown');
   const [settingsTab, setSettingsTab] = useState<'ai' | 'backup'>('ai');
 
+  // Sync state with URL to enable Vercel Analytics tracking per tab
+  useEffect(() => {
+    const handlePopState = () => {
+      const path = window.location.pathname.slice(1);
+      if (['ai', 'upload', 'library', 'offline', 'history'].includes(path)) {
+        setActiveTab(path as any);
+      } else {
+        setActiveTab(null);
+      }
+    };
+    
+    handlePopState(); // Trigger on mount
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  const navigateToTab = (tabId: 'ai' | 'upload' | 'library' | 'offline' | 'history' | null) => {
+    setActiveTab(tabId);
+    const newPath = tabId ? `/${tabId}` : '/';
+    if (window.location.pathname !== newPath) {
+      window.history.pushState(null, '', newPath);
+      // In React 18, pushState doesn't automatically fire popstate so Analytics handles it via interceptor,
+      // but if needed we can dispatch a custom event here. Vercel Analytics handles it out of the box.
+    }
+  };
+
   const importFileRef = React.useRef<HTMLInputElement>(null);
 
   // --- Compress/decompress using browser's built-in Compression Streams API ---
@@ -336,7 +362,7 @@ function App() {
               <nav className="flex flex-col gap-4 w-full px-2 md:px-3">
                 <div className="mb-2 w-full">
                   <button
-                    onClick={() => setActiveTab(null)}
+                    onClick={() => navigateToTab(null)}
                     className={`w-full flex flex-col items-center justify-center gap-1.5 py-3 rounded-xl transition-all ${activeTab === null
                       ? isDark
                         ? 'bg-indigo-500/20 text-indigo-300 shadow-sm border border-indigo-500/20'
@@ -354,7 +380,7 @@ function App() {
                   return (
                     <button
                       key={tab.id}
-                      onClick={() => setActiveTab(tab.id)}
+                      onClick={() => navigateToTab(tab.id)}
                       className={`w-full flex flex-col items-center justify-center gap-1.5 py-3 rounded-xl transition-all ${isActive
                         ? isDark
                           ? 'bg-indigo-500/20 text-indigo-300 shadow-sm border border-indigo-500/20'
@@ -434,7 +460,7 @@ function App() {
                         onProcessTestData={processTestData}
                         onOpenSchemaHelp={() => setIsSchemaModalOpen(true)}
                         activeTab={activeTab}
-                        setActiveTab={setActiveTab}
+                        setActiveTab={navigateToTab}
                         onOpenSettings={() => setIsSettingsOpen(true)}
                         onRetake={(config) => { useTestStore.getState().setConfig(config); }}
                       />
