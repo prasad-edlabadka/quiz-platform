@@ -76,23 +76,25 @@ export const SyllabusInput: React.FC<TestInputProps> = ({ onTestGenerated, onCan
 
                 {/* API key missing banner */}
                 {!apiKey && (
-                    <Card
-                        hoverable
-                        onClick={onOpenSettings}
-                        className="w-full mb-6 cursor-pointer bg-red-500/10 border-red-500/30 transition-all group"
-                        styles={{ body: { padding: '1rem', display: 'flex', alignItems: 'center', gap: '0.75rem' } }}
-                    >
-                        <div className="w-9 h-9 rounded-xl bg-red-500/20 flex items-center justify-center text-red-400 shrink-0 group-hover:scale-110 transition-transform">
-                            <Settings className="w-5 h-5" />
-                        </div>
-                        <div className="flex-1 min-w-0 text-left">
-                            <strong className="text-sm font-bold text-red-400 block">Gemini API Key Required</strong>
-                            <span className="text-xs text-red-400/70 block">Click here to open Settings and add your key to enable AI generation.</span>
-                        </div>
-                        <span className="text-xs font-semibold text-red-400 border border-red-400/40 px-3 py-1 rounded-lg shrink-0 group-hover:bg-red-400/10 transition-colors">
-                            Open Settings →
-                        </span>
-                    </Card>
+                    <div className='mb-6'>
+                        <Card
+                            hoverable
+                            onClick={onOpenSettings}
+                            className="w-full mb-8 cursor-pointer bg-red-500/10 border-red-500/30 transition-all group"
+                            styles={{ body: { padding: '1rem', display: 'flex', alignItems: 'center', gap: '0.75rem' } }}
+                        >
+                            <div className="w-9 h-9 rounded-xl bg-red-500/20 flex items-center justify-center text-red-400 shrink-0 group-hover:scale-110 transition-transform">
+                                <Settings className="w-5 h-5" />
+                            </div>
+                            <div className="flex-1 min-w-0 text-left">
+                                <strong className="text-sm font-bold text-red-400 block">Gemini API Key Required</strong>
+                                <span className="text-xs text-red-400/70 block">Click here to open Settings and add your key to enable AI generation.</span>
+                            </div>
+                            <span className="text-xs font-semibold text-red-400 border border-red-400/40 px-3 py-1 rounded-lg shrink-0 group-hover:bg-red-400/10 transition-colors">
+                                Open Settings →
+                            </span>
+                        </Card>
+                    </div>
                 )}
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10">
@@ -196,8 +198,8 @@ export const SyllabusInput: React.FC<TestInputProps> = ({ onTestGenerated, onCan
                                                 key={type}
                                                 onClick={() => setQuestionType(type)}
                                                 className={`py-2 px-1 rounded-lg text-xs font-bold transition-all border ${questionType === type
-                                                        ? 'bg-indigo-500/20 text-indigo-300 border-indigo-500/50 shadow-sm'
-                                                        : 'bg-white/5 text-glass-secondary border-white/10 hover:bg-white/10'
+                                                    ? 'bg-indigo-500/20 text-indigo-300 border-indigo-500/50 shadow-sm'
+                                                    : 'bg-white/5 text-glass-secondary border-white/10 hover:bg-white/10'
                                                     }`}
                                             >
                                                 {type === 'mixed' ? 'Mixed' : type === 'mcq' ? 'MCQ' : 'Text Only'}
