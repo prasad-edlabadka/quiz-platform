@@ -11,7 +11,12 @@ import {
     Subscript,
     Superscript,
     List,
-    Alignment
+    Alignment,
+    Table,
+    TableToolbar,
+    TableProperties,
+    TableCellProperties,
+    TableColumnResize
 } from 'ckeditor5';
 import MathType from '@wiris/mathtype-ckeditor5/dist/browser/index.js';
 import '@wiris/mathtype-ckeditor5/dist/browser/index.css';
@@ -43,16 +48,27 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
                 config={ {
                     plugins: [
                         Essentials, Paragraph, Bold, Italic, Underline, Strikethrough, 
-                        Subscript, Superscript, List, Alignment, MathType 
+                        Subscript, Superscript, List, Alignment, MathType,
+                        Table, TableToolbar, TableProperties, TableCellProperties, TableColumnResize
                     ],
                     toolbar: [ 
                         'bold', 'italic', 'underline', 'strikethrough', 
                         '|', 'subscript', 'superscript', 
-                        '|', 'alignment', // Add alignment dropdown
+                        '|', 'alignment', 
                         '|', 'bulletedList', 'numberedList', 
+                        '|', 'insertTable',
                         '|', 'MathType', 'ChemType', 
                         '|', 'undo', 'redo' 
                     ],
+                    table: {
+                        contentToolbar: [
+                            'tableColumn',
+                            'tableRow',
+                            'mergeTableCells',
+                            'tableProperties',
+                            'tableCellProperties'
+                        ]
+                    },
                     placeholder: placeholder,
                     licenseKey: 'GPL'
                 } }
