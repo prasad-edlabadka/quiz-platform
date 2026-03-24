@@ -7,6 +7,14 @@ import { Button, Input, Select, Typography, Alert, Card } from 'antd';
 const { Title, Text } = Typography;
 const { TextArea } = Input;
 
+const SAMPLE_PROMPTS = [
+    { label: 'Math', icon: '➗', text: 'Topic: Quadratic Equations. Cover finding roots, using the quadratic formula, and solving word problems involving parabolic motion. Include mixed MCQ and text answers.' },
+    { label: 'Physics', icon: '⚡', text: 'Topic: Electromagnetism. Explain Faraday’s Law, Lenz’s Law, and the concept of magnetic flux. Include 1 numerical problem on induced EMF.' },
+    { label: 'Chemistry', icon: '🧪', text: 'Topic: Chemical Bonding. Compare Ionic, Covalent, and Metallic bonding. Explain electronegativity trends and Lewis structures for CO2 and H2O.' },
+    { label: 'Biology', icon: '🔬', text: 'Subject: Cellular Biology. Focus on organelle functions (mitochondria, nucleus, ribosomes) and the differences between plant and animal cells.' },
+    { label: 'English', icon: '📝', text: 'Reading Comprehension: Focus on a passage about the ethical implications of Artificial Intelligence. Create 3 MCQs on inference and 2 text questions on critical analysis.' }
+];
+
 interface TestInputProps {
     onTestGenerated: (config: TestConfig) => void;
     onCancel?: () => void;
@@ -56,7 +64,7 @@ export const SyllabusInput: React.FC<TestInputProps> = ({ onTestGenerated, onCan
 
     return (
         <>
-            <div className="max-w-5xl w-full mx-auto relative pt-2 pb-8">
+            <div className="max-w-5xl w-full mx-auto relative pt-2 pb-4 md:pb-8">
                 {onCancel && (
                     <div className="absolute top-0 right-0">
                         <Button
@@ -110,6 +118,19 @@ export const SyllabusInput: React.FC<TestInputProps> = ({ onTestGenerated, onCan
                             placeholder={`Paste your syllabus, topic list, or notes here...\nFor example:\n- Introduction to React\n- Components and Props\n- State and Lifecycle`}
                             className="w-full flex-1 min-h-[300px] lg:min-h-full rounded-xl text-sm md:text-base leading-relaxed bg-black/20"
                         />
+                        <div className="flex flex-wrap gap-2 pt-1 lg:pb-0 pb-4">
+                            <span className="text-[10px] uppercase font-bold text-glass-secondary mt-1 tracking-wider mr-1">Examples:</span>
+                            {SAMPLE_PROMPTS.map((prompt) => (
+                                <button
+                                    key={prompt.label}
+                                    onClick={() => setSyllabus(prompt.text)}
+                                    className="px-3 py-1 rounded-full bg-white/5 border border-white/10 hover:border-indigo-500/50 hover:bg-indigo-500/10 transition-all text-[11px] font-medium text-glass-secondary hover:text-indigo-300 flex items-center gap-1.5"
+                                >
+                                    <span>{prompt.icon}</span>
+                                    {prompt.label}
+                                </button>
+                            ))}
+                        </div>
                     </div>
 
                     {/* Right Column: Configuration & Actions */}

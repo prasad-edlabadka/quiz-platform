@@ -200,7 +200,7 @@ export const PastResultsView: React.FC<PastResultsViewProps> = ({ onBack, onReta
     };
 
     return (
-        <div className="w-full max-h-[80vh] flex flex-col relative flex-1">
+        <div className="w-full flex flex-col relative flex-1">
             {pastResults.length === 0 ? (
                 <div className="glass-panel p-16 rounded-2xl flex flex-col items-center justify-center text-center flex-1">
                     <Award className="w-16 h-16 mb-4 text-indigo-400/50" />
