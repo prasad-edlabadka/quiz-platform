@@ -470,9 +470,9 @@ function App() {
             </div>
 
             {/* Main Content Area */}
-            <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden relative">
-              <main className="flex-1 overflow-y-auto px-6 lg:px-10 pb-10 pt-8">
-                <div className={`w-full mx-auto grid grid-cols-1 gap-8 lg:gap-12 items-start h-full transition-all duration-500 max-w-[1280px]`}>
+            <div className="flex-1 flex flex-col min-w-0 md:h-screen overflow-hidden relative">
+              <main className="flex-1 overflow-y-auto px-6 lg:px-10 pb-24 md:pb-10 pt-8">
+                <div className={`w-full mx-auto grid grid-cols-1 gap-8 lg:gap-12 items-start md:h-full transition-all duration-500 max-w-[1280px]`}>
                   {activeTab === null && (<LandingFeatures />)}
 
                   {activeTab !== null && (

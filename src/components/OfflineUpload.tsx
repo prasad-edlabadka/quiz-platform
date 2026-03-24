@@ -165,7 +165,7 @@ export const OfflineUpload: React.FC<OfflineUploadProps> = ({ onSuccess, onOpenS
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
+    <div className="space-y-6 md:space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
       <div className="text-center mb-6">
         <div className={`w-16 h-16 mx-auto bg-gradient-to-br from-green-500/20 to-emerald-500/20 rounded-2xl flex items-center justify-center mb-4 border ${isDark ? 'border-white/10' : 'border-black/5'}`}>
           <FileImage className="w-8 h-8 text-emerald-400" />

@@ -39,7 +39,7 @@ export const TestLoader: React.FC<TestLoaderProps> = ({
   const isDark = themeMode === 'dark';
 
   return (
-    <div className={`w-full glass-panel rounded-3xl p-6 md:p-8 flex flex-col flex-1 min-h-[500px] ${isDark ? 'bg-black/20' : 'bg-white/50'}`}>
+    <div className={`w-full glass-panel rounded-3xl p-6 md:p-8 flex flex-col flex-1 md:min-h-[500px] ${isDark ? 'bg-black/20' : 'bg-white/50'}`}>
       <div className="flex-1 flex flex-col justify-start min-w-0">
         {/* Tab Content: AI Generation */}
         {activeTab === 'ai' && (

@@ -44,6 +44,18 @@ export const PrintableView: React.FC = () => {
             {config.globalTimeLimit && (
               <div><strong>Time Limit:</strong> {Math.floor(config.globalTimeLimit / 60)} Minutes</div>
             )}
+            <div><strong>Question Types:</strong> {(() => {
+              const types = new Set(config.questions.map(q => q.type));
+              if (types.size === 1) {
+                const type = Array.from(types)[0];
+                return type === 'single_choice' ? 'Single Choice' : type === 'multiple_choice' ? 'Multiple Choice' : 'Text Based';
+              }
+              const hasMCQ = types.has('single_choice') || types.has('multiple_choice');
+              const hasText = types.has('text');
+              if (hasMCQ && hasText) return 'Mixed (MCQ/Text)';
+              if (hasMCQ) return 'Mixed (MCQ Only)';
+              return 'Mixed';
+            })()}</div>
             <div className="w-64 border-b border-gray-400"><strong>Name:</strong> </div>
             <div className="w-48 border-b border-gray-400"><strong>Date:</strong> </div>
           </div>

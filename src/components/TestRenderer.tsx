@@ -46,7 +46,18 @@ export const TestRenderer: React.FC = () => {
           <ul className="space-y-2 text-glass-secondary">
             <li>• {config.questions.length} Questions</li>
             {config.globalTimeLimit && <li>• {Math.floor(config.globalTimeLimit / 60)} Minutes Time Limit</li>}
-            <li>• {config.questions.every(q => q.type === 'single_choice') ? 'Single Choice' : 'Multiple Choice'}</li>
+            <li>• {(() => {
+              const types = new Set(config.questions.map(q => q.type));
+              if (types.size === 1) {
+                const type = Array.from(types)[0];
+                return type === 'single_choice' ? 'Single Choice' : type === 'multiple_choice' ? 'Multiple Choice' : 'Text Based';
+              }
+              const hasMCQ = types.has('single_choice') || types.has('multiple_choice');
+              const hasText = types.has('text');
+              if (hasMCQ && hasText) return 'Mixed (MCQ & Text)';
+              if (hasMCQ) return 'Mixed (Single & Multiple Choice)';
+              return 'Mixed Questions';
+            })()}</li>
           </ul>
         </Card>
 
