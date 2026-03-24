@@ -13,7 +13,7 @@ interface ReviseLayoutProps {
 }
 
 export const ReviseLayout: React.FC<ReviseLayoutProps> = ({ children }) => {
-    const { config, timeRemaining, answers, flaggedQuestions, currentQuestionIndex, jumpToQuestion, status, themeMode } = useTestStore();
+    const { config, timeRemaining, answers, drawnAnswers, flaggedQuestions, currentQuestionIndex, jumpToQuestion, status, themeMode } = useTestStore();
     const isDark = themeMode === 'dark';
     const [showCalculator, setShowCalculator] = useState(false);
     const [showNotepad, setShowNotepad] = useState(false);
@@ -107,7 +107,16 @@ export const ReviseLayout: React.FC<ReviseLayoutProps> = ({ children }) => {
                                             // Find original index in the full list
                                             const idx = config.questions.findIndex(oq => oq.id === q.id);
                                             const isCurrent = idx === currentQuestionIndex;
-                                            const isAttempted = answers[q.id] && answers[q.id].length > 0;
+
+                                            // Check if attempted based on type and content
+                                            const isAttempted = (() => {
+                                                const hasMCQSelection = (q.type === 'single_choice' || q.type === 'multiple_choice') && answers[q.id]?.length > 0;
+                                                const textVal = answers[q.id]?.[0];
+                                                const hasText = q.type === 'text' && textVal && textVal.replace(/<[^>]*>?/gm, '').trim().length > 1;
+                                                const hasDrawing = q.requiresDiagram && drawnAnswers[q.id];
+                                                return hasMCQSelection || hasText || hasDrawing;
+                                            })();
+
                                             const isFlagged = flaggedQuestions.includes(q.id);
 
                                             return (
@@ -116,12 +125,12 @@ export const ReviseLayout: React.FC<ReviseLayoutProps> = ({ children }) => {
                                                     type="default"
                                                     onClick={() => jumpToQuestion(idx)}
                                                     className={clsx(
-                                                        "relative w-full aspect-square rounded-lg flex items-center justify-center text-sm font-medium transition-all hover:scale-105 active:scale-95 border-none p-0",
+                                                        "relative w-full aspect-square rounded-lg flex items-center justify-center text-sm font-medium transition-all hover:scale-105 active:scale-95 !border-none p-0",
                                                         isCurrent
-                                                            ? "bg-indigo-600 text-white shadow-lg ring-2 ring-indigo-400/50"
+                                                            ? "!bg-indigo-600 !text-white shadow-lg ring-2 ring-indigo-400/50"
                                                             : isAttempted
-                                                                ? (isDark ? "bg-emerald-500/20 text-emerald-400 !border !border-emerald-500/30" : "bg-emerald-500/20 text-emerald-600 !border !border-emerald-500/30")
-                                                                : (isDark ? "bg-slate-700/60 !border !border-slate-500 text-white hover:bg-slate-700/80" : "bg-white/50 !border !border-gray-300 text-glass-secondary hover:bg-white/80")
+                                                                ? (isDark ? "!bg-emerald-500/20 !text-emerald-400 border !border-emerald-500/30" : "!bg-emerald-500/20 !text-emerald-600 border !border-emerald-500/30")
+                                                                : (isDark ? "!bg-slate-700/60 !border !border-slate-500 !text-white hover:bg-slate-700/80" : "!bg-white/50 !border !border-gray-300 !text-glass-secondary hover:bg-white/80")
                                                     )}
                                                 >
                                                     {idx + 1}
