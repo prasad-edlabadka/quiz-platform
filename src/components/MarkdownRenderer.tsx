@@ -3,6 +3,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
 import remarkGfm from 'remark-gfm';
 import rehypeKatex from 'rehype-katex';
+import rehypeRaw from 'rehype-raw';
 
 interface MarkdownRendererProps {
   content: string;
@@ -14,7 +15,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
     <div className={`prose prose-sm md:prose-base max-w-none dark:prose-invert break-words whitespace-normal ${className}`}>
       <ReactMarkdown
         remarkPlugins={[remarkMath, remarkGfm]}
-        rehypePlugins={[rehypeKatex]}
+        rehypePlugins={[rehypeKatex, rehypeRaw]}
         components={{
             img: ({node, ...props}) => (
                 <img 
