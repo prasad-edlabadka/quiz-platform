@@ -2,6 +2,7 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import type { PastTestResult } from '../types/test';
 import { useTestStore } from '../store/testStore';
+import { MarkdownRenderer } from './MarkdownRenderer';
 
 interface ResultPDFExportProps {
   result: PastTestResult;
@@ -83,7 +84,7 @@ export const ResultPDFExport: React.FC<ResultPDFExportProps> = ({ result, onClos
                 <span className="print-q-num">Q{idx + 1}</span>
                 <span className="print-q-score" style={{ color: isPass ? '#16a34a' : '#dc2626' }}>{earned}/{pts}</span>
               </div>
-              <p className="print-q-content">{q.content.replace(/\*\*|##|###|\*|`/g, '').trim()}</p>
+              <div className="print-q-content"><MarkdownRenderer content={q.content} /></div>
 
               {q.options && (
                 <div className="print-options">
@@ -95,10 +96,14 @@ export const ResultPDFExport: React.FC<ResultPDFExportProps> = ({ result, onClos
                         borderColor: opt.isCorrect ? '#86efac' : isSel && !opt.isCorrect ? '#fca5a5' : '#e2e8f0',
                         fontWeight: isSel ? 600 : 400,
                       }}>
-                        <span style={{ marginRight: 6 }}>
-                          {isSel && opt.isCorrect ? '✓' : isSel && !opt.isCorrect ? '✗' : opt.isCorrect ? '✓' : '○'}
-                        </span>
-                        {opt.content.replace(/\*\*|\*/g, '')}
+                        <div style={{ display: 'flex', alignItems: 'flex-start' }}>
+                          <span style={{ marginRight: 8, marginTop: 2 }}>
+                            {isSel && opt.isCorrect ? '✓' : isSel && !opt.isCorrect ? '✗' : opt.isCorrect ? '✓' : '○'}
+                          </span>
+                          <div style={{ flex: 1 }}>
+                            <MarkdownRenderer content={opt.content} />
+                          </div>
+                        </div>
                       </div>
                     );
                   })}
@@ -106,13 +111,22 @@ export const ResultPDFExport: React.FC<ResultPDFExportProps> = ({ result, onClos
               )}
 
               {q.type === 'text' && selected.length > 0 && (
-                <div className="print-text-answer"><strong>Student answer:</strong> {selected[0]}</div>
+                <div className="print-text-answer">
+                  <strong>Student answer:</strong>
+                  <div dangerouslySetInnerHTML={{ __html: selected[0] }} />
+                </div>
               )}
               {evalData?.feedback && (
-                <div className="print-feedback"><strong>Feedback:</strong> {evalData.feedback}</div>
+                <div className="print-feedback">
+                  <strong>Feedback:</strong>
+                  <MarkdownRenderer content={evalData.feedback} />
+                </div>
               )}
               {q.justification && (
-                <div className="print-justification"><strong>Model answer:</strong> {q.justification}</div>
+                <div className="print-justification">
+                  <strong>Model answer:</strong>
+                  <MarkdownRenderer content={q.justification} />
+                </div>
               )}
             </div>
           );

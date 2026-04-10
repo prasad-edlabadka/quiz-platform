@@ -200,7 +200,7 @@ export const validateApiKey = async (apiKey: string): Promise<ApiKeyStatus> => {
     3. ${structureInstruction}
     4. IB STYLE: Use IB command terms (e.g., Define, Explain, Calculate, Discuss, Evaluate, Justify) in the questions. Ensure rigor matches IB Diploma Programme (DP) or Middle Years Programme (MYP) standards.
     5. Include at least one math/logic question if syllabus is related to mathematics. Otherwise, do not generate any math question. (use LaTeX $x^2$).
-    6. Double-escape backslashes in LaTeX (e.g. \\\\frac).
+    6. FORMATTING: Use $...$ for inline math equations and $$...$$ for block math. Double-escape all LaTeX backslashes (e.g. \\\\frac, \\\\lim). DO NOT use \\( ... \\) or \\[ ... \\].
     7. CRITICAL: Do NOT include any 'imageUrl' fields or references to images. Use descriptive text or ASCII diagrams if needed.
     ${timeInstruction ? `8. ${timeInstruction}` : ''}
     
@@ -376,7 +376,7 @@ export const extractTestConfigFromPDF = async (
       2. If a question is multiple choice, extract all options and mark the correct one if possible (otherwise guess intelligently or mark first as true).
       3. If a question is open-ended, set type to "text" and omit options.
       4. Auto-generate a "justification" (markscheme/explanation) for every question to help with automated grading later.
-      5. Include math equations using LaTeX formats where appropriate (use $x^2$ and double escape backslashes e.g. \\\\frac).
+      5. FORMATTING: Use $...$ for inline math equations and $$...$$ for block math. Double-escape all LaTeX backslashes (e.g. \\\\frac, \\\\lim). DO NOT use \\( ... \\) or \\[ ... \\].
       6. Do NOT invent new questions. ONLY extract what is in the document.
       
       CONTENT SAFETY:
@@ -477,10 +477,50 @@ export const evaluateTextAnswer = async (
       ${appealContext}
       
       STANDARD INSTRUCTIONS:
-      Evaluate the student's answer based on IB assessment criteria (Knowledge & Understanding, Application, Communication).
-      Give a score between 0 and ${question.points || 1}.
-      Provide concise, constructive feedback in the style of an IB Markscheme.
-      CRITICAL: If the answer is incorrect or incomplete, EXPLICITLY state what the correct answer should be.
+      - Evaluate the student's answer based on IB assessment criteria (Knowledge & Understanding, Application, Communication).
+      - Apply following guidelines for command terms. If the answer does not meet command term requirement, provide feedback as mentioned below.
+        - Analyze: Break down into components and show relationships, patterns, or trends using data, quotes, or models.
+        - Annotate: Provide brief explanatory notes on a diagram or text referencing specific features.
+        - Assess: Measure the value or impact of something relative to specific criteria and provide a conclusion.
+        - Calculate: Provide a numerical result with clear working and correct units.
+        - Comment: Provide a reasoned statement based on given material like data, a passage, or a diagram.
+        - Compare: Focus on similarities only between two or more items.
+        - Contrast: Focus on differences only between two or more items.
+        - Compare and contrast: Provide both similarities and differences, organized by specific dimensions (e.g., cost, ethics).
+        - Construct: Produce a diagram, model, or logical structure (like a flowchart).
+        - Deduce: Draw a logical conclusion from the information or principles provided.
+        - Define: Give the precise meaning of a concept, including essential characteristics only; avoid examples unless requested.
+        - Derive: Manipulate known relationships to reach a new expression through clear algebraic or logical steps.
+        - Describe: Give a detailed account of characteristics, sequences, or processes without explaining "why."
+        - Design: Propose a plan or method that satisfies specific constraints (variables, ethics, etc.).
+        - Determine: Obtain the only possible answer, often requiring a specific method.
+        - Discuss: Offer a balanced, considered review of range of arguments supported by evidence, ending in a reasoned judgment.
+        - Distinguish: Make clear the differences between items using side-by-side contrasting features.
+        - Draw: Create an accurate diagram or graph, to scale where relevant, and include labels.
+        - Estimate: Provide an approximate value while showing the method or assumptions used.
+        - Evaluate: Appraise the value or validity of something using criteria; include strengths, limits, and a conclusion.
+        - Examine: Consider an argument or concept to uncover hidden assumptions, implications, and interrelationships.
+        - Explain: Give a detailed account including reasons, mechanisms, or cause-effect relationships (Claim → Because → Evidence).
+        - Hence (or otherwise): Use a previous result efficiently to reach the next answer (or use an alternative valid method).
+        - Identify: Recognize and state a specific factor or item with minimal elaboration.
+        - Justify: Provide valid reasons and evidence to support a specific choice or conclusion.
+        - Label: Add identifying text to specific features on a provided diagram.
+        - List: Provide a series of brief points or items with no additional details.
+        - Measure: Read an instrument or graph and record the value with units and uncertainties.
+        - Outline: Give a brief summary of the main points or ideas; used for breadth rather than depth.
+        - Plot: Mark points on suitable scales and add a best-fit line or curve where appropriate.
+        - Predict: State an expected result based on trends or theory, including brief reasoning.
+        - Show that: Demonstrate how a result is reached from given info; no credit is given for the result alone.
+        - Sketch: Provide a diagram or graph showing essential shapes and features (like intercepts) without necessarily being to scale.
+        - State: Give a single, concise answer or value without any explanation or commentary.
+        - Suggest: Propose a plausible idea or solution grounded in your knowledge of the course.
+        - To what extent: Weigh different arguments to reach a degree-qualified conclusion (e.g., "to a large extent").
+        - Write down: Provide a direct answer (often from a diagram or identity) with minimal to no working required.
+      - Analyze if the length of the answer matches the command term requirement. If the student writes too much (redundant sentences/steps, poor time management) or too little, explicitly point this out in the feedback.
+      - Give a score between 0 and ${question.points || 1}.
+      - Provide concise, constructive feedback in the style of an IB Markscheme, including comments on answer length if necessary.
+      - FORMATTING: Use $...$ for inline math equations and $$...$$ for block math. Double-escape all LaTeX backslashes (e.g. \\\\frac, \\\\lim). DO NOT use \\( ... \\) or \\[ ... \\].
+      - CRITICAL: Provide a clear "Model Answer:" at the end of the feedback that the student can reference.
       
       OUTPUT JSON ONLY:
       {
@@ -554,9 +594,11 @@ export const evaluateBatchAnswers = async (
       
       INSTRUCTIONS:
       1. Evaluate EACH student answer based on IB assessment criteria (Knowledge & Understanding, Application, Communication).
-      2. Give a score between 0 and MAX POINTS.
-      3. Provide concise, constructive feedback in the style of an IB Markscheme (e.g., "Award [1] for...").
-      4. CRITICAL: If the answer is incorrect or incomplete, EXPLICITLY state what the correct answer should be.
+      2. Analyze if the length of the answer matches the command term requirement. If the student writes too much (redundant sentences/steps, poor time management) or too little, explicitly point this out in the feedback.
+      3. Give a score between 0 and MAX POINTS.
+      4. Provide concise, constructive feedback in the style of an IB Markscheme, including comments on answer length if necessary.
+      5. FORMATTING: Use $...$ for inline math equations and $$...$$ for block math. Double-escape all LaTeX backslashes (e.g. \\\\frac, \\\\lim). DO NOT use \\( ... \\) or \\[ ... \\].
+      6. CRITICAL: Include a clear "Model Answer:" at the end of the feedback for the student to reference.
       
       OUTPUT FORMAT:
       Return ONLY a valid JSON object mapping Question IDs to their evaluation.
@@ -650,9 +692,11 @@ export const evaluateOfflineImages = async (
       1. Review the provided images of the student's handwritten work.
       2. Match the handwritten answers to the corresponding questions from the test paper provided below.
       3. Evaluate EACH identified student answer based on IB assessment criteria (Knowledge & Understanding, Application, Communication).
-      4. Give a score between 0 and the MAX POINTS for that question. If the answer is completely missing, give 0.
-      5. Provide concise, constructive feedback in the style of an IB Markscheme (e.g., "Award [1] for...").
-      6. CRITICAL: If the answer is incorrect or incomplete, EXPLICITLY state what the correct answer should be.
+      4. Analyze if the length of the answer matches the command term requirement. If the student writes too much (redundant sentences/steps, poor time management) or too little, explicitly point this out in the feedback.
+      5. Give a score between 0 and the MAX POINTS for that question. If the answer is completely missing, give 0.
+      6. Provide concise, constructive feedback in the style of an IB Markscheme, including comments on answer length if necessary.
+      7. FORMATTING: Use $...$ for inline math equations and $$...$$ for block math. Double-escape all LaTeX backslashes (e.g. \\\\frac, \\\\lim). DO NOT use \\( ... \\) or \\[ ... \\].
+      8. CRITICAL: Include a clear "Model Answer:" at the end of the feedback for the student to reference.
       
       TEST PAPER CONFIGURATION (JSON):
       ${JSON.stringify({ 
