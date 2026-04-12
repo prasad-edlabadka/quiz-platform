@@ -139,22 +139,23 @@ export const ResultsView: React.FC = () => {
         <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="max-w-6xl mx-auto flex flex-col pt-4"
+            className="max-w-6xl mx-auto flex flex-col pt-[72px] md:pt-6 px-4 xl:px-0"
         >
-            {isViewingPastResult && (
-                <div className="w-full flex justify-start mb-6 print:hidden">
-                    <Button
-                        onClick={clearState}
-                        icon={<ArrowLeft className="w-4 h-4" />}
-                        size="large"
-                    >
-                        Back to Past Results
-                    </Button>
+            <div className="flex flex-col-reverse md:flex-row md:items-center md:justify-between gap-4 mb-4 md:mb-6 md:pr-24 print:hidden">
+                <div className="flex justify-center md:justify-start">
+                    {isViewingPastResult && (
+                        <Button
+                            onClick={clearState}
+                            icon={<ArrowLeft className="w-4 h-4" />}
+                            size="large"
+                        >
+                            Back to Past Results
+                        </Button>
+                    )}
                 </div>
-            )}
 
-            <div className="flex justify-end gap-3 mb-4 print:hidden">
-                <Button
+                <div className="flex flex-wrap justify-center md:justify-end gap-3">
+                    <Button
                     onClick={() => {
                         if (!config) return;
                         const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(config, null, 2));
@@ -178,6 +179,7 @@ export const ResultsView: React.FC = () => {
                 >
                     Export Results (PDF)
                 </Button>
+            </div>
             </div>
 
             <Card className="rounded-3xl text-center mb-8 border border-white/10" styles={{ body: { padding: '3rem' } }}>

@@ -132,7 +132,7 @@ export const Calculator: React.FC<CalculatorProps> = ({ onClose }) => {
   ];
 
   return (
-    <div className={clsx("glass-panel p-4 rounded-xl shadow-2xl border border-white/20 transition-all duration-300", mode === 'basic' ? 'w-64' : 'w-96')}>
+    <div className={clsx("glass-panel p-4 rounded-xl shadow-2xl border border-white/20 transition-all duration-300 max-w-[calc(100vw-2rem)] shrink-0", mode === 'basic' ? 'w-64' : 'w-96')}>
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-sm font-bold text-glass-secondary uppercase tracking-wider">Calculator</h3>
         <div className="flex items-center gap-2">
