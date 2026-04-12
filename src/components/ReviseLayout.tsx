@@ -27,25 +27,25 @@ export const ReviseLayout: React.FC<ReviseLayoutProps> = ({ children }) => {
         <div className="h-screen flex flex-col bg-transparent transition-colors overflow-hidden">
 
             {/* Top Header */}
-            <header className="h-16 px-6 glass-panel border-b border-white/10 flex items-center justify-between z-40 sticky top-0 backdrop-blur-md">
-                <div className="flex items-center gap-4">
-                    <div className="font-bold text-lg text-glass-primary tracking-tight">Revise</div>
-                    <div className="h-6 w-px bg-white/10 mx-2"></div>
-                    <h1 className="text-sm font-medium text-glass-secondary truncate max-w-[200px] md:max-w-md" title={config.title}>
+            <header className="h-16 px-4 md:px-6 glass-panel border-b border-white/10 flex items-center justify-between z-40 sticky top-0 backdrop-blur-md">
+                <div className="flex items-center gap-2 sm:gap-4 flex-1 min-w-0">
+                    <div className="font-bold text-lg text-glass-primary tracking-tight hidden sm:block">Revise</div>
+                    <div className="h-6 w-px bg-white/10 mx-2 hidden sm:block"></div>
+                    <h1 className="text-sm font-medium text-glass-secondary truncate" title={config.title}>
                         {config.title}
                     </h1>
                 </div>
 
-                <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                <div className="flex-shrink-0 mx-2 relative flex items-center justify-center">
                     {config.globalTimeLimit && (
                         <div className="flex flex-col items-center">
-                            <span className="text-[10px] uppercase font-bold text-glass-secondary tracking-widest">Time Remaining</span>
-                            <Timer seconds={timeRemaining} label="" variant={timeRemaining < 300 ? 'urgent' : 'default'} />
+                            <span className="text-[10px] uppercase font-bold text-glass-secondary tracking-widest hidden sm:block relative -top-1">Time Remaining</span>
+                            <div className="sm:-mt-1"><Timer seconds={timeRemaining} label="" variant={timeRemaining < 300 ? 'urgent' : 'default'} /></div>
                         </div>
                     )}
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1 sm:gap-2 flex-1 justify-end min-w-0">
                     <Button
                         type="text"
                         onClick={() => useTestStore.getState().toggleTheme()}
@@ -238,16 +238,41 @@ export const ReviseLayout: React.FC<ReviseLayoutProps> = ({ children }) => {
 
             {/* Floating Tools Root Context */}
             {showCalculator && (
-                <DraggableWrapper className="absolute z-50 top-20 right-20" handle=".glass-panel > div:first-child">
+                <DraggableWrapper className="absolute z-[100] top-20 left-4 md:left-auto md:right-20" handle=".glass-panel > div:first-child">
                     <Calculator onClose={() => setShowCalculator(false)} />
                 </DraggableWrapper>
             )}
 
             {showNotepad && (
-                <DraggableWrapper defaultPosition={{ x: 400, y: 100 }} handle=".glass-panel > div:first-child">
+                <DraggableWrapper className="absolute z-[100] top-24 left-4 md:left-auto md:right-32" handle=".glass-panel > div:first-child">
                     <Notepad onClose={() => setShowNotepad(false)} />
                 </DraggableWrapper>
             )}
+
+            {/* Mobile Bottom Navigation Bar */}
+            <div className="md:hidden fixed bottom-0 left-0 right-0 h-[72px] glass-panel border-t border-white/10 flex items-center justify-around z-40 bg-black/40 backdrop-blur-xl pb-safe">
+                <button
+                    onClick={() => setShowCalculator(!showCalculator)}
+                    className={clsx("flex flex-col items-center justify-center p-2 transition-colors w-16", showCalculator ? "text-indigo-400" : "text-glass-secondary hover:text-white")}
+                >
+                    <CalcIcon className="w-6 h-6 mb-1" />
+                    <span className="text-[10px] font-medium leading-none">Calculator</span>
+                </button>
+                <button
+                    onClick={() => setShowNotepad(!showNotepad)}
+                    className={clsx("flex flex-col items-center justify-center p-2 transition-colors w-16", showNotepad ? "text-indigo-400" : "text-glass-secondary hover:text-white")}
+                >
+                    <StickyNote className="w-6 h-6 mb-1" />
+                    <span className="text-[10px] font-medium leading-none">Notepad</span>
+                </button>
+                <button
+                    onClick={() => useTestStore.getState().finishTest()}
+                    className="flex flex-col items-center justify-center p-2 text-red-500/80 hover:text-red-400 transition-colors w-16"
+                >
+                    <LogOut className="w-6 h-6 mb-1" />
+                    <span className="text-[10px] font-medium leading-none">End Test</span>
+                </button>
+            </div>
         </div>
     );
 };

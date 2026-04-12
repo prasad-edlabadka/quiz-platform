@@ -507,7 +507,7 @@ export const evaluateTextAnswer = async (
         - Label: Add identifying text to specific features on a provided diagram.
         - List: Provide a series of brief points or items with no additional details.
         - Measure: Read an instrument or graph and record the value with units and uncertainties.
-        - Outline: Give a brief summary of the main points or ideas; used for breadth rather than depth.
+        - Outline: Give a brief account of the main points or ideas; used for breadth rather than depth.
         - Plot: Mark points on suitable scales and add a best-fit line or curve where appropriate.
         - Predict: State an expected result based on trends or theory, including brief reasoning.
         - Show that: Demonstrate how a result is reached from given info; no credit is given for the result alone.
