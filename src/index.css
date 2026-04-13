@@ -149,6 +149,12 @@
   .prose td {
     @apply p-3 border-b border-gray-200 dark:border-gray-800;
   }
+
+  /* MathType Formula Dark Mode Support */
+  /* Invert the black formulas to white/light-grey in dark mode */
+  :root[class~="dark"] img.Wirisformula {
+    filter: invert(0.9) hue-rotate(180deg);
+  }
 }
 
 @layer utilities {

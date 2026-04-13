@@ -16,7 +16,8 @@ import {
     TableToolbar,
     TableProperties,
     TableCellProperties,
-    TableColumnResize
+    TableColumnResize,
+    GeneralHtmlSupport
 } from 'ckeditor5';
 import MathType from '@wiris/mathtype-ckeditor5/dist/browser/index.js';
 import '@wiris/mathtype-ckeditor5/dist/browser/index.css';
@@ -49,8 +50,19 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
                     plugins: [
                         Essentials, Paragraph, Bold, Italic, Underline, Strikethrough, 
                         Subscript, Superscript, List, Alignment, MathType,
-                        Table, TableToolbar, TableProperties, TableCellProperties, TableColumnResize
+                        Table, TableToolbar, TableProperties, TableCellProperties, TableColumnResize,
+                        GeneralHtmlSupport
                     ],
+                    htmlSupport: {
+                        allow: [
+                            {
+                                name: /.*/,
+                                attributes: true,
+                                classes: true,
+                                styles: true
+                            }
+                        ]
+                    },
                     toolbar: [ 
                         'bold', 'italic', 'underline', 'strikethrough', 
                         '|', 'subscript', 'superscript', 
