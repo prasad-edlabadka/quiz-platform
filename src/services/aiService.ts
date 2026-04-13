@@ -520,7 +520,7 @@ export const evaluateTextAnswer = async (
       - Give a score between 0 and ${question.points || 1}.
       - Provide concise, constructive feedback in the style of an IB Markscheme, including comments on answer length if necessary.
       - FORMATTING: Use $...$ for inline math equations and $$...$$ for block math. Double-escape all LaTeX backslashes (e.g. \\\\frac, \\\\lim). DO NOT use \\( ... \\) or \\[ ... \\].
-      - CRITICAL: Provide a clear "Model Answer:" at the end of the feedback that the student can reference.
+      - CRITICAL: Provide a clear "Model Answer:" at the end of the feedback. This must be an ideal, full-marks answer constructed strictly according to IB assessment criteria for the given command term.
       
       OUTPUT JSON ONLY:
       {
@@ -598,7 +598,7 @@ export const evaluateBatchAnswers = async (
       3. Give a score between 0 and MAX POINTS.
       4. Provide concise, constructive feedback in the style of an IB Markscheme, including comments on answer length if necessary.
       5. FORMATTING: Use $...$ for inline math equations and $$...$$ for block math. Double-escape all LaTeX backslashes (e.g. \\\\frac, \\\\lim). DO NOT use \\( ... \\) or \\[ ... \\].
-      6. CRITICAL: Include a clear "Model Answer:" at the end of the feedback for the student to reference.
+      6. CRITICAL: Include a clear "Model Answer:" at the end of the feedback. This must be an ideal, full-marks answer constructed strictly according to IB assessment criteria for the given command term.
       
       OUTPUT FORMAT:
       Return ONLY a valid JSON object mapping Question IDs to their evaluation.
@@ -696,7 +696,7 @@ export const evaluateOfflineImages = async (
       5. Give a score between 0 and the MAX POINTS for that question. If the answer is completely missing, give 0.
       6. Provide concise, constructive feedback in the style of an IB Markscheme, including comments on answer length if necessary.
       7. FORMATTING: Use $...$ for inline math equations and $$...$$ for block math. Double-escape all LaTeX backslashes (e.g. \\\\frac, \\\\lim). DO NOT use \\( ... \\) or \\[ ... \\].
-      8. CRITICAL: Include a clear "Model Answer:" at the end of the feedback for the student to reference.
+      8. CRITICAL: Include a clear "Model Answer:" at the end of the feedback. This must be an ideal, full-marks answer constructed strictly according to IB assessment criteria for the given command term.
       
       TEST PAPER CONFIGURATION (JSON):
       ${JSON.stringify({ 
