@@ -8,7 +8,7 @@ import { Timer } from './Timer';
 import { useTestStore } from '../store/testStore';
 import { Flag, Star } from 'lucide-react';
 import { clsx } from 'clsx';
-import { Card, Button, Typography, Tag } from 'antd';
+import { Card, Button, Typography, Tag, Tooltip } from 'antd';
 
 interface QuestionCardProps {
   question: Question;
@@ -37,13 +37,29 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({ question }) => {
       style={{ backgroundColor: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.7)', backdropFilter: 'blur(12px)' }}
     >
       <div className="flex flex-wrap justify-between items-center gap-4 mb-6">
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           <Typography.Text className="text-xs sm:text-sm font-medium uppercase tracking-wider" type="secondary">
             Question {config?.questions.findIndex(q => q.id === question.id)! + 1}
           </Typography.Text>
-          <Tag icon={<Star className="w-3 h-3 inline pb-0.5" />} color={isDark ? "blue-inverse" : "blue"}>
-            {question.points || 1} pts
-          </Tag>
+          
+          {question.ibCriteria && question.ibCriteria.length > 0 ? (
+            <>
+              <Tag icon={<Star className="w-3 h-3 inline pb-0.5" />} color={isDark ? "blue-inverse" : "blue"} className="font-semibold">
+                Total {question.points} pts
+              </Tag>
+              {[...question.ibCriteria].sort((a, b) => a.criterion.localeCompare(b.criterion)).map((c, i) => (
+                <Tooltip key={i} title={c.expectation}>
+                  <Tag color={isDark ? "cyan-inverse" : "cyan"} className="cursor-help font-medium">
+                    {c.criterion.replace('Criterion ', '').split(':')[0]}: {c.points} pt{c.points !== 1 ? 's' : ''}
+                  </Tag>
+                </Tooltip>
+              ))}
+            </>
+          ) : (
+            <Tag icon={<Star className="w-3 h-3 inline pb-0.5" />} color={isDark ? "blue-inverse" : "blue"} className="font-semibold">
+              {question.points || 1} pts
+            </Tag>
+          )}
           <Button
             size="small"
             type={flaggedQuestions.includes(question.id) ? 'primary' : 'default'}

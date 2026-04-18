@@ -120,7 +120,7 @@ export const ResultsView: React.FC = () => {
             if (evaluations[q.id].score === evaluations[q.id].maxScore) {
                 correctCount++;
             }
-        } else if (q.options) {
+        } else if (q.type !== 'text' && q.options && q.options.length > 0) {
             const correctOptions = q.options.filter(o => o.isCorrect).map(o => o.id);
             const isCorrect = selected.length === correctOptions.length &&
                 selected.every(id => correctOptions.includes(id));
@@ -231,7 +231,7 @@ export const ResultsView: React.FC = () => {
                             const evaluation = evaluations[q.id];
                             isCorrect = evaluation.score === evaluation.maxScore;
                             pointsAwarded = evaluation.score;
-                        } else if (q.options) {
+                        } else if (q.type !== 'text' && q.options && q.options.length > 0) {
                             const correctOptions = q.options.filter(o => o.isCorrect).map(o => o.id);
                             isCorrect = selected.length === correctOptions.length &&
                                 selected.every(id => correctOptions.includes(id));
@@ -259,7 +259,9 @@ export const ResultsView: React.FC = () => {
                                             <p className="text-xs text-glass-secondary font-medium">
                                                 {evaluations[q.id]
                                                     ? `${evaluations[q.id].score} / ${q.points || 1} points`
-                                                    : `${pointsAwarded} / ${q.points || 1} points`
+                                                    : q.type === 'text' 
+                                                        ? 'Pending AI Grading...' 
+                                                        : `${pointsAwarded} / ${q.points || 1} points`
                                                 }
                                             </p>
                                         </div>
