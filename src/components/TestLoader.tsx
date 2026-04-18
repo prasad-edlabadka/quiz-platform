@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { Upload, FileText, HelpCircle } from 'lucide-react';
+import { Upload, FileText, HelpCircle, Users } from 'lucide-react';
 import { TestSelector } from './TestSelector';
 import { useTestStore } from '../store/testStore';
 
@@ -11,8 +11,8 @@ interface TestLoaderProps {
   onFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onProcessTestData: (data: string | any) => void;
   onOpenSchemaHelp?: () => void;
-  activeTab: 'ai' | 'upload' | 'library' | 'offline' | 'history';
-  setActiveTab?: (tab: 'ai' | 'upload' | 'library' | 'offline' | 'history' | null) => void;
+  activeTab: 'ai' | 'upload' | 'library' | 'offline' | 'history' | 'group' | null;
+  setActiveTab?: (tab: 'ai' | 'upload' | 'library' | 'offline' | 'history' | 'group' | null) => void;
   onOpenSettings?: () => void;
   onRetake?: (config: import('../types/test').TestConfig) => void;
 }
@@ -20,6 +20,8 @@ interface TestLoaderProps {
 import { PastResultsView } from './PastResultsView';
 import { OfflineUpload } from './OfflineUpload';
 import { SyllabusInput } from './SyllabusInput';
+import { GroupTestLobby } from './GroupTestLobby';
+import { useSyncStore } from '../store/syncStore';
 
 export const TestLoader: React.FC<TestLoaderProps> = ({
   jsonInput,
@@ -37,6 +39,27 @@ export const TestLoader: React.FC<TestLoaderProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { themeMode } = useTestStore();
   const isDark = themeMode === 'dark';
+  const { role: syncRole } = useSyncStore();
+
+  if (syncRole === 'client' && activeTab !== 'group') {
+     return (
+       <div className={`w-full glass-panel rounded-3xl p-6 md:p-8 flex flex-col items-center justify-center flex-1 md:min-h-[500px] ${isDark ? 'bg-black/20' : 'bg-white/50'}`}>
+          <Users className="w-16 h-16 text-indigo-500 mb-4 animate-pulse" />
+          <h2 className="text-2xl font-bold text-glass-primary mb-2">Waiting for Host</h2>
+          <p className="text-glass-secondary text-center max-w-md mb-6 leading-relaxed">
+            You are currently connected to a group session. Participants cannot start tests on their own while connected to a room. Please wait for the host to select and start the test!
+          </p>
+          {setActiveTab && (
+            <button 
+              onClick={() => setActiveTab('group')}
+              className="px-6 py-3 glass-button-primary rounded-xl font-bold"
+            >
+              Return to Lobby
+            </button>
+          )}
+       </div>
+     );
+  }
 
   return (
     <div className={`w-full glass-panel rounded-3xl p-6 md:p-8 flex flex-col flex-1 md:min-h-[500px] ${isDark ? 'bg-black/20' : 'bg-white/50'}`}>
@@ -143,6 +166,13 @@ export const TestLoader: React.FC<TestLoaderProps> = ({
         {activeTab === 'offline' && (
           <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 h-full flex flex-col">
             <OfflineUpload onSuccess={() => setActiveTab && setActiveTab('history')} onOpenSettings={onOpenSettings} />
+          </div>
+        )}
+
+        {/* Tab Content: Group Test */}
+        {activeTab === 'group' && (
+          <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 h-full flex flex-col items-center justify-center">
+            <GroupTestLobby />
           </div>
         )}
       </div>

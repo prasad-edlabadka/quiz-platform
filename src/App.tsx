@@ -3,7 +3,7 @@ import { useTestStore } from './store/testStore';
 import { TestRenderer } from './components/TestRenderer';
 import { ConfirmationModal } from './components/ConfirmationModal';
 import { SchemaHelpModal } from './components/SchemaHelpModal';
-import { Trash2, Sun, Moon, Download, Plus, Library, CheckCircle2, FileText, Upload, Home, Settings, Key, X, Info, FolderOpen, DatabaseBackup } from 'lucide-react';
+import { Trash2, Sun, Moon, Download, Plus, Library, CheckCircle2, FileText, Upload, Home, Settings, Key, X, Info, FolderOpen, DatabaseBackup, Users } from 'lucide-react';
 import { motion } from 'framer-motion';
 import type { TestConfig } from './types/test';
 
@@ -18,7 +18,7 @@ function App() {
   const isDark = themeMode === 'dark';
   const [jsonInput, setJsonInput] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'ai' | 'upload' | 'library' | 'offline' | 'history' | null>(null);
+  const [activeTab, setActiveTab] = useState<'ai' | 'upload' | 'library' | 'offline' | 'history' | 'group' | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [keyStatus, setKeyStatus] = useState<ApiKeyStatus>('unknown');
   const [settingsTab, setSettingsTab] = useState<'ai' | 'backup'>('ai');
@@ -27,7 +27,7 @@ function App() {
   useEffect(() => {
     const handlePopState = () => {
       const path = window.location.pathname.slice(1);
-      if (['ai', 'upload', 'library', 'offline', 'history'].includes(path)) {
+      if (['ai', 'upload', 'library', 'offline', 'history', 'group'].includes(path)) {
         setActiveTab(path as any);
       } else {
         setActiveTab(null);
@@ -39,7 +39,7 @@ function App() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
-  const navigateToTab = (tabId: 'ai' | 'upload' | 'library' | 'offline' | 'history' | null) => {
+  const navigateToTab = (tabId: 'ai' | 'upload' | 'library' | 'offline' | 'history' | 'group' | null) => {
     setActiveTab(tabId);
     const newPath = tabId ? `/${tabId}` : '/';
     if (window.location.pathname !== newPath) {
@@ -128,13 +128,19 @@ function App() {
     validateApiKey(apiKey).then(setKeyStatus);
   }, [apiKey]);
 
-  const tabsConfig = [
+  const isGroupTestEnabled = import.meta.env.VITE_ENABLE_GROUP_TEST === 'true';
+
+  const baseTabsConfig = [
     { id: 'ai' as const, icon: Plus, label: 'New Test' },
     { id: 'library' as const, icon: Library, label: 'My Library' },
     { id: 'upload' as const, icon: Upload, label: 'Upload Test File' },
     { id: 'history' as const, icon: CheckCircle2, label: 'Past Results' },
     { id: 'offline' as const, icon: FileText, label: 'Offline Work' },
   ];
+
+  const tabsConfig = isGroupTestEnabled 
+     ? [...baseTabsConfig, { id: 'group' as const, icon: Users, label: 'Group Test' }]
+     : baseTabsConfig;
   const [isResetModalOpen, setIsResetModalOpen] = useState(false);
   const [isSchemaModalOpen, setIsSchemaModalOpen] = useState(false);
 
