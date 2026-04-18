@@ -57,7 +57,16 @@ export const useSyncStore = create<SyncState>((set, get) => ({
     const shortCode = Math.random().toString(36).substring(2, 6).toUpperCase();
     const fullRoomId = `revise-room-${shortCode}`;
     
-    const peer = new Peer(fullRoomId);
+    const peerConfig = {
+      config: {
+        iceServers: [
+          { urls: 'stun:stun.l.google.com:19302' },
+          { urls: 'stun:global.stun.twilio.com:3478' }
+        ]
+      }
+    };
+    
+    const peer = new Peer(fullRoomId, peerConfig);
 
     peer.on('open', (id) => {
       const initData: ParticipantData = { id, name: get().userName, status: 'lobby' };
@@ -121,7 +130,16 @@ export const useSyncStore = create<SyncState>((set, get) => ({
     const roomId = shortCode.toUpperCase();
     const fullRoomId = `revise-room-${roomId}`;
     
-    const peer = new Peer();
+    const peerConfig = {
+      config: {
+        iceServers: [
+          { urls: 'stun:stun.l.google.com:19302' },
+          { urls: 'stun:global.stun.twilio.com:3478' }
+        ]
+      }
+    };
+    
+    const peer = new Peer(peerConfig);
 
     peer.on('open', (id) => {
       const conn = peer.connect(fullRoomId);
