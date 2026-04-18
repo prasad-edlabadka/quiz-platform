@@ -1,3 +1,9 @@
+export interface IBCriterion {
+  criterion: string; // e.g., "A", "B", "C", "D"
+  points: number;
+  expectation: string;
+}
+
 export interface TestSection {
   id: string;
   title?: string;
@@ -29,6 +35,7 @@ export interface Question {
   imageUrl?: string; // Optional image
   justification?: string; // Explanation for the answer
   points?: number; // Score value for this question (default: 1)
+  ibCriteria?: IBCriterion[]; // Dynamically assigned IB Criteria
   requiresDiagram?: boolean; // If true, rendering will include a drawing canvas
 }
 

@@ -55,7 +55,7 @@ export const validateApiKey = async (apiKey: string): Promise<ApiKeyStatus> => {
   if (!apiKey || !apiKey.trim()) return 'invalid';
   try {
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
     await model.generateContent('ping');
     return 'valid';
   } catch (error: any) {
@@ -76,12 +76,9 @@ export const validateApiKey = async (apiKey: string): Promise<ApiKeyStatus> => {
 
   // Fallback models in order of preference (based on available quota)
   const MODELS = [
-    "gemini-1.5-flash", 
-    "gemini-2.0-flash", 
-    "gemini-1.5-pro",
-    "gemini-2.5-flash", 
-    "gemini-2.5-flash-lite", 
-    "gemini-3-flash"
+    "gemini-2.5-flash",
+    "gemini-2.0-flash",
+    "gemini-1.5-flash"
   ];
 
   const runWithFallback = async (apiKey: string, parts: any[] | string): Promise<string> => {
@@ -142,6 +139,14 @@ export const validateApiKey = async (apiKey: string): Promise<ApiKeyStatus> => {
       ],` : ''}
       "justification": "string (explanation)"${includeQuestionTime ? `,
       "timeLimit": "number (seconds, based on difficulty/complexity of this question)"` : ''},
+      "points": "number (total points for the question)",
+      "ibCriteria": [
+        {
+          "criterion": "string (e.g., 'Criterion A: Knowledge and Understanding')",
+          "points": "number",
+          "expectation": "string (Specific expectation for these points based on IB criteria)"
+        }
+      ],
       "requiresDiagram": "boolean (true ONLY if the student needs to draw a diagram, graph, or shape to answer)"
     }
   `;
@@ -194,15 +199,22 @@ export const validateApiKey = async (apiKey: string): Promise<ApiKeyStatus> => {
     SYLLABUS:
     "${syllabus}"
     
+    IB CRITERIA DEFINITIONS:
+    - Criterion A (Knowledge/Understanding): Focuses on "what you know." This often involves recalling facts, identifying concepts, and demonstrating fundamental understanding.
+    - Criterion B (Investigation/Planning): Focuses on "how you prepare." In sciences, this might be lab design; in math, it’s finding patterns; in design, it’s brainstorming.
+    - Criterion C (Communication/Production): Focuses on "how you express it." This measures the quality of your final product, whether it’s a written essay, a math explanation, or a physical performance.
+    - Criterion D (Reflection/Application): Focuses on "why it matters." This covers real-world application, critical thinking, and evaluating your own performance or the impact of your work.
+    
     REQUIREMENTS:
     1. Create exactly ${questionCount} high-quality questions.
     2. ${typeInstruction}
     3. ${structureInstruction}
     4. IB STYLE: Use IB command terms (e.g., Define, Explain, Calculate, Discuss, Evaluate, Justify) in the questions. Ensure rigor matches IB Diploma Programme (DP) or Middle Years Programme (MYP) standards.
-    5. Include at least one math/logic question if syllabus is related to mathematics. Otherwise, do not generate any math question. (use LaTeX $x^2$).
-    6. FORMATTING: Use $...$ for inline math equations and $$...$$ for block math. Double-escape all LaTeX backslashes (e.g. \\\\frac, \\\\lim). DO NOT use \\( ... \\) or \\[ ... \\].
-    7. CRITICAL: Do NOT include any 'imageUrl' fields or references to images. Use descriptive text or ASCII diagrams if needed.
-    ${timeInstruction ? `8. ${timeInstruction}` : ''}
+    5. CRITERIA & POINTS: Assign points dynamically based on complexity, answer length, and IB criteria. Include the 'ibCriteria' array mapping specific expectations to their point values. Total 'points' should equal the sum of 'ibCriteria' points.
+    6. Include at least one math/logic question if syllabus is related to mathematics. Otherwise, do not generate any math question. (use LaTeX $x^2$).
+    7. FORMATTING: Use $...$ for inline math equations and $$...$$ for block math. Double-escape all LaTeX backslashes (e.g. \\\\frac, \\\\lim). DO NOT use \\( ... \\) or \\[ ... \\].
+    8. CRITICAL: Do NOT include any 'imageUrl' fields or references to images. Use descriptive text or ASCII diagrams if needed.
+    ${timeInstruction ? `9. ${timeInstruction}` : ''}
     
     CONTENT SAFETY:
     If the syllabus content is offensive, illegal, promotes self-harm, sexually explicit, related to sex, pornography or is otherwise inappropriate for an educational tool, you MUST NOT generate questions. Instead, return ONLY the following JSON object:
@@ -361,7 +373,15 @@ export const extractTestConfigFromPDF = async (
           "options": [
             { "content": "string", "isCorrect": boolean }
           ],
-          "justification": "string (explanation/markscheme of correct answer)"
+          "justification": "string (explanation/markscheme of correct answer)",
+          "points": "number (total points for the question)",
+          "ibCriteria": [
+            {
+              "criterion": "string",
+              "points": "number",
+              "expectation": "string"
+            }
+          ]
         }
       ]
     }
@@ -371,13 +391,20 @@ export const extractTestConfigFromPDF = async (
       You are an expert International Baccalaureate (IB) Examiner and educational content creator.
       Your task is to carefully read the provided PDF test paper/worksheet and extract EVERY question exactly as it appears.
       
+      IB CRITERIA DEFINITIONS:
+      - Criterion A (Knowledge/Understanding): Focuses on "what you know." This often involves recalling facts, identifying concepts, and demonstrating fundamental understanding.
+      - Criterion B (Investigation/Planning): Focuses on "how you prepare." In sciences, this might be lab design; in math, it’s finding patterns; in design, it’s brainstorming.
+      - Criterion C (Communication/Production): Focuses on "how you express it." This measures the quality of your final product, whether it’s a written essay, a math explanation, or a physical performance.
+      - Criterion D (Reflection/Application): Focuses on "why it matters." This covers real-world application, critical thinking, and evaluating your own performance or the impact of your work.
+      
       INSTRUCTIONS:
       1. Extract ALL questions from the PDF.
       2. If a question is multiple choice, extract all options and mark the correct one if possible (otherwise guess intelligently or mark first as true).
       3. If a question is open-ended, set type to "text" and omit options.
       4. Auto-generate a "justification" (markscheme/explanation) for every question to help with automated grading later.
-      5. FORMATTING: Use $...$ for inline math equations and $$...$$ for block math. Double-escape all LaTeX backslashes (e.g. \\\\frac, \\\\lim). DO NOT use \\( ... \\) or \\[ ... \\].
-      6. Do NOT invent new questions. ONLY extract what is in the document.
+      5. CRITERIA & POINTS: Extract points if available. Infer and populate the 'ibCriteria' array mapping specific expectations to their point values based on standard IB criteria. The total 'points' should equal the sum of 'ibCriteria' points.
+      6. FORMATTING: Use $...$ for inline math equations and $$...$$ for block math. Double-escape all LaTeX backslashes (e.g. \\\\frac, \\\\lim). DO NOT use \\( ... \\) or \\[ ... \\].
+      7. Do NOT invent new questions. ONLY extract what is in the document.
       
       CONTENT SAFETY:
       If the PDF content is offensive, illegal, promotes self-harm, or is otherwise inappropriate for an educational tool, you MUST NOT extract questions. Instead, return ONLY the following JSON object:
@@ -466,6 +493,9 @@ export const evaluateTextAnswer = async (
       
       CONTEXT/SECTION CONTENT (if any):
       "${question.sectionContent || 'N/A'}"
+      
+      IB CRITERIA / EXPECTATIONS:
+      ${question.ibCriteria ? JSON.stringify(question.ibCriteria, null, 2) : 'Not specified.'}
       
       EXPECTED ANSWER / JUSTIFICATION:
       "${question.justification || 'N/A'}"
@@ -614,7 +644,7 @@ export const evaluateBatchAnswers = async (
 
     const parts: any[] = [{ text: promptText }];
     items.forEach((item, index) => {
-        parts.push({ text: `\n[ITEM ${index + 1}]\nID: "${item.question.id}"\nQUESTION: "${item.question.content}"\nCONTEXT: "${item.question.sectionContent || 'N/A'}"\nEXPECTED ANSWER/JUSTIFICATION: "${item.question.justification || 'N/A'}"\nSTUDENT TEXT ANSWER: "${item.userAnswer}"\nMAX POINTS: ${item.question.points || 1}\n` });
+        parts.push({ text: `\n[ITEM ${index + 1}]\nID: "${item.question.id}"\nQUESTION: "${item.question.content}"\nCONTEXT: "${item.question.sectionContent || 'N/A'}"\nIB CRITERIA: ${item.question.ibCriteria ? JSON.stringify(item.question.ibCriteria) : 'N/A'}\nEXPECTED ANSWER/JUSTIFICATION: "${item.question.justification || 'N/A'}"\nSTUDENT TEXT ANSWER: "${item.userAnswer}"\nMAX POINTS: ${item.question.points || 1}\n` });
         if (item.drawnAnswer) {
              let b64 = item.drawnAnswer;
              if (b64.startsWith('{')) {
@@ -706,6 +736,7 @@ export const evaluateOfflineImages = async (
             content: q.content,
             justification: q.justification,
             points: q.points || 1,
+            ibCriteria: q.ibCriteria,
             options: q.options?.map(o => ({ content: o.content, isCorrect: o.isCorrect }))
         }))
       })}
