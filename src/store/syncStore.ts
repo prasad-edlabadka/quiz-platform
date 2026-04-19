@@ -11,6 +11,41 @@ export interface ParticipantData {
   maxScore?: number;
 }
 
+const getPeerConfig = () => {
+  const username = import.meta.env.VITE_TURN_USERNAME || '';
+  const credential = import.meta.env.VITE_TURN_CREDENTIAL || '';
+
+  return { 
+    config: { 
+      iceServers: [
+        {
+          urls: "stun:stun.relay.metered.ca:80",
+        },
+        {
+          urls: "turn:global.relay.metered.ca:80",
+          username,
+          credential,
+        },
+        {
+          urls: "turn:global.relay.metered.ca:80?transport=tcp",
+          username,
+          credential,
+        },
+        {
+          urls: "turn:global.relay.metered.ca:443",
+          username,
+          credential,
+        },
+        {
+          urls: "turns:global.relay.metered.ca:443?transport=tcp",
+          username,
+          credential,
+        },
+      ]
+    } 
+  };
+};
+
 export type SyncAction =
   | { type: 'TEST_START'; config: TestConfig }
   | { type: 'USER_JOIN'; peerId: string; name: string }
@@ -57,15 +92,7 @@ export const useSyncStore = create<SyncState>((set, get) => ({
     const shortCode = Math.random().toString(36).substring(2, 6).toUpperCase();
     const fullRoomId = `revise-room-${shortCode}`;
     
-    const peerConfig = {
-      config: {
-        iceServers: [
-          { urls: 'stun:stun.l.google.com:19302' },
-          { urls: 'stun:global.stun.twilio.com:3478' }
-        ]
-      }
-    };
-    
+    const peerConfig = getPeerConfig();
     const peer = new Peer(fullRoomId, peerConfig);
 
     peer.on('open', (id) => {
@@ -130,15 +157,7 @@ export const useSyncStore = create<SyncState>((set, get) => ({
     const roomId = shortCode.toUpperCase();
     const fullRoomId = `revise-room-${roomId}`;
     
-    const peerConfig = {
-      config: {
-        iceServers: [
-          { urls: 'stun:stun.l.google.com:19302' },
-          { urls: 'stun:global.stun.twilio.com:3478' }
-        ]
-      }
-    };
-    
+    const peerConfig = getPeerConfig();
     const peer = new Peer(peerConfig);
 
     peer.on('open', (id) => {
