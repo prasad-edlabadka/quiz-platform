@@ -31,7 +31,7 @@ interface RichTextEditorProps {
   readOnly?: boolean;
 }
 
-export const RichTextEditor: React.FC<RichTextEditorProps> = ({
+export const RichTextEditor: React.FC<RichTextEditorProps> = React.memo(({
   value,
   onChange,
   placeholder,
@@ -139,4 +139,12 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
             `}</style>
         </div>
     );
-};
+}, (prevProps, nextProps) => {
+    // Custom comparator: Ignore the inline onChange function pointer change, which triggers every second (Timer tick)
+    // Only re-render if the actual text data, readOnly state, or placeholder changes.
+    return (
+        prevProps.value === nextProps.value &&
+        prevProps.readOnly === nextProps.readOnly &&
+        prevProps.placeholder === nextProps.placeholder
+    );
+});
