@@ -9,7 +9,8 @@
     <!-- Eagerly Pre-load MathType/Wiris dependencies so the editor opens instantly -->
     <link rel="preconnect" href="https://www.wiris.net" crossorigin />
     <link rel="dns-prefetch" href="https://www.wiris.net" />
-    <script src="https://www.wiris.net/demo/plugins/app/WIRISplugins.js?viewer=image" async></script>
+    <!-- Download script into cache bypassing execution, eliminating duplicate API spawns -->
+    <link rel="preload" href="https://www.wiris.net/demo/plugins/app/WIRISplugins.js?viewer=image" as="script" />
   </head>
   <body>
     <div id="root"></div>

@@ -118,14 +118,34 @@ function App() {
     e.target.value = '';
   };
 
-  // Validate API key on mount and whenever the key changes
+  // Validate API key with debounce to prevent spam when typing
   useEffect(() => {
     if (!apiKey) {
       setKeyStatus('invalid');
       return;
     }
-    setKeyStatus('checking');
-    validateApiKey(apiKey).then(setKeyStatus);
+    
+    // Cache check: Avoid pinging API if this exact key was validated in the last 24 hours
+    const validationCacheKey = `revise_api_key_last_validated_${btoa(apiKey).substring(0, 20)}`;
+    const lastValidationStr = localStorage.getItem(validationCacheKey);
+    const ONE_DAY = 24 * 60 * 60 * 1000;
+    
+    if (lastValidationStr && (Date.now() - parseInt(lastValidationStr, 10)) < ONE_DAY) {
+      setKeyStatus('valid');
+      return;
+    }
+
+    const timeoutId = setTimeout(() => {
+      setKeyStatus('checking');
+      validateApiKey(apiKey).then((status) => {
+        setKeyStatus(status);
+        if (status === 'valid') {
+          localStorage.setItem(validationCacheKey, Date.now().toString());
+        }
+      });
+    }, 800);
+
+    return () => clearTimeout(timeoutId);
   }, [apiKey]);
 
   const isGroupTestEnabled = import.meta.env.VITE_ENABLE_GROUP_TEST === 'true';
