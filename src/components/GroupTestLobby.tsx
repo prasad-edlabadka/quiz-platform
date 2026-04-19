@@ -69,7 +69,7 @@ export const GroupTestLobby: React.FC = () => {
               <p className="text-sm text-glass-secondary mb-4">
                 Enter the room code provided by your host to join their live session.
               </p>
-              <div className="flex gap-2 mt-auto">
+              <div className="flex flex-col sm:flex-row gap-2 mt-auto">
                 <input 
                   type="text" 
                   value={joinCode}
@@ -81,7 +81,7 @@ export const GroupTestLobby: React.FC = () => {
                 <button 
                   onClick={() => joinRoom(joinCode)}
                   disabled={!joinCode.trim() || !userName.trim()}
-                  className={`px-6 py-3 rounded-xl font-bold transition-all ${isDark ? 'bg-purple-600 hover:bg-purple-500 text-white disabled:opacity-50' : 'bg-purple-100 text-purple-700 hover:bg-purple-200 disabled:opacity-50'}`}
+                  className={`w-full sm:w-auto px-6 py-3 rounded-xl font-bold transition-all ${isDark ? 'bg-purple-600 hover:bg-purple-500 text-white disabled:opacity-50' : 'bg-purple-100 text-purple-700 hover:bg-purple-200 disabled:opacity-50'}`}
                 >
                   Join
                 </button>

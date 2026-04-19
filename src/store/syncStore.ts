@@ -11,6 +11,25 @@ export interface ParticipantData {
   maxScore?: number;
 }
 
+const compressPayload = async (obj: unknown): Promise<ArrayBuffer> => {
+  const jsonString = JSON.stringify(obj);
+  const jsonBytes = new TextEncoder().encode(jsonString);
+  const cs = new CompressionStream('deflate-raw');
+  const writer = cs.writable.getWriter();
+  writer.write(jsonBytes);
+  writer.close();
+  return new Response(cs.readable).arrayBuffer();
+};
+
+const decompressPayload = async (buffer: ArrayBuffer | Uint8Array): Promise<any> => {
+  const ds = new DecompressionStream('deflate-raw');
+  const writer = ds.writable.getWriter();
+  writer.write(new Uint8Array(buffer));
+  writer.close();
+  const ab = await new Response(ds.readable).arrayBuffer();
+  return JSON.parse(new TextDecoder().decode(ab));
+};
+
 const getPeerConfig = () => {
   const username = import.meta.env.VITE_TURN_USERNAME || '';
   const credential = import.meta.env.VITE_TURN_CREDENTIAL || '';
@@ -113,26 +132,38 @@ export const useSyncStore = create<SyncState>((set, get) => ({
         }));
 
         // Instantly send the full room state to the new client
-        conn.send({ 
+        compressPayload({ 
           type: 'SYNC_LOBBY_STATE', 
           participantsData: get().participantsData 
-        } as SyncAction);
+        }).then(buf => conn.send(buf));
 
         // If the host already picked a config, send it to the new joined room user
         const testStore = useTestStore.getState();
         if (testStore.config) {
-          conn.send({ type: 'TEST_START', config: testStore.config } as SyncAction);
+          compressPayload({ type: 'TEST_START', config: testStore.config }).then(buf => conn.send(buf));
         }
       });
 
-      conn.on('data', (data: any) => {
-        const action = data as SyncAction;
+      conn.on('data', async (data: any) => {
+        let action: SyncAction;
+        if (data instanceof ArrayBuffer || (data && typeof data.byteLength === 'number')) {
+            try { 
+              action = await decompressPayload(data); 
+            } catch (e) {
+              console.error("Failed to decompress host packet", e);
+              return; 
+            }
+        } else {
+            action = data as SyncAction;
+        }
+
         get().handleIncomingAction(action);
         
         // Host acts as relay network to all other clients
         const state = get();
         state.connections.forEach(c => {
-          if (c !== conn) c.send(action);
+          // Send raw received data buffer explicitly to avoid re-compressing locally! Massively saves CPU/Bandwidth.
+          if (c !== conn) c.send(data); 
         });
       });
 
@@ -175,11 +206,22 @@ export const useSyncStore = create<SyncState>((set, get) => ({
         }));
         
         // Notify host that we joined
-        conn.send({ type: 'USER_JOIN', peerId: id, name: get().userName } as SyncAction);
+        compressPayload({ type: 'USER_JOIN', peerId: id, name: get().userName }).then(buf => conn.send(buf));
       });
 
-      conn.on('data', (data: any) => {
-         get().handleIncomingAction(data as SyncAction);
+      conn.on('data', async (data: any) => {
+         let action: SyncAction;
+         if (data instanceof ArrayBuffer || (data && typeof data.byteLength === 'number')) {
+             try { 
+               action = await decompressPayload(data); 
+             } catch (e) {
+               console.error("Failed to decompress client packet", e);
+               return; 
+             }
+         } else {
+             action = data as SyncAction;
+         }
+         get().handleIncomingAction(action);
       });
 
       conn.on('close', () => {
@@ -207,10 +249,15 @@ export const useSyncStore = create<SyncState>((set, get) => ({
     });
   },
 
-  broadcastAction: (action) => {
+  broadcastAction: async (action) => {
     const { connections } = get();
     if (connections.length === 0) return;
-    connections.forEach((conn) => conn.send(action));
+    try {
+      const compressed = await compressPayload(action);
+      connections.forEach((conn) => conn.send(compressed));
+    } catch {
+      connections.forEach((conn) => conn.send(action)); // Fallback
+    }
   },
 
   handleIncomingAction: (action) => {
