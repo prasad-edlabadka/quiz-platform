@@ -12,38 +12,24 @@ export interface ParticipantData {
 }
 
 const getPeerConfig = () => {
-  const username = import.meta.env.VITE_TURN_USERNAME || '';
-  const credential = import.meta.env.VITE_TURN_CREDENTIAL || '';
+  const username = import.meta.env.VITE_TURN_USERNAME;
+  const credential = import.meta.env.VITE_TURN_CREDENTIAL;
+  const turnUrl = import.meta.env.VITE_TURN_SERVER_URL;
 
-  return { 
-    config: { 
-      iceServers: [
-        {
-          urls: "stun:stun.relay.metered.ca:80",
-        },
-        {
-          urls: "turn:global.relay.metered.ca:80",
-          username,
-          credential,
-        },
-        {
-          urls: "turn:global.relay.metered.ca:80?transport=tcp",
-          username,
-          credential,
-        },
-        {
-          urls: "turn:global.relay.metered.ca:443",
-          username,
-          credential,
-        },
-        {
-          urls: "turns:global.relay.metered.ca:443?transport=tcp",
-          username,
-          credential,
-        },
-      ]
-    } 
-  };
+  const iceServers: any[] = [
+    { urls: 'stun:stun.l.google.com:19302' },
+    { urls: 'stun:global.stun.twilio.com:3478' }
+  ];
+
+  if (username && credential && turnUrl) {
+    iceServers.push({
+      urls: turnUrl,
+      username,
+      credential,
+    });
+  }
+
+  return { config: { iceServers } };
 };
 
 export type SyncAction =
