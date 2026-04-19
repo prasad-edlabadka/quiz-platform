@@ -6,18 +6,25 @@ import { motion } from 'framer-motion';
 import { evaluateBatchAnswers, evaluateTextAnswer } from '../services/aiService';
 import { ApiKeyModal } from './ApiKeyModal';
 import { ResultPDFExport } from './ResultPDFExport';
+import { useSyncStore } from '../store/syncStore';
+import { GroupSessionStateView } from './GroupSessionStateView';
 import type { PastTestResult } from '../types/test';
 import { Button, Card, Input, Typography, Tag } from 'antd';
 const { Title } = Typography;
 
 export const ResultsView: React.FC = () => {
     const { config, answers, drawnAnswers, resetTest, clearState, questionTimeTaken, apiKey, evaluations, addBatchEvaluations, addEvaluation, themeMode, isViewingPastResult } = useTestStore();
+    const { role, roomId, peer, broadcastAction, handleIncomingAction, participantsData } = useSyncStore();
+    const isGroupTestActive = role !== null && roomId !== null;
+    const myPeerId = peer?.id;
     const isDark = themeMode === 'dark';
     const [isGrading, setIsGrading] = useState(false);
     const [showKeyModal, setShowKeyModal] = useState(false);
     const [gradingError, setGradingError] = useState('');
     const [pendingGrading, setPendingGrading] = useState(false);
+    const [hasFailedGrading, setHasFailedGrading] = useState(false);
     const [isExportingPDF, setIsExportingPDF] = useState(false);
+    const [showStandardResults, setShowStandardResults] = useState(false);
 
     // Re-evaluation State
     const [reEvalQuestionId, setReEvalQuestionId] = useState<string | null>(null);
@@ -33,7 +40,7 @@ export const ResultsView: React.FC = () => {
     useEffect(() => {
         // Trigger grading if we have ungraded questions and pending flag or auto-start
         // Do not trigger grading if we are viewing a past result.
-        if (!isViewingPastResult && ungradedQuestions.length > 0 && !isGrading) {
+        if (!isViewingPastResult && ungradedQuestions.length > 0 && !isGrading && !hasFailedGrading) {
             if (apiKey) {
                 runGrading();
             } else if (!pendingGrading) {
@@ -43,7 +50,8 @@ export const ResultsView: React.FC = () => {
                 setShowKeyModal(true);
             }
         }
-    }, [apiKey, evaluations, isGrading, isViewingPastResult]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [apiKey, evaluations, isGrading, isViewingPastResult, hasFailedGrading]);
 
     const runGrading = async () => {
         if (!apiKey || isGrading || ungradedQuestions.length === 0) return;
@@ -60,15 +68,23 @@ export const ResultsView: React.FC = () => {
 
             const batchResults = await evaluateBatchAnswers(apiKey, itemsToGrade);
 
-            if (Object.keys(batchResults).length > 0) {
-                addBatchEvaluations(batchResults);
-            } else {
-                setGradingError("Failed to grade questions. Please try again.");
-            }
+            // Failsafe: Ensure all requested items get a placeholder if the AI skipped them or output parse failed
+            itemsToGrade.forEach(item => {
+                if (!batchResults[item.question.id]) {
+                    batchResults[item.question.id] = {
+                        score: 0,
+                        maxScore: item.question.points || 1,
+                        feedback: "AI evaluation skipped or failed for this question."
+                    };
+                }
+            });
+
+            addBatchEvaluations(batchResults);
 
         } catch (err) {
             console.error("Grading failed", err);
-            setGradingError("Some questions could not be graded check console.");
+            setGradingError("Some questions could not be graded. Check console.");
+            setHasFailedGrading(true);
         } finally {
             setIsGrading(false);
             setPendingGrading(false);
@@ -134,6 +150,35 @@ export const ResultsView: React.FC = () => {
 
     const percentage = Math.round((totalScore / maxScore) * 100);
 
+    useEffect(() => {
+        if (!isGroupTestActive || !myPeerId) return;
+
+        // Determine if there are ungraded texts
+        const currentTextQuestions = config?.questions.filter(q => q.type === 'text' && ((answers[q.id] && answers[q.id].length > 0) || drawnAnswers[q.id])) || [];
+        const currentUngraded = currentTextQuestions.filter(q => !evaluations[q.id]);
+
+        // If the user cancelled the API key modal, they skipped grading. We must let them finish to not lock the room!
+        const skippedGrading = pendingGrading && !showKeyModal && !apiKey;
+        const allTextGraded = currentUngraded.length === 0 || skippedGrading || gradingError !== '';
+        
+        if (!isGrading && allTextGraded) {
+             const me = participantsData[myPeerId];
+             if (me && me.status !== 'finished') {
+                const action = { type: 'USER_FINISH' as const, peerId: myPeerId, score: totalScore, maxScore };
+                broadcastAction(action);
+                handleIncomingAction(action);
+             }
+        }
+    }, [isGrading, evaluations, config, answers, drawnAnswers, isGroupTestActive, myPeerId, participantsData, totalScore, maxScore, pendingGrading, showKeyModal, apiKey, gradingError]);
+
+    if (isGroupTestActive && !showStandardResults) {
+        return (
+           <div className="relative w-full">
+              <GroupSessionStateView onContinueToPersonal={() => setShowStandardResults(true)} />
+              <ApiKeyModal isOpen={showKeyModal} onClose={() => setShowKeyModal(false)} onSuccess={() => setShowKeyModal(false)} />
+           </div>
+        );
+    }
 
     return (
         <motion.div
