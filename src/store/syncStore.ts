@@ -11,39 +11,18 @@ export interface ParticipantData {
   maxScore?: number;
 }
 
-const getPeerConfig = () => {
-  const username = import.meta.env.VITE_TURN_USERNAME || '';
-  const credential = import.meta.env.VITE_TURN_CREDENTIAL || '';
-
-  return { 
-    config: { 
-      iceServers: [
-        {
-          urls: "stun:stun.relay.metered.ca:80",
-        },
-        {
-          urls: "turn:global.relay.metered.ca:80",
-          username,
-          credential,
-        },
-        {
-          urls: "turn:global.relay.metered.ca:80?transport=tcp",
-          username,
-          credential,
-        },
-        {
-          urls: "turn:global.relay.metered.ca:443",
-          username,
-          credential,
-        },
-        {
-          urls: "turns:global.relay.metered.ca:443?transport=tcp",
-          username,
-          credential,
-        },
-      ]
-    } 
-  };
+const fetchPeerConfig = async () => {
+  try {
+    console.log("[WTC] Requesting fresh TURN credentials from Metered API...");
+    const apiKey = import.meta.env.VITE_TURN_API_KEY || '';
+    const response = await fetch(`https://revise.metered.live/api/v1/turn/credentials?apiKey=${apiKey}`);
+    const iceServers = await response.json();
+    console.log("[WTC] Successfully fetched ICE servers configuration:", iceServers);
+    return { config: { iceServers } };
+  } catch (error) {
+    console.error("[WTC] Failed to fetch TURN credentials, falling back to basic STUN", error);
+    return { config: { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] } };
+  }
 };
 
 export type SyncAction =
@@ -66,8 +45,8 @@ interface SyncState {
   isIncomingSync: boolean;
 
   setUserName: (name: string) => void;
-  hostRoom: () => void;
-  joinRoom: (roomId: string) => void;
+  hostRoom: () => Promise<void>;
+  joinRoom: (roomId: string) => Promise<void>;
   leaveRoom: () => void;
   broadcastAction: (action: SyncAction) => void;
   handleIncomingAction: (action: SyncAction) => void;
@@ -86,16 +65,19 @@ export const useSyncStore = create<SyncState>((set, get) => ({
 
   setUserName: (name) => set({ userName: name }),
 
-  hostRoom: () => {
+  hostRoom: async () => {
     set({ status: 'connecting', error: null });
     
     const shortCode = Math.random().toString(36).substring(2, 6).toUpperCase();
     const fullRoomId = `revise-room-${shortCode}`;
     
-    const peerConfig = getPeerConfig();
-    const peer = new Peer(fullRoomId, peerConfig);
+    console.log(`[HOST] Initializing Peer with ID: ${fullRoomId}...`);
+    
+    const peerConfig = await fetchPeerConfig();
+    const peer = new Peer(fullRoomId, { ...peerConfig, debug: 3 });
 
     peer.on('open', (id) => {
+      console.log(`[HOST] Connected to signaling server! Assigned ID: ${id}`);
       const initData: ParticipantData = { id, name: get().userName, status: 'lobby' };
       set({ 
         peer, 
@@ -106,8 +88,15 @@ export const useSyncStore = create<SyncState>((set, get) => ({
       });
     });
 
+    peer.on('disconnected', () => {
+      console.warn(`[HOST] Disconnected from signaling server.`);
+    });
+
     peer.on('connection', (conn) => {
+      console.log(`[HOST] Incoming connection attempt from: ${conn.peer}`);
+      
       conn.on('open', () => {
+        console.log(`[HOST] Connection established with: ${conn.peer}`);
         set((state) => ({
           connections: [...state.connections, conn]
         }));
@@ -136,7 +125,12 @@ export const useSyncStore = create<SyncState>((set, get) => ({
         });
       });
 
+      conn.on('error', (err) => {
+         console.error(`[HOST] Connection error with ${conn.peer}:`, err);
+      });
+
       conn.on('close', () => {
+        console.log(`[HOST] Connection closed with: ${conn.peer}`);
         set((state) => ({
           connections: state.connections.filter((c) => c !== conn),
         }));
@@ -148,22 +142,29 @@ export const useSyncStore = create<SyncState>((set, get) => ({
     });
 
     peer.on('error', (err) => {
-      set({ status: 'error', error: err.message });
+      console.error(`[HOST] PeerJS critical error:`, err);
+      set({ status: 'error', error: `Host Error: ${err.type || err.message}` });
     });
   },
 
-  joinRoom: (shortCode: string) => {
+  joinRoom: async (shortCode: string) => {
     set({ status: 'connecting', error: null });
     const roomId = shortCode.toUpperCase();
     const fullRoomId = `revise-room-${roomId}`;
     
-    const peerConfig = getPeerConfig();
-    const peer = new Peer(peerConfig);
+    console.log(`[GUEST] Initiating connection targeting Room ID: ${fullRoomId}`);
+    
+    const peerConfig = await fetchPeerConfig();
+    const peer = new Peer({ ...peerConfig, debug: 3 });
 
     peer.on('open', (id) => {
-      const conn = peer.connect(fullRoomId);
+      console.log(`[GUEST] Interfaced with signaling server. Assigned client ID: ${id}`);
+      console.log(`[GUEST] Dialing host...`);
+      
+      const conn = peer.connect(fullRoomId, { reliable: true });
       
       conn.on('open', () => {
+        console.log(`[GUEST] WebRTC ICE tunnel connected to host successfully!`);
         const initData: ParticipantData = { id, name: get().userName, status: 'lobby' };
         set(s => ({
           peer,
@@ -182,13 +183,19 @@ export const useSyncStore = create<SyncState>((set, get) => ({
          get().handleIncomingAction(data as SyncAction);
       });
 
+      conn.on('error', (err) => {
+         console.error(`[GUEST] P2P Connection exception:`, err);
+      });
+
       conn.on('close', () => {
+         console.warn(`[GUEST] P2P Connection closed by host.`);
          get().leaveRoom();
          set({ error: 'Host disconnected.'});
       });
 
       peer.on('error', (err) => {
-         set({ status: 'error', error: err.message });
+         console.error(`[GUEST] PeerJS Critical exception:`, err);
+         set({ status: 'error', error: `Connection failed: ${err.type || err.message}` });
       });
     });
   },
