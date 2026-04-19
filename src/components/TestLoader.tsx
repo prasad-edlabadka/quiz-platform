@@ -171,7 +171,7 @@ export const TestLoader: React.FC<TestLoaderProps> = ({
 
         {/* Tab Content: Group Test */}
         {activeTab === 'group' && (
-          <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 h-full flex flex-col items-center justify-center">
+          <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 flex flex-col mt-4 pb-12">
             <GroupTestLobby />
           </div>
         )}

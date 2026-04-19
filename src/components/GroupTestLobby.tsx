@@ -101,12 +101,21 @@ export const GroupTestLobby: React.FC = () => {
 
       case 'connected':
         return (
-          <div className="flex flex-col items-center justify-center w-full max-w-xl mx-auto text-center space-y-6">
+          <div className="w-full max-w-xl mx-auto text-center">
             <div className={`p-8 rounded-3xl border w-full backdrop-blur-md ${isDark ? 'bg-indigo-500/10 border-indigo-500/30' : 'bg-indigo-50 border-indigo-200'}`}>
-              <h2 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400 mb-2">
-                Room Access
-              </h2>
-              <p className="text-sm text-glass-secondary mb-6 tracking-wide uppercase font-bold">
+              <div className="flex items-center justify-between mb-4 mt-2">
+                <h2 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">
+                  Room Access
+                </h2>
+                <button 
+                  onClick={leaveRoom}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all border ${isDark ? 'border-red-500/30 text-red-400 hover:bg-red-500/10' : 'border-red-200 text-red-600 hover:bg-red-50'}`}
+                >
+                  <LogOut className="w-4 h-4" />
+                  Leave
+                </button>
+              </div>
+              <p className="text-sm text-glass-secondary mb-6 tracking-wide uppercase font-bold text-left">
                 {role === 'host' ? 'Share this code to invite others' : 'You are connected as a guest'}
               </p>
               
@@ -125,8 +134,31 @@ export const GroupTestLobby: React.FC = () => {
                 )}
               </div>
 
-              <div className={`rounded-2xl p-4 ${isDark ? 'bg-black/30' : 'bg-white'}`}>
-                 <div className="flex items-center justify-between mb-4">
+              <div className="w-full mb-6">
+               {role === 'host' ? (
+                  <div className={`p-5 rounded-2xl border text-left ${isDark ? 'bg-indigo-500/10 border-indigo-500/30' : 'bg-indigo-50 border-indigo-200'}`}>
+                     <div className="flex items-center gap-2 mb-2">
+                       <span className="relative flex h-3 w-3">
+                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                         <span className="relative inline-flex rounded-full h-3 w-3 bg-indigo-500"></span>
+                       </span>
+                       <h3 className="font-extrabold text-indigo-500 uppercase tracking-widest text-sm">Action Required</h3>
+                     </div>
+                     <p className="text-glass-primary font-medium text-sm leading-relaxed">
+                       Once everyone has connected below, navigate to the <strong className="text-indigo-400">New Test</strong>, <strong className="text-indigo-400">Library</strong>, or <strong className="text-indigo-400">Upload</strong> tab and load a test to begin. It will automatically start for everyone!
+                     </p>
+                  </div>
+               ) : (
+                  <div className={`p-6 rounded-2xl flex flex-col items-center justify-center border ${isDark ? 'bg-black/30 border-white/5' : 'bg-white/50 border-slate-200'}`}>
+                    <div className="w-10 h-10 border-4 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin mb-4" />
+                    <p className="text-glass-primary font-bold animate-pulse text-lg">Waiting for host...</p>
+                    <p className="text-sm text-glass-secondary mt-1">The test will begin automatically when the host starts it.</p>
+                  </div>
+               )}
+              </div>
+
+              <div className={`rounded-2xl p-4 transition-all ${isDark ? 'bg-black/30' : 'bg-white'}`}>
+                 <div className="flex items-center justify-between mb-4 sticky top-0 bg-inherit z-10 pb-2">
                    <div className="flex items-center gap-3">
                      <div className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
                      <span className="font-bold text-sm text-glass-primary">
@@ -138,51 +170,20 @@ export const GroupTestLobby: React.FC = () => {
                    )}
                  </div>
                  
-                 <div className="space-y-2 text-left">
+                 <div className="space-y-2 text-left max-h-[35vh] overflow-y-auto pr-2 custom-scrollbar">
                    {Object.values(participantsData).map(p => (
-                      <div key={p.id} className="flex items-center justify-between px-3 py-2 rounded-lg bg-black/10 border border-white/5">
+                      <div key={p.id} className="flex items-center justify-between px-3 py-2 rounded-lg bg-black/10 border border-white/5 transition-all hover:bg-black/20">
                          <div className="flex items-center gap-2">
                             <Users className="w-4 h-4 text-glass-secondary" />
-                            <span className="text-sm font-medium text-glass-primary">{p.name || 'Anonymous'}</span>
-                            {p.id === useSyncStore.getState().peer?.id && <span className="text-xs text-indigo-400 font-bold">(You)</span>}
+                            <span className="text-sm font-medium text-glass-primary truncate max-w-[150px] sm:max-w-[200px]">{p.name || 'Anonymous'}</span>
+                            {p.id === useSyncStore.getState().peer?.id && <span className="text-xs text-indigo-400 font-bold ml-1">(You)</span>}
                          </div>
-                         <span className="text-xs uppercase px-2 py-1 bg-emerald-500/20 text-emerald-400 rounded-md">Online</span>
+                         <span className="text-xs uppercase px-2 py-1 bg-emerald-500/20 text-emerald-400 rounded-md font-bold whitespace-nowrap">Online</span>
                       </div>
                    ))}
                  </div>
               </div>
             </div>
-
-             <div className="w-full">
-               {role === 'host' ? (
-                  <div className={`p-5 rounded-2xl border ${isDark ? 'bg-indigo-500/10 border-indigo-500/30' : 'bg-indigo-50 border-indigo-200'}`}>
-                     <div className="flex items-center justify-center gap-2 mb-2">
-                       <span className="relative flex h-3 w-3">
-                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-                         <span className="relative inline-flex rounded-full h-3 w-3 bg-indigo-500"></span>
-                       </span>
-                       <h3 className="font-extrabold text-indigo-500 uppercase tracking-widest text-sm">Action Required</h3>
-                     </div>
-                     <p className="text-glass-primary font-medium text-sm leading-relaxed">
-                       Once everyone has connected above, navigate to the <strong className="text-indigo-400">New Test</strong>, <strong className="text-indigo-400">Library</strong>, or <strong className="text-indigo-400">Upload</strong> tab and load a test to begin. It will automatically start for everyone!
-                     </p>
-                  </div>
-               ) : (
-                  <div className={`p-6 rounded-2xl flex flex-col items-center justify-center ${isDark ? 'bg-black/30' : 'bg-white/50'}`}>
-                    <div className="w-10 h-10 border-4 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin mb-4" />
-                    <p className="text-glass-primary font-bold animate-pulse text-lg">Waiting for host...</p>
-                    <p className="text-sm text-glass-secondary mt-1">The test will begin automatically when the host starts it.</p>
-                  </div>
-               )}
-             </div>
-
-            <button 
-              onClick={leaveRoom}
-              className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all border ${isDark ? 'border-red-500/30 text-red-400 hover:bg-red-500/10' : 'border-red-200 text-red-600 hover:bg-red-50'}`}
-            >
-              <LogOut className="w-4 h-4" />
-              Disconnect
-            </button>
           </div>
         );
     }

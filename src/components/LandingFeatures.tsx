@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrainCircuit, Timer, Printer, CheckCircle2, Lightbulb, TrendingUp, Target, LockIcon } from 'lucide-react';
+import { BrainCircuit, Timer, Printer, CheckCircle2, Lightbulb, TrendingUp, Target, LockIcon, Users } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useTestStore } from '../store/testStore';
 import { Card, Typography } from 'antd';
@@ -60,7 +60,7 @@ export const LandingFeatures: React.FC = () => {
         variants={container}
         initial="hidden"
         animate="show"
-        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-10"
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10"
       >
         <motion.div variants={item}>
           <Card hoverable className={`rounded-2xl transition-colors group ${isDark ? 'bg-black/20 border-white/10' : 'bg-black/5 border-transparent'}`} styles={{ body: { padding: '1rem' } }}>
@@ -133,12 +133,22 @@ export const LandingFeatures: React.FC = () => {
         </motion.div>
 
         <motion.div variants={item}>
-          <Card hoverable className={`rounded-2xl transition-colors group ${isDark ? 'bg-black/20 border-white/10' : 'bg-black/5 border-transparent'}`} styles={{ body: { padding: '1.25rem' } }}>
+          <Card hoverable className={`rounded-2xl transition-colors h-full group ${isDark ? 'bg-black/20 border-white/10' : 'bg-black/5 border-transparent'}`} styles={{ body: { padding: '1.25rem' } }}>
             <div className="w-12 h-12 rounded-xl bg-cyan-500/20 flex items-center justify-center text-cyan-500 mb-3 group-hover:scale-110 transition-transform">
               <LockIcon className="w-6 h-6" />
             </div>
             <Title level={5} className="mb-1.5 text-glass-primary">Fully Secured</Title>
             <Text className="text-sm text-glass-secondary leading-relaxed">All data stays in your browser and NOTHING is sent to our servers. No Signups. No tracking. 100% private.</Text>
+          </Card>
+        </motion.div>
+
+        <motion.div variants={item}>
+          <Card hoverable className={`rounded-2xl transition-colors h-full group ${isDark ? 'bg-black/20 border-white/10' : 'bg-black/5 border-transparent'}`} styles={{ body: { padding: '1.25rem' } }}>
+            <div className="w-12 h-12 rounded-xl bg-orange-500/20 flex items-center justify-center text-orange-500 mb-3 group-hover:scale-110 transition-transform">
+              <Users className="w-6 h-6" />
+            </div>
+            <Title level={5} className="mb-1.5 text-glass-primary">Group Test</Title>
+            <Text className="text-sm text-glass-secondary leading-relaxed">Connect over internet to solve tests simultaneously with your friends and compete on live leaderboards.</Text>
           </Card>
         </motion.div>
       </motion.div>
