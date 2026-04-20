@@ -74,54 +74,57 @@ export const validateApiKey = async (apiKey: string): Promise<ApiKeyStatus> => {
   }
 };
 
-  // Fallback models in order of preference (based on available quota)
-  const MODELS = [
-    "gemini-2.5-flash",
-    "gemini-2.0-flash",
-    "gemini-1.5-flash"
-  ];
+// Fallback models in order of preference (based on available quota)
+const MODELS = [
+  "gemini-3.1-pro-preview",      // Top-tier reasoning & agentic tasks
+  "gemini-3-flash-preview",      // High speed with frontier-class logic
+  "gemini-3.1-flash-lite-preview",// Cost-optimized version of the Flash series
+  "gemini-2.5-pro",              // Stable high-reasoning legacy model
+  "gemini-2.5-flash",            // Stable high-speed legacy model
+  "gemini-2.5-flash-lite"        // Ultra-low latency for simple tasks
+];
 
-  const runWithFallback = async (apiKey: string, parts: any[] | string): Promise<string> => {
-      const genAI = new GoogleGenerativeAI(apiKey);
-      const promptParts = typeof parts === 'string' ? [{ text: parts }] : parts;
-      
-      let lastError: any;
-      for (const modelName of MODELS) {
-          try {
-              console.log(`[AI] Attempting task with model: ${modelName}`);
-              const model = genAI.getGenerativeModel({ model: modelName });
-              const result = await model.generateContent(promptParts);
-              const response = await result.response;
-              const text = response.text();
-              
-              if (text) {
-                  console.log(`[AI] Success with ${modelName}. Response length: ${text.length}`);
-                  return text;
-              }
-          } catch (error: any) {
-              const isQuotaError = error.message?.toLowerCase().includes('quota') || error.message?.includes('429');
-              console.warn(`[AI] Model ${modelName} failed ${isQuotaError ? '(QUOTA)' : ''}:`, error.message);
-              lastError = error;
-              // If it's not a quota error or transient error, we might want to still try others
-          }
+const runWithFallback = async (apiKey: string, parts: any[] | string): Promise<string> => {
+  const genAI = new GoogleGenerativeAI(apiKey);
+  const promptParts = typeof parts === 'string' ? [{ text: parts }] : parts;
+
+  let lastError: any;
+  for (const modelName of MODELS) {
+    try {
+      console.log(`[AI] Attempting task with model: ${modelName}`);
+      const model = genAI.getGenerativeModel({ model: modelName });
+      const result = await model.generateContent(promptParts);
+      const response = await result.response;
+      const text = response.text();
+
+      if (text) {
+        console.log(`[AI] Success with ${modelName}. Response length: ${text.length}`);
+        return text;
       }
-      
-      const FinalErrorMessage = lastError?.message || "All AI models failed to respond.";
-      console.error(`[AI] Final Failure: ${FinalErrorMessage}`);
-      throw new Error(FinalErrorMessage);
-  };
+    } catch (error: any) {
+      const isQuotaError = error.message?.toLowerCase().includes('quota') || error.message?.includes('429');
+      console.warn(`[AI] Model ${modelName} failed ${isQuotaError ? '(QUOTA)' : ''}:`, error.message);
+      lastError = error;
+      // If it's not a quota error or transient error, we might want to still try others
+    }
+  }
 
-  const generateWithFallback = async (apiKey: string, prompt: string): Promise<string> => {
-      return runWithFallback(apiKey, prompt);
-  };
+  const FinalErrorMessage = lastError?.message || "All AI models failed to respond.";
+  console.error(`[AI] Final Failure: ${FinalErrorMessage}`);
+  throw new Error(FinalErrorMessage);
+};
 
-  export const generateTestFromSyllabus = async (
-    apiKey: string, 
-    syllabus: string, 
-    questionCount: number = 5,
-    structure: StructureMode = 'flat',
-    questionType: QuestionTypeFilter = 'mixed',
-    timeBoundMode: TimeBoundMode = 'none'
+const generateWithFallback = async (apiKey: string, prompt: string): Promise<string> => {
+  return runWithFallback(apiKey, prompt);
+};
+
+export const generateTestFromSyllabus = async (
+  apiKey: string,
+  syllabus: string,
+  questionCount: number = 5,
+  structure: StructureMode = 'flat',
+  questionType: QuestionTypeFilter = 'mixed',
+  timeBoundMode: TimeBoundMode = 'none'
 ): Promise<TestConfig> => {
   if (!apiKey) throw new Error('API Key is required');
   if (!syllabus) throw new Error('Syllabus content is required');
@@ -153,7 +156,7 @@ export const validateApiKey = async (apiKey: string): Promise<ApiKeyStatus> => {
 
   let FINAL_SCHEMA;
   if (structure === 'sections') {
-      FINAL_SCHEMA = `
+    FINAL_SCHEMA = `
       {
         "title": "string",
         "description": "string",${includeGlobalTime ? `
@@ -169,7 +172,7 @@ export const validateApiKey = async (apiKey: string): Promise<ApiKeyStatus> => {
       }
       `;
   } else {
-      FINAL_SCHEMA = `
+    FINAL_SCHEMA = `
       {
         "title": "string",
         "description": "string",${includeGlobalTime ? `
@@ -179,15 +182,15 @@ export const validateApiKey = async (apiKey: string): Promise<ApiKeyStatus> => {
       `;
   }
 
-  const timeInstruction = timeBoundMode !== 'none' 
+  const timeInstruction = timeBoundMode !== 'none'
     ? 'If time limits are requested in the schema, analyze the difficulty, required cognitive steps, and reading length of each question/topic to assign a realistic number of seconds.'
     : '';
 
-  const typeInstruction = questionType === 'text' 
-    ? 'Create ONLY open-ended text questions (no options).' 
-    : questionType === 'mcq' 
-        ? 'Create ONLY multiple-choice questions with options.' 
-        : 'Create a mix of multiple-choice and text questions.';
+  const typeInstruction = questionType === 'text'
+    ? 'Create ONLY open-ended text questions (no options).'
+    : questionType === 'mcq'
+      ? 'Create ONLY multiple-choice questions with options.'
+      : 'Create a mix of multiple-choice and text questions.';
 
   const structureInstruction = structure === 'sections'
     ? 'Group questions into logical Sections. Each section MUST have "content" (a reading passage, case study, or context) and a set of related questions.'
@@ -231,67 +234,67 @@ export const validateApiKey = async (apiKey: string): Promise<ApiKeyStatus> => {
 
   try {
     const text = await generateWithFallback(apiKey, prompt);
-    
+
     // Extract valid JSON using brace counting
     let startIndex = text.indexOf('{');
     let endIndex = -1;
     let cleanJson = '';
-    
+
     if (startIndex >= 0) {
-        let braceCount = 0;
-        let inString = false;
-        let isEscaped = false;
-        
-        for (let i = startIndex; i < text.length; i++) {
-            const char = text[i];
-            
-            if (inString) {
-                if (isEscaped) {
-                    isEscaped = false;
-                } else if (char === '\\') {
-                    isEscaped = true;
-                } else if (char === '"') {
-                    inString = false;
-                }
-            } else {
-                if (char === '"') {
-                    inString = true;
-                } else if (char === '{') {
-                    braceCount++;
-                } else if (char === '}') {
-                    braceCount--;
-                    if (braceCount === 0) {
-                        endIndex = i;
-                        break;
-                    }
-                }
-            }
-        }
-        
-        if (endIndex >= 0) {
-           cleanJson = text.substring(startIndex, endIndex + 1);
+      let braceCount = 0;
+      let inString = false;
+      let isEscaped = false;
+
+      for (let i = startIndex; i < text.length; i++) {
+        const char = text[i];
+
+        if (inString) {
+          if (isEscaped) {
+            isEscaped = false;
+          } else if (char === '\\') {
+            isEscaped = true;
+          } else if (char === '"') {
+            inString = false;
+          }
         } else {
-           // Fallback to simple cleanup if counting failed (e.g. malformed JSON)
-           cleanJson = text.replace(/```json\n?|\n?```/g, '').trim();
-           const lastBrace = cleanJson.lastIndexOf('}');
-           if (lastBrace > 0) cleanJson = cleanJson.substring(0, lastBrace + 1);
+          if (char === '"') {
+            inString = true;
+          } else if (char === '{') {
+            braceCount++;
+          } else if (char === '}') {
+            braceCount--;
+            if (braceCount === 0) {
+              endIndex = i;
+              break;
+            }
+          }
         }
+      }
+
+      if (endIndex >= 0) {
+        cleanJson = text.substring(startIndex, endIndex + 1);
+      } else {
+        // Fallback to simple cleanup if counting failed (e.g. malformed JSON)
+        cleanJson = text.replace(/```json\n?|\n?```/g, '').trim();
+        const lastBrace = cleanJson.lastIndexOf('}');
+        if (lastBrace > 0) cleanJson = cleanJson.substring(0, lastBrace + 1);
+      }
     } else {
-       cleanJson = text.replace(/```json\n?|\n?```/g, '').trim();
+      cleanJson = text.replace(/```json\n?|\n?```/g, '').trim();
     }
-    
+
     // Sanitize JSON
     cleanJson = fixJsonEscapes(cleanJson);
 
     console.log("Cleaned JSON: ", cleanJson);
-    
+
     const testData = JSON.parse(cleanJson);
 
     // Handle safety rejection
     if (testData.error === 'safety_violation') {
       throw new Error(testData.message || "This content is not allowed.");
     }
-    
+
     // Auto-generate IDs if missing (model might skip them to save tokens)
     // Auto-generate IDs if missing
     const processedTest: any = {
@@ -300,48 +303,48 @@ export const validateApiKey = async (apiKey: string): Promise<ApiKeyStatus> => {
     };
 
     const processQuestions = (questions: any[], prefix: string = '') => {
-        return questions?.map((q: any, i: number) => ({
-            ...q,
-            id: q.id || `${prefix}q-${i + 1}`,
-            options: q.options?.map((opt: any, j: number) => ({
-                ...opt,
-                id: opt.id || `${prefix}opt-${i}-${j}`
-            })) || []
-        })) || [];
+      return questions?.map((q: any, i: number) => ({
+        ...q,
+        id: q.id || `${prefix}q-${i + 1}`,
+        options: q.options?.map((opt: any, j: number) => ({
+          ...opt,
+          id: opt.id || `${prefix}opt-${i}-${j}`
+        })) || []
+      })) || [];
     };
 
     if (testData.sections) {
-        const flattenedBroadQuestions: any[] = [];
-        
-        processedTest.sections = testData.sections.map((section: any, i: number) => {
-            const sectionId = section.id || `section-${i + 1}`;
-            
-            // Process questions for this section
-            const sectionQuestions = processQuestions(section.questions, `s${i + 1}-`).map(q => ({
-                ...q,
-                sectionId: sectionId
-            }));
+      const flattenedBroadQuestions: any[] = [];
 
-            // Add to flattened list
-            flattenedBroadQuestions.push(...sectionQuestions);
+      processedTest.sections = testData.sections.map((section: any, i: number) => {
+        const sectionId = section.id || `section-${i + 1}`;
 
-            return {
-                ...section,
-                id: sectionId,
-                questions: sectionQuestions // Keep them nested too if needed by schema, but app uses flat
-            };
-        });
+        // Process questions for this section
+        const sectionQuestions = processQuestions(section.questions, `s${i + 1}-`).map(q => ({
+          ...q,
+          sectionId: sectionId
+        }));
 
-        // Merge flattened section questions with any existing top-level questions
-        // CRITICAL FIX: If sections are present, ignore top-level 'questions' to prevent duplicates 
-        // (LLM sometimes duplicates content in both places).
-        // Only if we explicitly requested mixed content would we merge, but for now, assume Sections > Questions
-        processedTest.questions = [...flattenedBroadQuestions];
-        
+        // Add to flattened list
+        flattenedBroadQuestions.push(...sectionQuestions);
+
+        return {
+          ...section,
+          id: sectionId,
+          questions: sectionQuestions // Keep them nested too if needed by schema, but app uses flat
+        };
+      });
+
+      // Merge flattened section questions with any existing top-level questions
+      // CRITICAL FIX: If sections are present, ignore top-level 'questions' to prevent duplicates 
+      // (LLM sometimes duplicates content in both places).
+      // Only if we explicitly requested mixed content would we merge, but for now, assume Sections > Questions
+      processedTest.questions = [...flattenedBroadQuestions];
+
     } else if (testData.questions) {
-        processedTest.questions = processQuestions(testData.questions);
+      processedTest.questions = processQuestions(testData.questions);
     } else {
-        processedTest.questions = [];
+      processedTest.questions = [];
     }
 
     return processedTest as TestConfig;
@@ -355,14 +358,14 @@ export const validateApiKey = async (apiKey: string): Promise<ApiKeyStatus> => {
  * Extracts a structured TestConfig from a supplied PDF file using Gemini's multimodal capabilities.
  */
 export const extractTestConfigFromPDF = async (
-    apiKey: string,
-    pdfBase64: string
+  apiKey: string,
+  pdfBase64: string
 ): Promise<TestConfig> => {
-    if (!apiKey) throw new Error('API Key is required');
-    if (!pdfBase64) throw new Error('PDF content is required');
+  if (!apiKey) throw new Error('API Key is required');
+  if (!pdfBase64) throw new Error('PDF content is required');
 
-    // Similar schema as generation but strictly for extraction
-    const EXTRACT_SCHEMA = `
+  // Similar schema as generation but strictly for extraction
+  const EXTRACT_SCHEMA = `
     {
       "title": "string (extract from pdf title if possible, else 'Extracted Test')",
       "description": "string",
@@ -387,7 +390,7 @@ export const extractTestConfigFromPDF = async (
     }
     `;
 
-    const prompt = `
+  const prompt = `
       You are an expert International Baccalaureate (IB) Examiner and educational content creator.
       Your task is to carefully read the provided PDF test paper/worksheet and extract EVERY question exactly as it appears.
       
@@ -415,77 +418,77 @@ export const extractTestConfigFromPDF = async (
       ${EXTRACT_SCHEMA}
     `;
 
-    const parts = [
-        { text: prompt },
-        {
-            inlineData: {
-                data: pdfBase64,
-                mimeType: "application/pdf"
-            }
-        }
-    ];
-
-    try {
-        const text = await runWithFallback(apiKey, parts);
-
-
-        let cleanJson = text.replace(/```json\n?|\n?```/g, '').trim();
-        const firstBrace = cleanJson.indexOf('{');
-        const lastBrace = cleanJson.lastIndexOf('}');
-        if (firstBrace >= 0 && lastBrace > firstBrace) {
-            cleanJson = cleanJson.substring(firstBrace, lastBrace + 1);
-        }
-
-        // Sanitize JSON using state-machine (handles properly double-escaped LaTeX correctly)
-        cleanJson = fixJsonEscapes(cleanJson);
-
-        const testData = JSON.parse(cleanJson);
-
-        // Handle safety rejection
-        if (testData.error === 'safety_violation') {
-          throw new Error(testData.message || "This content is not allowed.");
-        }
-
-        const processedTest: any = {
-            ...testData,
-            id: `extracted-${Date.now()}`,
-            questions: testData.questions?.map((q: any, i: number) => ({
-                ...q,
-                id: `eq-${i + 1}`,
-                points: q.points || 1,
-                options: q.options?.map((opt: any, j: number) => ({
-                    ...opt,
-                    id: `eopt-${i}-${j}`
-                })) || []
-            })) || []
-        };
-
-        return processedTest as TestConfig;
-    } catch (error: any) {
-        throw new Error(error.message || "Failed to extract test from PDF.");
+  const parts = [
+    { text: prompt },
+    {
+      inlineData: {
+        data: pdfBase64,
+        mimeType: "application/pdf"
+      }
     }
+  ];
+
+  try {
+    const text = await runWithFallback(apiKey, parts);
+
+
+    let cleanJson = text.replace(/```json\n?|\n?```/g, '').trim();
+    const firstBrace = cleanJson.indexOf('{');
+    const lastBrace = cleanJson.lastIndexOf('}');
+    if (firstBrace >= 0 && lastBrace > firstBrace) {
+      cleanJson = cleanJson.substring(firstBrace, lastBrace + 1);
+    }
+
+    // Sanitize JSON using state-machine (handles properly double-escaped LaTeX correctly)
+    cleanJson = fixJsonEscapes(cleanJson);
+
+    const testData = JSON.parse(cleanJson);
+
+    // Handle safety rejection
+    if (testData.error === 'safety_violation') {
+      throw new Error(testData.message || "This content is not allowed.");
+    }
+
+    const processedTest: any = {
+      ...testData,
+      id: `extracted-${Date.now()}`,
+      questions: testData.questions?.map((q: any, i: number) => ({
+        ...q,
+        id: `eq-${i + 1}`,
+        points: q.points || 1,
+        options: q.options?.map((opt: any, j: number) => ({
+          ...opt,
+          id: `eopt-${i}-${j}`
+        })) || []
+      })) || []
+    };
+
+    return processedTest as TestConfig;
+  } catch (error: any) {
+    throw new Error(error.message || "Failed to extract test from PDF.");
+  }
 };
 
 export const evaluateTextAnswer = async (
-    apiKey: string,
-    question: any,
-    userAnswer: string,
-    studentComments?: string // New optional parameter
+  apiKey: string,
+  question: any,
+  userAnswer: string,
+  studentComments?: string // New optional parameter
 ): Promise<{ score: number; feedback: string; maxScore: number }> => {
-    if (!apiKey) throw new Error('API Key is required for grading');
-    if (!userAnswer || !userAnswer.trim()) return { score: 0, feedback: "No answer provided.", maxScore: question.points || 1 };
+  if (!apiKey) throw new Error('API Key is required for grading');
+  if (!userAnswer || !userAnswer.trim()) return { score: 0, feedback: "No answer provided.", maxScore: question.points || 1 };
 
-    // Specialized prompt for Appeals vs Initial Grading
-    const isAppeal = !!studentComments;
-    const instructionPrefix = isAppeal 
-        ? "You are reviewing a grade appeal from a student." 
-        : "You are an expert International Baccalaureate (IB) Examiner grading a student's answer.";
+  // Specialized prompt for Appeals vs Initial Grading
+  const isAppeal = !!studentComments;
+  const instructionPrefix = isAppeal
+    ? "You are reviewing a grade appeal from a student."
+    : "You are an expert International Baccalaureate (IB) Examiner grading a student's answer.";
 
-    const appealContext = isAppeal 
-        ? `\nSTUDENT APPEAL COMMENT: "${studentComments}"\n\nINSTRUCTION: The student disagrees with the previous assessment or wants to clarify their answer. Re-evaluate the answer carefully. If the student's explanation justifies a higher mark based on IB criteria, adjust the score. If not, explain clearly why.` 
-        : "";
+  const appealContext = isAppeal
+    ? `\nSTUDENT APPEAL COMMENT: "${studentComments}"\n\nINSTRUCTION: The student disagrees with the previous assessment or wants to clarify their answer. Re-evaluate the answer carefully. If the student's explanation justifies a higher mark based on IB criteria, adjust the score. If not, explain clearly why.`
+    : "";
 
-    const prompt = `
+  const prompt = `
       ${instructionPrefix}
       
       QUESTION:
@@ -559,67 +562,67 @@ export const evaluateTextAnswer = async (
       }
     `;
 
-    const parts: any[] = [{ text: prompt }];
-    if (question.drawnAnswer) {
-        let b64 = question.drawnAnswer;
-        if (b64.startsWith('{')) {
-            try { b64 = JSON.parse(b64).base64 || b64; } catch {}
+  const parts: any[] = [{ text: prompt }];
+  if (question.drawnAnswer) {
+    let b64 = question.drawnAnswer;
+    if (b64.startsWith('{')) {
+      try { b64 = JSON.parse(b64).base64 || b64; } catch { }
+    }
+    const matches = b64.match(/^data:(image\/[a-zA-Z+]+);base64,(.+)$/);
+    if (matches && matches.length === 3) {
+      parts.push({ text: `STUDENT DRAWED THIS DIAGRAM AS PART OF THE ANSWER:` });
+      parts.push({
+        inlineData: {
+          data: matches[2],
+          mimeType: matches[1]
         }
-        const matches = b64.match(/^data:(image\/[a-zA-Z+]+);base64,(.+)$/);
-        if (matches && matches.length === 3) {
-            parts.push({ text: `STUDENT DRAWED THIS DIAGRAM AS PART OF THE ANSWER:` });
-            parts.push({
-                inlineData: {
-                    data: matches[2],
-                    mimeType: matches[1]
-                }
-            });
-        }
+      });
+    }
+  }
+
+
+
+  try {
+    const text = await runWithFallback(apiKey, parts);
+
+    let cleanJson = text.replace(/```json\n?|\n?```/g, '').trim();
+    const firstBrace = cleanJson.indexOf('{');
+    const lastBrace = cleanJson.lastIndexOf('}');
+    if (firstBrace >= 0 && lastBrace > firstBrace) {
+      cleanJson = cleanJson.substring(firstBrace, lastBrace + 1);
     }
 
+    // Sanitize JSON
+    cleanJson = fixJsonEscapes(cleanJson);
 
-
-    try {
-        const text = await runWithFallback(apiKey, parts);
-        
-        let cleanJson = text.replace(/```json\n?|\n?```/g, '').trim();
-        const firstBrace = cleanJson.indexOf('{');
-        const lastBrace = cleanJson.lastIndexOf('}');
-        if (firstBrace >= 0 && lastBrace > firstBrace) {
-            cleanJson = cleanJson.substring(firstBrace, lastBrace + 1);
-        }
-
-        // Sanitize JSON
-        cleanJson = fixJsonEscapes(cleanJson);
-
-        const data = JSON.parse(cleanJson);
-        return {
-            score: typeof data.score === 'number' ? data.score : 0,
-            feedback: data.feedback || "Evaluated.",
-            maxScore: question.points || 1
-        };
-    } catch (error: any) {
-        console.error("AI Grading Error:", error);
-        return {
-            score: 0,
-            feedback: "Error evaluating answer. Please try again.",
-            maxScore: question.points || 1
-        };
-    }
+    const data = JSON.parse(cleanJson);
+    return {
+      score: typeof data.score === 'number' ? data.score : 0,
+      feedback: data.feedback || "Evaluated.",
+      maxScore: question.points || 1
+    };
+  } catch (error: any) {
+    console.error("AI Grading Error:", error);
+    return {
+      score: 0,
+      feedback: "Error evaluating answer. Please try again.",
+      maxScore: question.points || 1
+    };
+  }
 };
 
 export const evaluateBatchAnswers = async (
-    apiKey: string,
-    items: { question: any; userAnswer: string; drawnAnswer?: string }[]
+  apiKey: string,
+  items: { question: any; userAnswer: string; drawnAnswer?: string }[]
 ): Promise<Record<string, { score: number; feedback: string; maxScore: number }>> => {
-    if (!apiKey) throw new Error('API Key is required for grading');
-    if (!items || items.length === 0) return {};
+  if (!apiKey) throw new Error('API Key is required for grading');
+  if (!items || items.length === 0) return {};
 
-    // Construct a structured prompt for multiple items
-    // Construct a structured prompt for multiple items
-    // (Old string payload removed in favor of multipart payload with images)
+  // Construct a structured prompt for multiple items
+  // Construct a structured prompt for multiple items
+  // (Old string payload removed in favor of multipart payload with images)
 
-    const promptText = `
+  const promptText = `
       You are an expert International Baccalaureate (IB) Examiner grading a set of student answers.
       
       INSTRUCTIONS:
@@ -642,61 +645,61 @@ export const evaluateBatchAnswers = async (
       }
     `;
 
-    const parts: any[] = [{ text: promptText }];
-    items.forEach((item, index) => {
-        parts.push({ text: `\n[ITEM ${index + 1}]\nID: "${item.question.id}"\nQUESTION: "${item.question.content}"\nCONTEXT: "${item.question.sectionContent || 'N/A'}"\nIB CRITERIA: ${item.question.ibCriteria ? JSON.stringify(item.question.ibCriteria) : 'N/A'}\nEXPECTED ANSWER/JUSTIFICATION: "${item.question.justification || 'N/A'}"\nSTUDENT TEXT ANSWER: "${item.userAnswer}"\nMAX POINTS: ${item.question.points || 1}\n` });
-        if (item.drawnAnswer) {
-             let b64 = item.drawnAnswer;
-             if (b64.startsWith('{')) {
-                 try { b64 = JSON.parse(b64).base64 || b64; } catch {}
-             }
-             const matches = b64?.match(/^data:(image\/[a-zA-Z+]+);base64,(.+)$/);
-             if (matches && matches.length === 3) {
-                 parts.push({ text: `STUDENT DRAWING FOR ITEM ${index + 1}:` });
-                 parts.push({
-                     inlineData: {
-                         data: matches[2],
-                         mimeType: matches[1]
-                     }
-                 });
-             }
-        }
+  const parts: any[] = [{ text: promptText }];
+  items.forEach((item, index) => {
+    parts.push({ text: `\n[ITEM ${index + 1}]\nID: "${item.question.id}"\nQUESTION: "${item.question.content}"\nCONTEXT: "${item.question.sectionContent || 'N/A'}"\nIB CRITERIA: ${item.question.ibCriteria ? JSON.stringify(item.question.ibCriteria) : 'N/A'}\nEXPECTED ANSWER/JUSTIFICATION: "${item.question.justification || 'N/A'}"\nSTUDENT TEXT ANSWER: "${item.userAnswer}"\nMAX POINTS: ${item.question.points || 1}\n` });
+    if (item.drawnAnswer) {
+      let b64 = item.drawnAnswer;
+      if (b64.startsWith('{')) {
+        try { b64 = JSON.parse(b64).base64 || b64; } catch { }
+      }
+      const matches = b64?.match(/^data:(image\/[a-zA-Z+]+);base64,(.+)$/);
+      if (matches && matches.length === 3) {
+        parts.push({ text: `STUDENT DRAWING FOR ITEM ${index + 1}:` });
+        parts.push({
+          inlineData: {
+            data: matches[2],
+            mimeType: matches[1]
+          }
+        });
+      }
+    }
+  });
+
+  try {
+    const text = await runWithFallback(apiKey, parts);
+
+    let cleanJson = text.replace(/```json\n?|\n?```/g, '').trim();
+    const firstBrace = cleanJson.indexOf('{');
+    const lastBrace = cleanJson.lastIndexOf('}');
+    if (firstBrace >= 0 && lastBrace > firstBrace) {
+      cleanJson = cleanJson.substring(firstBrace, lastBrace + 1);
+    }
+
+    // Sanitize JSON
+    cleanJson = fixJsonEscapes(cleanJson);
+
+    const data = JSON.parse(cleanJson);
+    const evaluations = data.evaluations || {};
+
+    // Normalize result
+    const finalResults: Record<string, any> = {};
+    items.forEach(item => {
+      const evalData = evaluations[item.question.id];
+      finalResults[item.question.id] = {
+        score: typeof evalData?.score === 'number' ? evalData.score : 0,
+        feedback: evalData?.feedback || "Evaluation failed or not provided.",
+        maxScore: item.question.points || 1
+      };
     });
 
-    try {
-        const text = await runWithFallback(apiKey, parts);
-        
-        let cleanJson = text.replace(/```json\n?|\n?```/g, '').trim();
-        const firstBrace = cleanJson.indexOf('{');
-        const lastBrace = cleanJson.lastIndexOf('}');
-        if (firstBrace >= 0 && lastBrace > firstBrace) {
-            cleanJson = cleanJson.substring(firstBrace, lastBrace + 1);
-        }
+    return finalResults;
 
-        // Sanitize JSON
-        cleanJson = fixJsonEscapes(cleanJson);
-
-        const data = JSON.parse(cleanJson);
-        const evaluations = data.evaluations || {};
-        
-        // Normalize result
-        const finalResults: Record<string, any> = {};
-        items.forEach(item => {
-            const evalData = evaluations[item.question.id];
-            finalResults[item.question.id] = {
-                score: typeof evalData?.score === 'number' ? evalData.score : 0,
-                feedback: evalData?.feedback || "Evaluation failed or not provided.",
-                maxScore: item.question.points || 1
-            };
-        });
-
-        return finalResults;
-
-    } catch (error: any) {
-        console.error("Batch Grading Error:", error);
-        // Return empty or error states for all
-        return {};
-    }
+  } catch (error: any) {
+    console.error("Batch Grading Error:", error);
+    // Return empty or error states for all
+    return {};
+  }
 };
 
 /**
@@ -704,18 +707,18 @@ export const evaluateBatchAnswers = async (
  * Uses Gemini's vision capabilities.
  */
 export const evaluateOfflineImages = async (
-    apiKey: string,
-    testConfig: TestConfig,
-    imagesBase64: string[] // Array of base64 data URLs: "data:image/jpeg;base64,..."
+  apiKey: string,
+  testConfig: TestConfig,
+  imagesBase64: string[] // Array of base64 data URLs: "data:image/jpeg;base64,..."
 ): Promise<Record<string, { score: number; feedback: string; maxScore: number }>> => {
-    if (!apiKey) throw new Error('API Key is required for grading');
-    if (!imagesBase64 || imagesBase64.length === 0) throw new Error('At least one image is required');
-    if (!testConfig || !testConfig.questions) throw new Error('Test configuration is required');
+  if (!apiKey) throw new Error('API Key is required for grading');
+  if (!imagesBase64 || imagesBase64.length === 0) throw new Error('At least one image is required');
+  if (!testConfig || !testConfig.questions) throw new Error('Test configuration is required');
 
-    // Build parts array for the Gemini model
-    const parts: any[] = [];
-    
-    const promptText = `
+  // Build parts array for the Gemini model
+  const parts: any[] = [];
+
+  const promptText = `
       You are an expert International Baccalaureate (IB) Examiner grading a student's handwritten test submission.
       
       INSTRUCTIONS:
@@ -729,17 +732,17 @@ export const evaluateOfflineImages = async (
       8. CRITICAL: Include a clear "Model Answer:" at the end of the feedback. This must be an ideal, full-marks answer constructed strictly according to IB assessment criteria for the given command term.
       
       TEST PAPER CONFIGURATION (JSON):
-      ${JSON.stringify({ 
-        title: testConfig.title, 
-        questions: testConfig.questions.map(q => ({
-            id: q.id,
-            content: q.content,
-            justification: q.justification,
-            points: q.points || 1,
-            ibCriteria: q.ibCriteria,
-            options: q.options?.map(o => ({ content: o.content, isCorrect: o.isCorrect }))
-        }))
-      })}
+      ${JSON.stringify({
+    title: testConfig.title,
+    questions: testConfig.questions.map(q => ({
+      id: q.id,
+      content: q.content,
+      justification: q.justification,
+      points: q.points || 1,
+      ibCriteria: q.ibCriteria,
+      options: q.options?.map(o => ({ content: o.content, isCorrect: o.isCorrect }))
+    }))
+  })}
       
       OUTPUT FORMAT:
       Return ONLY a valid JSON object mapping Question IDs to their evaluation.
@@ -754,60 +757,60 @@ export const evaluateOfflineImages = async (
       }
     `;
 
-    parts.push({ text: promptText });
+  parts.push({ text: promptText });
 
-    // Assuming imagesBase64 are in format "data:image/jpeg;base64,..."
-    for (const dataUrl of imagesBase64) {
-        // Extract mime type and base64 data
-        const matches = dataUrl.match(/^data:(image\/[a-zA-Z+]+);base64,(.+)$/);
-        if (matches && matches.length === 3) {
-            const mimeType = matches[1];
-            const base64Data = matches[2];
-            parts.push({
-                inlineData: {
-                    data: base64Data,
-                    mimeType: mimeType
-                }
-            });
-        } else {
-             console.warn("Invalid image data URL format encountered, skipping.");
+  // Assuming imagesBase64 are in format "data:image/jpeg;base64,..."
+  for (const dataUrl of imagesBase64) {
+    // Extract mime type and base64 data
+    const matches = dataUrl.match(/^data:(image\/[a-zA-Z+]+);base64,(.+)$/);
+    if (matches && matches.length === 3) {
+      const mimeType = matches[1];
+      const base64Data = matches[2];
+      parts.push({
+        inlineData: {
+          data: base64Data,
+          mimeType: mimeType
         }
+      });
+    } else {
+      console.warn("Invalid image data URL format encountered, skipping.");
+    }
+  }
+
+  try {
+    const text = await runWithFallback(apiKey, parts);
+
+
+    let cleanJson = text.replace(/```json\n?|\n?```/g, '').trim();
+    const firstBrace = cleanJson.indexOf('{');
+    const lastBrace = cleanJson.lastIndexOf('}');
+    if (firstBrace >= 0 && lastBrace > firstBrace) {
+      cleanJson = cleanJson.substring(firstBrace, lastBrace + 1);
     }
 
-    try {
-        const text = await runWithFallback(apiKey, parts);
+    // Sanitize JSON
+    cleanJson = fixJsonEscapes(cleanJson);
 
+    const data = JSON.parse(cleanJson);
+    const evaluations = data.evaluations || {};
 
-        let cleanJson = text.replace(/```json\n?|\n?```/g, '').trim();
-        const firstBrace = cleanJson.indexOf('{');
-        const lastBrace = cleanJson.lastIndexOf('}');
-        if (firstBrace >= 0 && lastBrace > firstBrace) {
-            cleanJson = cleanJson.substring(firstBrace, lastBrace + 1);
-        }
+    // Normalize result against testConfig to ensure maxScore is correct
+    const finalResults: Record<string, any> = {};
+    testConfig.questions.forEach(q => {
+      if (evaluations[q.id]) {
+        const evalData = evaluations[q.id];
+        finalResults[q.id] = {
+          score: typeof evalData?.score === 'number' ? evalData.score : 0,
+          feedback: evalData?.feedback || "Evaluation failed or not provided.",
+          maxScore: q.points || 1
+        };
+      }
+    });
 
-        // Sanitize JSON
-        cleanJson = fixJsonEscapes(cleanJson);
+    return finalResults;
 
-        const data = JSON.parse(cleanJson);
-        const evaluations = data.evaluations || {};
-        
-        // Normalize result against testConfig to ensure maxScore is correct
-        const finalResults: Record<string, any> = {};
-        testConfig.questions.forEach(q => {
-            if (evaluations[q.id]) {
-                const evalData = evaluations[q.id];
-                finalResults[q.id] = {
-                    score: typeof evalData?.score === 'number' ? evalData.score : 0,
-                    feedback: evalData?.feedback || "Evaluation failed or not provided.",
-                    maxScore: q.points || 1
-                };
-            }
-        });
-
-        return finalResults;
-
-    } catch (error: any) {
-        console.error("Offline Grading Error:", error);
-        throw new Error("Failed to evaluate uploaded sheets. " + error.message);
-    }
+  } catch (error: any) {
+    console.error("Offline Grading Error:", error);
+    throw new Error("Failed to evaluate uploaded sheets. " + error.message);
+  }
 };
