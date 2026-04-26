@@ -215,7 +215,7 @@ export const generateTestFromSyllabus = async (
     4. IB STYLE: Use IB command terms (e.g., Define, Explain, Calculate, Discuss, Evaluate, Justify) in the questions. Ensure rigor matches IB Diploma Programme (DP) or Middle Years Programme (MYP) standards.
     5. CRITERIA & POINTS: Assign points dynamically based on complexity, answer length, and IB criteria. Include the 'ibCriteria' array mapping specific expectations to their point values. Total 'points' should equal the sum of 'ibCriteria' points.
     6. Include at least one math/logic question if syllabus is related to mathematics. Otherwise, do not generate any math question. (use LaTeX $x^2$).
-    7. FORMATTING: Use $...$ for inline math equations and $$...$$ for block math. Double-escape all LaTeX backslashes (e.g. \\\\frac, \\\\lim). DO NOT use \\( ... \\) or \\[ ... \\].
+    7. FORMATTING: Use $...$ for inline math equations and $$...$$ for block math. Use standard JSON escaping for LaTeX backslashes (e.g., \\\\frac, \\\\text). DO NOT use \\( ... \\) or \\[ ... \\].
     8. CRITICAL: Do NOT include any 'imageUrl' fields or references to images. Use descriptive text or ASCII diagrams if needed.
     ${timeInstruction ? `9. ${timeInstruction}` : ''}
     
@@ -285,6 +285,9 @@ export const generateTestFromSyllabus = async (
 
     // Sanitize JSON
     cleanJson = fixJsonEscapes(cleanJson);
+
+    // Fix over-escaped LaTeX backslashes (e.g., \\\\text instead of \\text)
+    cleanJson = cleanJson.replace(/\\\\\\\\([a-zA-Z])/g, '\\\\$1');
 
     console.log("Cleaned JSON: ", cleanJson);
 
@@ -406,7 +409,7 @@ export const extractTestConfigFromPDF = async (
       3. If a question is open-ended, set type to "text" and omit options.
       4. Auto-generate a "justification" (markscheme/explanation) for every question to help with automated grading later.
       5. CRITERIA & POINTS: Extract points if available. Infer and populate the 'ibCriteria' array mapping specific expectations to their point values based on standard IB criteria. The total 'points' should equal the sum of 'ibCriteria' points.
-      6. FORMATTING: Use $...$ for inline math equations and $$...$$ for block math. Double-escape all LaTeX backslashes (e.g. \\\\frac, \\\\lim). DO NOT use \\( ... \\) or \\[ ... \\].
+      6. FORMATTING: Use $...$ for inline math equations and $$...$$ for block math. Use standard JSON escaping for LaTeX backslashes (e.g., \\\\frac, \\\\text). DO NOT use \\( ... \\) or \\[ ... \\].
       7. Do NOT invent new questions. ONLY extract what is in the document.
       
       CONTENT SAFETY:
@@ -441,6 +444,9 @@ export const extractTestConfigFromPDF = async (
 
     // Sanitize JSON using state-machine (handles properly double-escaped LaTeX correctly)
     cleanJson = fixJsonEscapes(cleanJson);
+
+    // Fix over-escaped LaTeX backslashes (e.g., \\\\text instead of \\text)
+    cleanJson = cleanJson.replace(/\\\\\\\\([a-zA-Z])/g, '\\\\$1');
 
     const testData = JSON.parse(cleanJson);
 
@@ -552,7 +558,7 @@ export const evaluateTextAnswer = async (
       - Analyze if the length of the answer matches the command term requirement. If the student writes too much (redundant sentences/steps, poor time management) or too little, explicitly point this out in the feedback.
       - Give a score between 0 and ${question.points || 1}.
       - Provide concise, constructive feedback in the style of an IB Markscheme, including comments on answer length if necessary.
-      - FORMATTING: Use $...$ for inline math equations and $$...$$ for block math. Double-escape all LaTeX backslashes (e.g. \\\\frac, \\\\lim). DO NOT use \\( ... \\) or \\[ ... \\].
+      - FORMATTING: Use $...$ for inline math equations and $$...$$ for block math. Use standard JSON escaping for LaTeX backslashes (e.g., \\\\frac, \\\\text). DO NOT use \\( ... \\) or \\[ ... \\].
       - CRITICAL: Provide a clear "Model Answer:" at the end of the feedback. This must be an ideal, full-marks answer constructed strictly according to IB assessment criteria for the given command term.
       
       OUTPUT JSON ONLY:
@@ -595,6 +601,9 @@ export const evaluateTextAnswer = async (
     // Sanitize JSON
     cleanJson = fixJsonEscapes(cleanJson);
 
+    // Fix over-escaped LaTeX backslashes (e.g., \\\\text instead of \\text)
+    cleanJson = cleanJson.replace(/\\\\\\\\([a-zA-Z])/g, '\\\\$1');
+
     const data = JSON.parse(cleanJson);
     return {
       score: typeof data.score === 'number' ? data.score : 0,
@@ -630,7 +639,7 @@ export const evaluateBatchAnswers = async (
       2. Analyze if the length of the answer matches the command term requirement. If the student writes too much (redundant sentences/steps, poor time management) or too little, explicitly point this out in the feedback.
       3. Give a score between 0 and MAX POINTS.
       4. Provide concise, constructive feedback in the style of an IB Markscheme, including comments on answer length if necessary.
-      5. FORMATTING: Use $...$ for inline math equations and $$...$$ for block math. Double-escape all LaTeX backslashes (e.g. \\\\frac, \\\\lim). DO NOT use \\( ... \\) or \\[ ... \\].
+      5. FORMATTING: Use $...$ for inline math equations and $$...$$ for block math. Use standard JSON escaping for LaTeX backslashes (e.g., \\\\frac, \\\\text). DO NOT use \\( ... \\) or \\[ ... \\].
       6. CRITICAL: Include a clear "Model Answer:" at the end of the feedback. This must be an ideal, full-marks answer constructed strictly according to IB assessment criteria for the given command term.
       
       OUTPUT FORMAT:
@@ -678,6 +687,9 @@ export const evaluateBatchAnswers = async (
 
     // Sanitize JSON
     cleanJson = fixJsonEscapes(cleanJson);
+
+    // Fix over-escaped LaTeX backslashes (e.g., \\\\text instead of \\text)
+    cleanJson = cleanJson.replace(/\\\\\\\\([a-zA-Z])/g, '\\\\$1');
 
     const data = JSON.parse(cleanJson);
     const evaluations = data.evaluations || {};
@@ -728,7 +740,7 @@ export const evaluateOfflineImages = async (
       4. Analyze if the length of the answer matches the command term requirement. If the student writes too much (redundant sentences/steps, poor time management) or too little, explicitly point this out in the feedback.
       5. Give a score between 0 and the MAX POINTS for that question. If the answer is completely missing, give 0.
       6. Provide concise, constructive feedback in the style of an IB Markscheme, including comments on answer length if necessary.
-      7. FORMATTING: Use $...$ for inline math equations and $$...$$ for block math. Double-escape all LaTeX backslashes (e.g. \\\\frac, \\\\lim). DO NOT use \\( ... \\) or \\[ ... \\].
+      7. FORMATTING: Use $...$ for inline math equations and $$...$$ for block math. Use standard JSON escaping for LaTeX backslashes (e.g., \\\\frac, \\\\text). DO NOT use \\( ... \\) or \\[ ... \\].
       8. CRITICAL: Include a clear "Model Answer:" at the end of the feedback. This must be an ideal, full-marks answer constructed strictly according to IB assessment criteria for the given command term.
       
       TEST PAPER CONFIGURATION (JSON):
@@ -790,6 +802,9 @@ export const evaluateOfflineImages = async (
 
     // Sanitize JSON
     cleanJson = fixJsonEscapes(cleanJson);
+
+    // Fix over-escaped LaTeX backslashes (e.g., \\\\text instead of \\text)
+    cleanJson = cleanJson.replace(/\\\\\\\\([a-zA-Z])/g, '\\\\$1');
 
     const data = JSON.parse(cleanJson);
     const evaluations = data.evaluations || {};
