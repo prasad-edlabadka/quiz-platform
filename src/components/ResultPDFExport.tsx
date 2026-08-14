@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import type { PastTestResult } from '../types/test';
 import { useTestStore } from '../store/testStore';
 import { MarkdownRenderer } from './MarkdownRenderer';
+import { QuestionDiagramRenderer } from './QuestionDiagramRenderer';
 
 interface ResultPDFExportProps {
   result: PastTestResult;
@@ -84,7 +85,14 @@ export const ResultPDFExport: React.FC<ResultPDFExportProps> = ({ result, onClos
                 <span className="print-q-num">Q{idx + 1}</span>
                 <span className="print-q-score" style={{ color: isPass ? '#16a34a' : '#dc2626' }}>{earned}/{pts}</span>
               </div>
-              <div className="print-q-content"><MarkdownRenderer content={q.content} /></div>
+              <div className="print-q-content">
+                <MarkdownRenderer content={q.content} />
+                {q.diagram && (
+                  <div className="print-q-diagram">
+                    <QuestionDiagramRenderer diagram={q.diagram} forceLightMode={true} />
+                  </div>
+                )}
+              </div>
 
               {q.options && (
                 <div className="print-options">

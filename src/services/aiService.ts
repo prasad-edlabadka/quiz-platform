@@ -150,7 +150,9 @@ export const generateTestFromSyllabus = async (
           "expectation": "string (Specific expectation for these points based on IB criteria)"
         }
       ],
-      "requiresDiagram": "boolean (true ONLY if the student needs to draw a diagram, graph, or shape to answer)"
+      "requiresDiagram": "boolean (true ONLY if the student needs to draw a diagram, graph, or shape to answer)",
+      "diagram": "string (optional. High-quality visual diagram for the question. Can be: (1) Self-contained SVG code like '<svg viewBox=\"0 0 500 200\" xmlns=\"http://www.w3.org/2000/svg\">...</svg>' for physics diagrams, point charges, coordinate graphs, circuits, vector forces, optics, waves, or geometry; OR (2) Mermaid.js diagram code for flowcharts, trees, mindmaps, or state machines. Do NOT wrap in markdown code blocks like \`\`\`svg or \`\`\`mermaid, write raw string directly)",
+      "diagramType": "string (optional. Must be set to 'svg' or 'mermaid' depending on the diagram field content)"
     }
   `;
 
@@ -215,9 +217,17 @@ export const generateTestFromSyllabus = async (
     4. IB STYLE: Use IB command terms (e.g., Define, Explain, Calculate, Discuss, Evaluate, Justify) in the questions. Ensure rigor matches IB Diploma Programme (DP) or Middle Years Programme (MYP) standards.
     5. CRITERIA & POINTS: Assign points dynamically based on complexity, answer length, and IB criteria. Include the 'ibCriteria' array mapping specific expectations to their point values. Total 'points' should equal the sum of 'ibCriteria' points.
     6. Include at least one math/logic question if syllabus is related to mathematics. Otherwise, do not generate any math question. (use LaTeX $x^2$).
-    7. FORMATTING: Use $...$ for inline math equations and $$...$$ for block math. Use standard JSON escaping for LaTeX backslashes (e.g., \\\\frac, \\\\text). DO NOT use \\( ... \\) or \\[ ... \\].
-    8. CRITICAL: Do NOT include any 'imageUrl' fields or references to images. Use descriptive text or ASCII diagrams if needed.
-    ${timeInstruction ? `9. ${timeInstruction}` : ''}
+    7. FORMATTING: Use $...$ for inline math equations and $$...$$ for block math. Double-escape all LaTeX backslashes (e.g. \\\\frac, \\\\lim). DO NOT use \\( ... \\) or \\[ ... \\].
+    8. CRITICAL: Do NOT include any 'imageUrl' fields or references to images. Use the 'diagram' field with Mermaid.js code if a diagram is needed, or descriptive text.
+    9. DIAGRAMS: If a question benefits from a visual illustration:
+       - PREFERRED FOR PHYSICS, CIRCUITS, FORCES, GEOMETRY & GRAPHS: Generate clean, self-contained SVG markup and set 'diagramType' to 'svg'.
+         * Always include a standard viewBox attribute (e.g. viewBox="0 0 500 220" or viewBox="0 0 450 300").
+         * Use modern, high-contrast colors (e.g. #3b82f6 for positive charges/blue, #ef4444 for negative charges/red, #10b981 for green, #f59e0b for yellow/orange, #94a3b8 for axes/wires/lines, #ffffff for text labels).
+         * Set text-anchor="middle" on <text> elements with clean font-size (14-16px) and position text labels with comfortable spacing above or below elements to prevent overlaps. Always use luminous text colors (#ffffff or #f8fafc) and bright lines (#94a3b8 or #cbd5e1) so diagrams are crystal clear in dark mode as well as light mode.
+         * For vector arrows or directional forces, include arrow markers: <defs><marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#94a3b8"/></marker></defs> and use marker-end="url(#arrow)".
+         * Do NOT wrap SVG in markdown code fences; return raw SVG inside the string.
+       - FOR PROCESS FLOWCHARTS, TREES, SEQUENCES, MINDMAPS & STATE MACHINES: Use Mermaid.js and set 'diagramType' to 'mermaid'. Ensure node labels with signs, values, or math symbols are wrapped in double quotes, e.g. A(( "+q1" )).
+    ${timeInstruction ? `10. ${timeInstruction}` : ''}
     
     CONTENT SAFETY:
     If the syllabus content is offensive, illegal, promotes self-harm, sexually explicit, related to sex, pornography or is otherwise inappropriate for an educational tool, you MUST NOT generate questions. Instead, return ONLY the following JSON object:

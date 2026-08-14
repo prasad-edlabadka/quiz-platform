@@ -112,6 +112,55 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({ value, onChange, r
               }
           }
           initCanvas.loadFromJSON(stateToLoad).then(() => {
+              if (readOnly) {
+                const objects = initCanvas.getObjects();
+                if (objects.length > 0) {
+                  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+                  objects.forEach(obj => {
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    const bound = typeof (obj as any).getBoundingRect === 'function' ? (obj as any).getBoundingRect(true, true) : null;
+                    if (bound) {
+                      if (bound.left < minX) minX = bound.left;
+                      if (bound.top < minY) minY = bound.top;
+                      if (bound.left + bound.width > maxX) maxX = bound.left + bound.width;
+                      if (bound.top + bound.height > maxY) maxY = bound.top + bound.height;
+                    }
+                  });
+
+                  if (isFinite(minX) && isFinite(maxX) && maxX > minX && maxY > minY) {
+                    const contentWidth = Math.max(maxX - minX, 40);
+                    const contentHeight = Math.max(maxY - minY, 40);
+                    const padding = 30;
+                    const canvasW = initCanvas.getWidth() || 600;
+                    const canvasH = initCanvas.getHeight() || 400;
+
+                    const scaleX = (canvasW - padding * 2) / contentWidth;
+                    const scaleY = (canvasH - padding * 2) / contentHeight;
+                    const scale = Math.min(scaleX, scaleY, 2.0);
+
+                    const offsetX = (canvasW - contentWidth * scale) / 2 - minX * scale;
+                    const offsetY = (canvasH - contentHeight * scale) / 2 - minY * scale;
+
+                    initCanvas.setViewportTransform([scale, 0, 0, scale, offsetX, offsetY]);
+                  }
+
+                  // In Dark Mode, adapt black/dark strokes and fills to high-contrast white
+                  if (isDark) {
+                    objects.forEach(obj => {
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      const stroke = (obj as any).stroke;
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      const fill = (obj as any).fill;
+                      if (stroke === '#000' || stroke === '#000000' || stroke === 'black' || stroke === '#111827' || stroke === '#1e293b') {
+                        (obj as any).set('stroke', '#f8fafc');
+                      }
+                      if (fill === '#000' || fill === '#000000' || fill === 'black' || fill === '#111827' || fill === '#1e293b') {
+                        (obj as any).set('fill', '#f8fafc');
+                      }
+                    });
+                  }
+                }
+              }
               initCanvas.renderAll();
               isUpdatingHistory.current = false;
               const json = JSON.stringify(initCanvas.toJSON());

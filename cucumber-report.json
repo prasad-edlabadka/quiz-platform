@@ -1,0 +1,2146 @@
+[
+  {
+    "description": "  As an application user\n  I want my text answers to be evaluated by AI\n  So that I can get automated scoring and feedback",
+    "elements": [
+      {
+        "description": "",
+        "id": "ai-evaluation-logic;resolving-a-text-answer-through-batch-evaluation",
+        "keyword": "Scenario",
+        "line": 9,
+        "name": "Resolving a text answer through batch evaluation",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 504440124
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "I load the Revise application",
+            "match": {
+              "location": "tests/step_definitions/navigation.steps.ts:5"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 465128250
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 10,
+            "name": "I automatically inject a test configuration containing text questions",
+            "match": {
+              "location": "tests/step_definitions/ai_evaluation.steps.ts:5"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 377959124
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 11,
+            "name": "I enter \"Dynamic Programming is an optimization over plain recursion.\" into the text area for the question",
+            "match": {
+              "location": "tests/step_definitions/ai_evaluation.steps.ts:40"
+            },
+            "result": {
+              "status": "failed",
+              "duration": 5000833542,
+              "error_message": "Error: function timed out, ensure the promise resolves within 5000 milliseconds\n    at Timeout.<anonymous> (/Users/prasad/.gemini/antigravity/scratch/quiz-platform/node_modules/@cucumber/cucumber/src/time.ts:52:14)\n    at listOnTimeout (node:internal/timers:585:17)\n    at process.processTimers (node:internal/timers:521:7)"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 12,
+            "name": "I submit the test requesting AI grading",
+            "match": {
+              "location": "tests/step_definitions/ai_evaluation.steps.ts:44"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 13,
+            "name": "I intercept the Gemini API to return a predefined evaluation schema",
+            "match": {
+              "location": "tests/step_definitions/ai_evaluation.steps.ts:51"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 14,
+            "name": "the result view should display a score based on the mocked payload",
+            "match": {
+              "location": "tests/step_definitions/ai_evaluation.steps.ts:76"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 15,
+            "name": "the result view should display the mocked feedback",
+            "match": {
+              "location": "tests/step_definitions/ai_evaluation.steps.ts:81"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 29181458
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      }
+    ],
+    "id": "ai-evaluation-logic",
+    "line": 1,
+    "keyword": "Feature",
+    "name": "AI Evaluation Logic",
+    "tags": [],
+    "uri": "tests/features/ai_evaluation.feature"
+  },
+  {
+    "description": "  As an application user\n  I want to generate a test using AI\n  So that I can study specific topics",
+    "elements": [
+      {
+        "description": "",
+        "id": "ai-test-generation-logic;blocking-generation-without-an-api-key",
+        "keyword": "Scenario",
+        "line": 9,
+        "name": "Blocking generation without an API Key",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 134570959
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "I load the Revise application",
+            "match": {
+              "location": "tests/step_definitions/navigation.steps.ts:5"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 293375375
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 10,
+            "name": "I clear the API key state",
+            "match": {
+              "location": "tests/step_definitions/ai_generation.steps.ts:5"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 193364666
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 11,
+            "name": "I navigate to the \"New Test\" tab",
+            "match": {
+              "location": "tests/step_definitions/test_loader.steps.ts:5"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 276154332
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 12,
+            "name": "I click \"Generate Test\"",
+            "match": {
+              "location": "tests/step_definitions/test_execution.steps.ts:56"
+            },
+            "result": {
+              "status": "failed",
+              "duration": 5002735875,
+              "error_message": "Error: function timed out, ensure the promise resolves within 5000 milliseconds\n    at Timeout.<anonymous> (/Users/prasad/.gemini/antigravity/scratch/quiz-platform/node_modules/@cucumber/cucumber/src/time.ts:52:14)\n    at listOnTimeout (node:internal/timers:585:17)\n    at process.processTimers (node:internal/timers:521:7)"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 13,
+            "name": "I should see an error indicating the API key is missing",
+            "match": {
+              "location": "tests/step_definitions/ai_generation.steps.ts:59"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 45207749
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "ai-test-generation-logic;blocking-generation-without-input-syllabus",
+        "keyword": "Scenario",
+        "line": 15,
+        "name": "Blocking generation without input syllabus",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 137507874
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "I load the Revise application",
+            "match": {
+              "location": "tests/step_definitions/navigation.steps.ts:5"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 261437500
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 16,
+            "name": "I mock a valid API key state",
+            "match": {
+              "location": "tests/step_definitions/ai_generation.steps.ts:10"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 177675375
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 17,
+            "name": "I navigate to the \"New Test\" tab",
+            "match": {
+              "location": "tests/step_definitions/test_loader.steps.ts:5"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 258988083
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 18,
+            "name": "I click \"Generate Test\"",
+            "match": {
+              "location": "tests/step_definitions/test_execution.steps.ts:56"
+            },
+            "result": {
+              "status": "failed",
+              "duration": 5001343000,
+              "error_message": "Error: function timed out, ensure the promise resolves within 5000 milliseconds\n    at Timeout.<anonymous> (/Users/prasad/.gemini/antigravity/scratch/quiz-platform/node_modules/@cucumber/cucumber/src/time.ts:52:14)\n    at listOnTimeout (node:internal/timers:585:17)\n    at process.processTimers (node:internal/timers:521:7)"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 19,
+            "name": "I should see an error indicating the syllabus is missing",
+            "match": {
+              "location": "tests/step_definitions/ai_generation.steps.ts:63"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 45452375
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "ai-test-generation-logic;generating-a-test-successfully-intercepts-network-requests",
+        "keyword": "Scenario",
+        "line": 21,
+        "name": "Generating a test successfully intercepts network requests",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 149805416
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "I load the Revise application",
+            "match": {
+              "location": "tests/step_definitions/navigation.steps.ts:5"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 276029125
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 22,
+            "name": "I mock a valid API key state",
+            "match": {
+              "location": "tests/step_definitions/ai_generation.steps.ts:10"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 175614375
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 23,
+            "name": "I navigate to the \"New Test\" tab",
+            "match": {
+              "location": "tests/step_definitions/test_loader.steps.ts:5"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 254806375
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 24,
+            "name": "I intercept the Gemini API to return a predefined test schema",
+            "match": {
+              "location": "tests/step_definitions/ai_generation.steps.ts:22"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 10276083
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 25,
+            "name": "I enter \"React Testing Patterns\" into the syllabus textarea",
+            "match": {
+              "location": "tests/step_definitions/ai_generation.steps.ts:17"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 23010791
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 26,
+            "name": "I click \"Generate Test\"",
+            "match": {
+              "location": "tests/step_definitions/test_execution.steps.ts:56"
+            },
+            "result": {
+              "status": "failed",
+              "duration": 5002262957,
+              "error_message": "Error: function timed out, ensure the promise resolves within 5000 milliseconds\n    at Timeout.<anonymous> (/Users/prasad/.gemini/antigravity/scratch/quiz-platform/node_modules/@cucumber/cucumber/src/time.ts:52:14)\n    at listOnTimeout (node:internal/timers:585:17)\n    at process.processTimers (node:internal/timers:521:7)"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 27,
+            "name": "the application should route to the Test Loader setup",
+            "match": {
+              "location": "tests/step_definitions/ai_generation.steps.ts:67"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 28,
+            "name": "the generated title should be rendered",
+            "match": {
+              "location": "tests/step_definitions/ai_generation.steps.ts:72"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 44155834
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      }
+    ],
+    "id": "ai-test-generation-logic",
+    "line": 1,
+    "keyword": "Feature",
+    "name": "AI Test Generation Logic",
+    "tags": [],
+    "uri": "tests/features/ai_generation.feature"
+  },
+  {
+    "description": "  As an application user\n  I want edge cases like time expiration to be handled elegantly\n  So that my test session maintains integrity",
+    "elements": [
+      {
+        "description": "",
+        "id": "edge-cases-and-timers;test-automatically-submits-when-time-expires",
+        "keyword": "Scenario",
+        "line": 9,
+        "name": "Test automatically submits when time expires",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 122198333
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "I load the Revise application",
+            "match": {
+              "location": "tests/step_definitions/navigation.steps.ts:5"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 262846084
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 10,
+            "name": "I mock a test configuration with a 5 second time limit",
+            "match": {
+              "location": "tests/step_definitions/edge_cases.steps.ts:5"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 340837917
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 11,
+            "name": "I wait for the timer to expire naturally",
+            "match": {
+              "location": "tests/step_definitions/edge_cases.steps.ts:34"
+            },
+            "result": {
+              "status": "failed",
+              "duration": 5001967667,
+              "error_message": "Error: function timed out, ensure the promise resolves within 5000 milliseconds\n    at Timeout.<anonymous> (/Users/prasad/.gemini/antigravity/scratch/quiz-platform/node_modules/@cucumber/cucumber/src/time.ts:52:14)\n    at listOnTimeout (node:internal/timers:585:17)\n    at process.processTimers (node:internal/timers:521:7)"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 12,
+            "name": "the application should automatically transition to the Results view",
+            "match": {
+              "location": "tests/step_definitions/edge_cases.steps.ts:39"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 40193999
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "edge-cases-and-timers;warning-modal-triggers-on-early-blank-submission",
+        "keyword": "Scenario",
+        "line": 14,
+        "name": "Warning modal triggers on early blank submission",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 133784457
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "I load the Revise application",
+            "match": {
+              "location": "tests/step_definitions/navigation.steps.ts:5"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 257389499
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 15,
+            "name": "I mock a test configuration without a time limit",
+            "match": {
+              "location": "tests/step_definitions/edge_cases.steps.ts:44"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 374315666
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 16,
+            "name": "I click \"Submit Test\" immediately without answering questions",
+            "match": {
+              "location": "tests/step_definitions/edge_cases.steps.ts:73"
+            },
+            "result": {
+              "status": "failed",
+              "duration": 5001478541,
+              "error_message": "Error: function timed out, ensure the promise resolves within 5000 milliseconds\n    at Timeout.<anonymous> (/Users/prasad/.gemini/antigravity/scratch/quiz-platform/node_modules/@cucumber/cucumber/src/time.ts:52:14)\n    at listOnTimeout (node:internal/timers:585:17)\n    at process.processTimers (node:internal/timers:521:7)"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 17,
+            "name": "I should see a warning modal regarding unanswered questions",
+            "match": {
+              "location": "tests/step_definitions/edge_cases.steps.ts:77"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 40266250
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      }
+    ],
+    "id": "edge-cases-and-timers",
+    "line": 1,
+    "keyword": "Feature",
+    "name": "Edge Cases and Timers",
+    "tags": [],
+    "uri": "tests/features/edge_cases.feature"
+  },
+  {
+    "description": "  As a Revise user\n  I want to use the multiplayer lobby\n  So that I can synchronize my exams with a group",
+    "elements": [
+      {
+        "description": "",
+        "id": "group-test;creating-a-group-test-session-generates-a-peer-id",
+        "keyword": "Scenario",
+        "line": 9,
+        "name": "Creating a group test session generates a Peer ID",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 131103749
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "I load the Revise application",
+            "match": {
+              "location": "tests/step_definitions/navigation.steps.ts:5"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 286827874
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 10,
+            "name": "I navigate to the \"Group Test\" tab",
+            "match": {
+              "location": "tests/step_definitions/test_loader.steps.ts:5"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 212112375
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 11,
+            "name": "I start a new host session",
+            "match": {
+              "location": "tests/step_definitions/group_test.steps.ts:5"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 2174292
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 12,
+            "name": "I should see my generated Host ID string",
+            "match": {
+              "location": "tests/step_definitions/group_test.steps.ts:13"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 2003742124
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 53702416
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "group-test;joining-a-group-test-session-requests-connection",
+        "keyword": "Scenario",
+        "line": 14,
+        "name": "Joining a group test session requests connection",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 134230958
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "I load the Revise application",
+            "match": {
+              "location": "tests/step_definitions/navigation.steps.ts:5"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 263440916
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 15,
+            "name": "I navigate to the \"Group Test\" tab",
+            "match": {
+              "location": "tests/step_definitions/test_loader.steps.ts:5"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 198221583
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 16,
+            "name": "I enter a dummy Host ID \"peer-foo-bar-123\"",
+            "match": {
+              "location": "tests/step_definitions/group_test.steps.ts:19"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1782416
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 17,
+            "name": "I click \"Join Session\"",
+            "match": {
+              "location": "tests/step_definitions/test_execution.steps.ts:56"
+            },
+            "result": {
+              "status": "failed",
+              "duration": 5000739999,
+              "error_message": "Error: function timed out, ensure the promise resolves within 5000 milliseconds\n    at Timeout.<anonymous> (/Users/prasad/.gemini/antigravity/scratch/quiz-platform/node_modules/@cucumber/cucumber/src/time.ts:52:14)\n    at listOnTimeout (node:internal/timers:585:17)\n    at process.processTimers (node:internal/timers:521:7)"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 18,
+            "name": "the application should attempt a connection",
+            "match": {
+              "location": "tests/step_definitions/group_test.steps.ts:26"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 42206208
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      }
+    ],
+    "id": "group-test",
+    "line": 1,
+    "keyword": "Feature",
+    "name": "Group Test",
+    "tags": [],
+    "uri": "tests/features/group_test.feature"
+  },
+  {
+    "description": "  As a user\n  I want to visit the homepage\n  So that I can verify the basic layout and content is present",
+    "elements": [
+      {
+        "description": "",
+        "id": "homepage-validation;verify-homepage-title-is-present",
+        "keyword": "Scenario",
+        "line": 6,
+        "name": "Verify homepage title is present",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 128645500
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "I navigate to the homepage \"http://localhost:5173\"",
+            "match": {
+              "location": "tests/step_definitions/homepage.steps.ts:5"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 277325959
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 8,
+            "name": "I should see the page title loading successfully",
+            "match": {
+              "location": "tests/step_definitions/homepage.steps.ts:9"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 96251083
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 44290999
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      }
+    ],
+    "id": "homepage-validation",
+    "line": 1,
+    "keyword": "Feature",
+    "name": "Homepage Validation",
+    "tags": [],
+    "uri": "tests/features/homepage.feature"
+  },
+  {
+    "description": "  As a Revise user\n  I want to be able to navigate the application using the main navigation bar\n  So that I can access different functional tabs",
+    "elements": [
+      {
+        "description": "",
+        "id": "navigation-and-layout;verify-default-landing-page",
+        "keyword": "Scenario",
+        "line": 9,
+        "name": "Verify Default Landing Page",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 124361625
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "I load the Revise application",
+            "match": {
+              "location": "tests/step_definitions/navigation.steps.ts:5"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 266714500
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 10,
+            "name": "I should see the \"Revise\" title",
+            "result": {
+              "status": "ambiguous",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 11,
+            "name": "the application should be in the default landing state",
+            "match": {
+              "location": "tests/step_definitions/navigation.steps.ts:13"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 112109541
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "navigation-and-layout;navigate-through-main-tabs",
+        "keyword": "Scenario Outline",
+        "line": 19,
+        "name": "Navigate through main tabs",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 121109834
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "I load the Revise application",
+            "match": {
+              "location": "tests/step_definitions/navigation.steps.ts:5"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 269540250
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 14,
+            "name": "I click on the \"New Test\" navigation tab",
+            "match": {
+              "location": "tests/step_definitions/navigation.steps.ts:18"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 263385957
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 15,
+            "name": "the application URL should update to include \"/ai\"",
+            "match": {
+              "location": "tests/step_definitions/navigation.steps.ts:22"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 2987166
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 22244291
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "navigation-and-layout;navigate-through-main-tabs",
+        "keyword": "Scenario Outline",
+        "line": 20,
+        "name": "Navigate through main tabs",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 123534083
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "I load the Revise application",
+            "match": {
+              "location": "tests/step_definitions/navigation.steps.ts:5"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 265844208
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 14,
+            "name": "I click on the \"My Library\" navigation tab",
+            "match": {
+              "location": "tests/step_definitions/navigation.steps.ts:18"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 216818290
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 15,
+            "name": "the application URL should update to include \"/library\"",
+            "match": {
+              "location": "tests/step_definitions/navigation.steps.ts:22"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1652957
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 18037541
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "navigation-and-layout;navigate-through-main-tabs",
+        "keyword": "Scenario Outline",
+        "line": 21,
+        "name": "Navigate through main tabs",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 119993207
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "I load the Revise application",
+            "match": {
+              "location": "tests/step_definitions/navigation.steps.ts:5"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 262384708
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 14,
+            "name": "I click on the \"Upload Test File\" navigation tab",
+            "match": {
+              "location": "tests/step_definitions/navigation.steps.ts:18"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 202675541
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 15,
+            "name": "the application URL should update to include \"/upload\"",
+            "match": {
+              "location": "tests/step_definitions/navigation.steps.ts:22"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 2748332
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 20740040
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "navigation-and-layout;navigate-through-main-tabs",
+        "keyword": "Scenario Outline",
+        "line": 22,
+        "name": "Navigate through main tabs",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 130598624
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "I load the Revise application",
+            "match": {
+              "location": "tests/step_definitions/navigation.steps.ts:5"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 259005208
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 14,
+            "name": "I click on the \"Past Results\" navigation tab",
+            "match": {
+              "location": "tests/step_definitions/navigation.steps.ts:18"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 195729042
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 15,
+            "name": "the application URL should update to include \"/history\"",
+            "match": {
+              "location": "tests/step_definitions/navigation.steps.ts:22"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 2654000
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 18859958
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "navigation-and-layout;navigate-through-main-tabs",
+        "keyword": "Scenario Outline",
+        "line": 23,
+        "name": "Navigate through main tabs",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 121328042
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "I load the Revise application",
+            "match": {
+              "location": "tests/step_definitions/navigation.steps.ts:5"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 255272708
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 14,
+            "name": "I click on the \"Offline Work\" navigation tab",
+            "match": {
+              "location": "tests/step_definitions/navigation.steps.ts:18"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 227176541
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 15,
+            "name": "the application URL should update to include \"/offline\"",
+            "match": {
+              "location": "tests/step_definitions/navigation.steps.ts:22"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 3142374
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 23101208
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      }
+    ],
+    "id": "navigation-and-layout",
+    "line": 1,
+    "keyword": "Feature",
+    "name": "Navigation and Layout",
+    "tags": [],
+    "uri": "tests/features/navigation.feature"
+  },
+  {
+    "description": "  As a Revise user\n  I want to view my past exam results\n  So that I can evaluate my performance",
+    "elements": [
+      {
+        "description": "",
+        "id": "result-view;loading-the-history-page-evaluates-empty-states",
+        "keyword": "Scenario",
+        "line": 9,
+        "name": "Loading the history page evaluates empty states",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 113010207
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "I load the Revise application",
+            "match": {
+              "location": "tests/step_definitions/navigation.steps.ts:5"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 264151541
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 10,
+            "name": "I navigate to the \"Past Results\" tab",
+            "match": {
+              "location": "tests/step_definitions/test_loader.steps.ts:5"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 185089582
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 11,
+            "name": "I should see the \"Test History\" title",
+            "result": {
+              "status": "ambiguous",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 12,
+            "name": "the export PDF button state should be visible or hidden appropriately",
+            "match": {
+              "location": "tests/step_definitions/result_view.steps.ts:10"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 17459625
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      }
+    ],
+    "id": "result-view",
+    "line": 1,
+    "keyword": "Feature",
+    "name": "Result View",
+    "tags": [],
+    "uri": "tests/features/result_view.feature"
+  },
+  {
+    "description": "  As a Revise user\n  I want to configure the global settings\n  So that I can enter my API key, manage data, and change themes",
+    "elements": [
+      {
+        "description": "",
+        "id": "settings-and-global-configuration;toggling-dark-and-light-mode",
+        "keyword": "Scenario",
+        "line": 9,
+        "name": "Toggling dark and light mode",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 115001708
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "I load the Revise application",
+            "match": {
+              "location": "tests/step_definitions/navigation.steps.ts:5"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 253539333
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 10,
+            "name": "I should see the theme toggle button",
+            "match": {
+              "location": "tests/step_definitions/settings.steps.ts:5"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 123206749
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 11,
+            "name": "I click the theme toggle button",
+            "match": {
+              "location": "tests/step_definitions/settings.steps.ts:11"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 86964791
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 12,
+            "name": "the application theme should switch",
+            "match": {
+              "location": "tests/step_definitions/settings.steps.ts:16"
+            },
+            "result": {
+              "status": "failed",
+              "duration": 5001468542,
+              "error_message": "Error: function timed out, ensure the promise resolves within 5000 milliseconds\n    at Timeout.<anonymous> (/Users/prasad/.gemini/antigravity/scratch/quiz-platform/node_modules/@cucumber/cucumber/src/time.ts:52:14)\n    at listOnTimeout (node:internal/timers:585:17)\n    at process.processTimers (node:internal/timers:521:7)"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 13,
+            "name": "I click the theme toggle button",
+            "match": {
+              "location": "tests/step_definitions/settings.steps.ts:11"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 14,
+            "name": "the application theme should switch back",
+            "match": {
+              "location": "tests/step_definitions/settings.steps.ts:21"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 35072207
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "settings-and-global-configuration;inputting-an-api-key-correctly-reflects-ui-changes",
+        "keyword": "Scenario",
+        "line": 16,
+        "name": "Inputting an API key correctly reflects UI changes",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 146262624
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "I load the Revise application",
+            "match": {
+              "location": "tests/step_definitions/navigation.steps.ts:5"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 281227333
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 17,
+            "name": "I open the settings modal",
+            "match": {
+              "location": "tests/step_definitions/settings.steps.ts:26"
+            },
+            "result": {
+              "status": "failed",
+              "duration": 5001637166,
+              "error_message": "Error: function timed out, ensure the promise resolves within 5000 milliseconds\n    at Timeout.<anonymous> (/Users/prasad/.gemini/antigravity/scratch/quiz-platform/node_modules/@cucumber/cucumber/src/time.ts:52:14)\n    at listOnTimeout (node:internal/timers:585:17)\n    at process.processTimers (node:internal/timers:521:7)"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 18,
+            "name": "I should see the \"AI Settings\" panel",
+            "match": {
+              "location": "tests/step_definitions/settings.steps.ts:31"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 19,
+            "name": "I input a fake API key \"AIzaSyFakeKeyButVeryLongString\"",
+            "match": {
+              "location": "tests/step_definitions/settings.steps.ts:35"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 20,
+            "name": "the API key validation status should indicate \"Checking\" or \"Connected\"",
+            "match": {
+              "location": "tests/step_definitions/settings.steps.ts:40"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 39578790
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "settings-and-global-configuration;closing-the-settings-modal",
+        "keyword": "Scenario",
+        "line": 22,
+        "name": "Closing the settings modal",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 132231540
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "I load the Revise application",
+            "match": {
+              "location": "tests/step_definitions/navigation.steps.ts:5"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 255967665
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 23,
+            "name": "I open the settings modal",
+            "match": {
+              "location": "tests/step_definitions/settings.steps.ts:26"
+            },
+            "result": {
+              "status": "failed",
+              "duration": 5001494458,
+              "error_message": "Error: function timed out, ensure the promise resolves within 5000 milliseconds\n    at Timeout.<anonymous> (/Users/prasad/.gemini/antigravity/scratch/quiz-platform/node_modules/@cucumber/cucumber/src/time.ts:52:14)\n    at listOnTimeout (node:internal/timers:585:17)\n    at process.processTimers (node:internal/timers:521:7)"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 24,
+            "name": "I click the close button",
+            "match": {
+              "location": "tests/step_definitions/settings.steps.ts:47"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 25,
+            "name": "the settings modal should be hidden",
+            "match": {
+              "location": "tests/step_definitions/settings.steps.ts:52"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 23520166
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      }
+    ],
+    "id": "settings-and-global-configuration",
+    "line": 1,
+    "keyword": "Feature",
+    "name": "Settings and Global Configuration",
+    "tags": [],
+    "uri": "tests/features/settings.feature"
+  },
+  {
+    "description": "  As a Revise user\n  I want to be able to execute a generated test\n  So that I can answer questions and navigate my test",
+    "elements": [
+      {
+        "description": "",
+        "id": "test-execution-engine;starting-a-test-sets-up-the-ui-correctly",
+        "keyword": "Scenario",
+        "line": 9,
+        "name": "Starting a test sets up the UI correctly",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 150297791
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "I load the Revise application",
+            "match": {
+              "location": "tests/step_definitions/navigation.steps.ts:5"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 267106874
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 10,
+            "name": "I automatically inject a valid test configuration into the state",
+            "match": {
+              "location": "tests/step_definitions/test_execution.steps.ts:5"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 384692582
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 11,
+            "name": "the \"TestRenderer\" should mount successfully",
+            "match": {
+              "location": "tests/step_definitions/test_execution.steps.ts:37"
+            },
+            "result": {
+              "status": "failed",
+              "duration": 5001265124,
+              "error_message": "Error: function timed out, ensure the promise resolves within 5000 milliseconds\n    at Timeout.<anonymous> (/Users/prasad/.gemini/antigravity/scratch/quiz-platform/node_modules/@cucumber/cucumber/src/time.ts:52:14)\n    at listOnTimeout (node:internal/timers:585:17)\n    at process.processTimers (node:internal/timers:521:7)"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 12,
+            "name": "I should see the question navigator grid",
+            "match": {
+              "location": "tests/step_definitions/test_execution.steps.ts:42"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 13,
+            "name": "I should see the test timer",
+            "match": {
+              "location": "tests/step_definitions/test_execution.steps.ts:47"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 14,
+            "name": "the current question text should be visible",
+            "match": {
+              "location": "tests/step_definitions/test_execution.steps.ts:52"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 52557584
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "test-execution-engine;marking-a-question-for-review-updates-the-navigator",
+        "keyword": "Scenario",
+        "line": 16,
+        "name": "Marking a question for review updates the navigator",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 125447750
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "I load the Revise application",
+            "match": {
+              "location": "tests/step_definitions/navigation.steps.ts:5"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 283517791
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 17,
+            "name": "I automatically inject a valid test configuration into the state",
+            "match": {
+              "location": "tests/step_definitions/test_execution.steps.ts:5"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 352741582
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 18,
+            "name": "I click \"Mark for Review\"",
+            "match": {
+              "location": "tests/step_definitions/test_execution.steps.ts:56"
+            },
+            "result": {
+              "status": "failed",
+              "duration": 5001366250,
+              "error_message": "Error: function timed out, ensure the promise resolves within 5000 milliseconds\n    at Timeout.<anonymous> (/Users/prasad/.gemini/antigravity/scratch/quiz-platform/node_modules/@cucumber/cucumber/src/time.ts:52:14)\n    at listOnTimeout (node:internal/timers:585:17)\n    at process.processTimers (node:internal/timers:521:7)"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 19,
+            "name": "the question box in the navigation grid should show a review indicator",
+            "match": {
+              "location": "tests/step_definitions/test_execution.steps.ts:60"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 23002250
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "test-execution-engine;submitting-a-test-moves-to-the-result-view",
+        "keyword": "Scenario",
+        "line": 21,
+        "name": "Submitting a test moves to the result view",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 138366750
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "I load the Revise application",
+            "match": {
+              "location": "tests/step_definitions/navigation.steps.ts:5"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 257301416
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 22,
+            "name": "I automatically inject a valid test configuration into the state",
+            "match": {
+              "location": "tests/step_definitions/test_execution.steps.ts:5"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 328406665
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 23,
+            "name": "I answer the current question",
+            "match": {
+              "location": "tests/step_definitions/test_execution.steps.ts:67"
+            },
+            "result": {
+              "status": "failed",
+              "duration": 5001309165,
+              "error_message": "Error: function timed out, ensure the promise resolves within 5000 milliseconds\n    at Timeout.<anonymous> (/Users/prasad/.gemini/antigravity/scratch/quiz-platform/node_modules/@cucumber/cucumber/src/time.ts:52:14)\n    at listOnTimeout (node:internal/timers:585:17)\n    at process.processTimers (node:internal/timers:521:7)"
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 24,
+            "name": "I click \"Submit Test\"",
+            "match": {
+              "location": "tests/step_definitions/test_execution.steps.ts:56"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 25,
+            "name": "I should see the \"Results\" summary page",
+            "match": {
+              "location": "tests/step_definitions/test_execution.steps.ts:72"
+            },
+            "result": {
+              "status": "skipped",
+              "duration": 0
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 49199582
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      }
+    ],
+    "id": "test-execution-engine",
+    "line": 1,
+    "keyword": "Feature",
+    "name": "Test Execution Engine",
+    "tags": [],
+    "uri": "tests/features/test_execution.feature"
+  },
+  {
+    "description": "  As a Revise user\n  I want to upload or paste test JSON\n  So that I can execute offline exams",
+    "elements": [
+      {
+        "description": "",
+        "id": "test-loading-&-offline-flows;uploading-an-invalid-json-file",
+        "keyword": "Scenario",
+        "line": 10,
+        "name": "Uploading an invalid JSON file",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 121612041
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "I load the Revise application",
+            "match": {
+              "location": "tests/step_definitions/navigation.steps.ts:5"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 303510291
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 8,
+            "name": "I navigate to the \"Upload Test File\" tab",
+            "match": {
+              "location": "tests/step_definitions/test_loader.steps.ts:5"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 204252000
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 11,
+            "name": "I locate the offline paste text area",
+            "match": {
+              "location": "tests/step_definitions/test_loader.steps.ts:9"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 2125291
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 12,
+            "name": "I paste invalid JSON like \"{ bad json\"",
+            "match": {
+              "location": "tests/step_definitions/test_loader.steps.ts:14"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 13953374
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 13,
+            "name": "I should see an error message indicating invalid JSON structure",
+            "match": {
+              "location": "tests/step_definitions/test_loader.steps.ts:18"
+            },
+            "result": {
+              "status": "failed",
+              "duration": 5001389124,
+              "error_message": "Error: function timed out, ensure the promise resolves within 5000 milliseconds\n    at Timeout.<anonymous> (/Users/prasad/.gemini/antigravity/scratch/quiz-platform/node_modules/@cucumber/cucumber/src/time.ts:52:14)\n    at listOnTimeout (node:internal/timers:585:17)\n    at process.processTimers (node:internal/timers:521:7)"
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 35894832
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "test-loading-&-offline-flows;uploading-a-valid-test-configuration",
+        "keyword": "Scenario",
+        "line": 15,
+        "name": "Uploading a valid test configuration",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 142577875
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "I load the Revise application",
+            "match": {
+              "location": "tests/step_definitions/navigation.steps.ts:5"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 285852416
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 8,
+            "name": "I navigate to the \"Upload Test File\" tab",
+            "match": {
+              "location": "tests/step_definitions/test_loader.steps.ts:5"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 219717084
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 16,
+            "name": "I locate the offline paste text area",
+            "match": {
+              "location": "tests/step_definitions/test_loader.steps.ts:9"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 3036374
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 17,
+            "name": "I paste a basic valid JSON configuration",
+            "match": {
+              "location": "tests/step_definitions/test_loader.steps.ts:22"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 16754084
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 18,
+            "name": "the application should parse settings without error",
+            "match": {
+              "location": "tests/step_definitions/test_loader.steps.ts:36"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 3480624
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 25587541
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      }
+    ],
+    "id": "test-loading-&-offline-flows",
+    "line": 1,
+    "keyword": "Feature",
+    "name": "Test Loading & Offline Flows",
+    "tags": [],
+    "uri": "tests/features/test_loader.feature"
+  }
+]

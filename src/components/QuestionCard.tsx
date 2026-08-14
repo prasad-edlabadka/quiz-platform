@@ -9,6 +9,7 @@ import { useTestStore } from '../store/testStore';
 import { Flag, Star } from 'lucide-react';
 import { clsx } from 'clsx';
 import { Card, Button, Typography, Tag, Tooltip } from 'antd';
+import { QuestionDiagramRenderer } from './QuestionDiagramRenderer';
 
 interface QuestionCardProps {
   question: Question;
@@ -94,6 +95,12 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({ question }) => {
         )}
 
         <MarkdownRenderer content={question.content} className="text-lg md:text-xl font-medium text-glass-primary" />
+
+        {question.diagram && (
+          <div className="mt-4 p-4 bg-white/5 rounded-2xl border border-indigo-500/10 flex justify-center">
+            <QuestionDiagramRenderer diagram={question.diagram} />
+          </div>
+        )}
 
         {question.imageUrl && (
           <div className="mt-4 rounded-lg overflow-hidden">

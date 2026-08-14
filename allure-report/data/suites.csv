@@ -1,0 +1,73 @@
+"DESCRIPTION","DURATION IN MS","NAME","PARENT SUITE","START TIME","STATUS","STOP TIME","SUB SUITE","SUITE","TEST CLASS","TEST METHOD"
+"As a Revise user
+  I want to be able to navigate the application using the main navigation bar
+  So that I can access different functional tabs","610","Navigate through main tabs","","2026-04-20","passed","2026-04-20","","","",""
+"As a Revise user
+  I want to use the multiplayer lobby
+  So that I can synchronize my exams with a group","5643","Joining a group test session requests connection","","2026-04-20","broken","2026-04-20","","","",""
+"As a Revise user
+  I want to be able to navigate the application using the main navigation bar
+  So that I can access different functional tabs","508","Verify Default Landing Page","","2026-04-20","passed","2026-04-20","","","",""
+"As a Revise user
+  I want to configure the global settings
+  So that I can enter my API key, manage data, and change themes","5471","Inputting an API key correctly reflects UI changes","","2026-04-20","broken","2026-04-20","","","",""
+"As a Revise user
+  I want to be able to execute a generated test
+  So that I can answer questions and navigate my test","5787","Marking a question for review updates the navigator","","2026-04-20","broken","2026-04-20","","","",""
+"As an application user
+  I want edge cases like time expiration to be handled elegantly
+  So that my test session maintains integrity","5808","Warning modal triggers on early blank submission","","2026-04-20","broken","2026-04-20","","","",""
+"As a Revise user
+  I want to upload or paste test JSON
+  So that I can execute offline exams","5684","Uploading an invalid JSON file","","2026-04-20","broken","2026-04-20","","","",""
+"As a Revise user
+  I want to be able to navigate the application using the main navigation bar
+  So that I can access different functional tabs","627","Navigate through main tabs","","2026-04-20","passed","2026-04-20","","","",""
+"As a Revise user
+  I want to be able to navigate the application using the main navigation bar
+  So that I can access different functional tabs","681","Navigate through main tabs","","2026-04-20","passed","2026-04-20","","","",""
+"As a Revise user
+  I want to be able to navigate the application using the main navigation bar
+  So that I can access different functional tabs","608","Navigate through main tabs","","2026-04-20","passed","2026-04-20","","","",""
+"As an application user
+  I want to generate a test using AI
+  So that I can study specific topics","5951","Blocking generation without an API Key","","2026-04-20","broken","2026-04-20","","","",""
+"As a Revise user
+  I want to be able to navigate the application using the main navigation bar
+  So that I can access different functional tabs","631","Navigate through main tabs","","2026-04-20","passed","2026-04-20","","","",""
+"As an application user
+  I want my text answers to be evaluated by AI
+  So that I can get automated scoring and feedback","6382","Resolving a text answer through batch evaluation","","2026-04-20","broken","2026-04-20","","","",""
+"As a Revise user
+  I want to use the multiplayer lobby
+  So that I can synchronize my exams with a group","2691","Creating a group test session generates a Peer ID","","2026-04-20","passed","2026-04-20","","","",""
+"As a Revise user
+  I want to be able to execute a generated test
+  So that I can answer questions and navigate my test","5857","Starting a test sets up the UI correctly","","2026-04-20","broken","2026-04-20","","","",""
+"As a Revise user
+  I want to view my past exam results
+  So that I can evaluate my performance","581","Loading the history page evaluates empty states","","2026-04-20","passed","2026-04-20","","","",""
+"As an application user
+  I want to generate a test using AI
+  So that I can study specific topics","5886","Blocking generation without input syllabus","","2026-04-20","broken","2026-04-20","","","",""
+"As a user
+  I want to visit the homepage
+  So that I can verify the basic layout and content is present","548","Verify homepage title is present","","2026-04-20","passed","2026-04-20","","","",""
+"As an application user
+  I want edge cases like time expiration to be handled elegantly
+  So that my test session maintains integrity","5770","Test automatically submits when time expires","","2026-04-20","broken","2026-04-20","","","",""
+"As an application user
+  I want to generate a test using AI
+  So that I can study specific topics","5940","Generating a test successfully intercepts network requests","","2026-04-20","broken","2026-04-20","","","",""
+"As a Revise user
+  I want to be able to execute a generated test
+  So that I can answer questions and navigate my test","5777","Submitting a test moves to the result view","","2026-04-20","broken","2026-04-20","","","",""
+"As a Revise user
+  I want to configure the global settings
+  So that I can enter my API key, manage data, and change themes","5618","Toggling dark and light mode","","2026-04-20","broken","2026-04-20","","","",""
+"As a Revise user
+  I want to configure the global settings
+  So that I can enter my API key, manage data, and change themes","5414","Closing the settings modal","","2026-04-20","broken","2026-04-20","","","",""
+"As a Revise user
+  I want to upload or paste test JSON
+  So that I can execute offline exams","698","Uploading a valid test configuration","","2026-04-20","passed","2026-04-20","","","",""

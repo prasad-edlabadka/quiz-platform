@@ -32,6 +32,9 @@ describe('QuestionCard', () => {
 
     const mockStore = {
         answers: {},
+        drawnAnswers: {},
+        answerDrawing: vi.fn(),
+        themeMode: 'light',
         answerQuestion: vi.fn(),
         questionTimeRemaining: {},
         toggleFlag: vi.fn(),
