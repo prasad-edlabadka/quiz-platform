@@ -253,7 +253,9 @@ function App() {
           // Ensure points is a number if present, default to 1
           points: typeof q.points === 'number' ? q.points : 1,
           imageUrl: q.imageUrl || q.imageURL, // Support both cases for question images too
-          sectionId: q.sectionId // Preserve section link
+          sectionId: q.sectionId, // Preserve section link
+          diagram: q.diagram || undefined,
+          diagramType: q.diagramType || undefined
         };
       });
 

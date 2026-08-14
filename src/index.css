@@ -260,6 +260,52 @@
   #pdf-print-content { display: none !important; }
 }
 
+.mermaid-container svg {
+  width: 100% !important;
+  max-width: 700px !important;
+  min-width: 320px !important;
+  height: auto !important;
+}
+
+.svg-diagram-container svg {
+  width: 100% !important;
+  max-width: 700px !important;
+  max-height: 380px !important;
+  height: auto !important;
+  display: block;
+  margin: 0 auto;
+}
+
+/* Dark Mode High-Contrast Adaptations for SVG Diagrams */
+.dark .svg-diagram-container {
+  background: rgba(15, 23, 42, 0.6) !important;
+  border-color: rgba(99, 102, 241, 0.25) !important;
+}
+
+.dark .svg-diagram-container svg text {
+  font-weight: 600;
+  fill: #f8fafc;
+}
+
+/* Brighten dark fills and strokes in dark mode */
+.dark .svg-diagram-container svg [fill="#000"],
+.dark .svg-diagram-container svg [fill="#000000"],
+.dark .svg-diagram-container svg [fill="black"],
+.dark .svg-diagram-container svg [fill="#111827"],
+.dark .svg-diagram-container svg [fill="#1e293b"],
+.dark .svg-diagram-container svg [fill="#334155"] {
+  fill: #f8fafc !important;
+}
+
+.dark .svg-diagram-container svg [stroke="#000"],
+.dark .svg-diagram-container svg [stroke="#000000"],
+.dark .svg-diagram-container svg [stroke="black"],
+.dark .svg-diagram-container svg [stroke="#111827"],
+.dark .svg-diagram-container svg [stroke="#1e293b"],
+.dark .svg-diagram-container svg [stroke="#334155"] {
+  stroke: #cbd5e1 !important;
+}
+
 /* Print-only doc styles */
 @media print {
   /* Portal makes #pdf-print-content a direct <body> child.
@@ -423,4 +469,21 @@
     border-top: 1px solid #e5e7eb;
     padding-top: 8px;
   }
+
+  .print-q-diagram {
+    display: block !important;
+    margin: 12px auto !important;
+    text-align: center !important;
+    max-width: 100% !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  .print-q-diagram svg {
+    width: 100% !important;
+    max-width: 600px !important;
+    min-width: 300px !important;
+    height: auto !important;
+  }
 }
+

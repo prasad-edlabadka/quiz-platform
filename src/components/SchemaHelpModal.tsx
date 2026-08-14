@@ -70,6 +70,8 @@ export const SchemaHelpModal: React.FC<SchemaHelpModalProps> = ({ isOpen, onClos
           <li><code>points</code> (optional): Score value (default: 1)</li>
           <li><code>imageUrl</code> (optional): URL string for image</li>
           <li><code>justification</code> (optional): Explanation text</li>
+          <li><code>diagram</code> (optional): Diagram content. Supports Mermaid.js code, Base64 image data URLs (e.g. <code>data:image/png;base64,...</code>) for freeform drawings, or serialized Fabric.js canvas JSON states</li>
+          <li><code>diagramType</code> (optional): "mermaid" | "freeform" | "image"</li>
         </ul>
 
         <div style={{ marginTop: '1.5rem' }}>

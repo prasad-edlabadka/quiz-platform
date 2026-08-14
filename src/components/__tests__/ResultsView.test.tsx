@@ -4,9 +4,12 @@ import { ResultsView } from '../ResultsView';
 import { useTestStore } from '../../store/testStore';
 
 // Mock the store
-vi.mock('../../store/testStore', () => ({
-    useTestStore: vi.fn()
-}));
+vi.mock('../../store/testStore', () => {
+    const mockUseTestStore = Object.assign(vi.fn(), { subscribe: vi.fn(() => vi.fn()) });
+    return {
+        useTestStore: mockUseTestStore
+    };
+});
 
 // Mock react-to-print
 vi.mock('react-to-print', () => ({
@@ -67,9 +70,16 @@ describe('ResultsView', () => {
             'q1': ['opt1'], // Correct
             'q2': ['opt4']  // Wrong
         },
+        drawnAnswers: {},
         resetTest: vi.fn(),
+        clearState: vi.fn(),
         questionTimeTaken: { 'q1': 10, 'q2': 20 },
-        evaluations: {}
+        evaluations: {},
+        apiKey: null,
+        addBatchEvaluations: vi.fn(),
+        addEvaluation: vi.fn(),
+        themeMode: 'light',
+        isViewingPastResult: false
     };
 
     beforeEach(() => {

@@ -27,6 +27,7 @@ vi.mock('../store/testStore', async () => {
        return storeState;
     };
     mockUseTestStore.getState = () => storeState;
+    mockUseTestStore.subscribe = vi.fn(() => vi.fn());
     
     return {
         ...actual,

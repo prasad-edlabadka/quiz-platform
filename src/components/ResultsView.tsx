@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useTestStore } from '../store/testStore';
 import { MarkdownRenderer } from './MarkdownRenderer';
+import { QuestionDiagramRenderer } from './QuestionDiagramRenderer';
 import { RefreshCw, CheckCircle, XCircle, Clock, Printer, Download, Sparkles, AlertCircle, MessageSquare, Send, ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { evaluateBatchAnswers, evaluateTextAnswer } from '../services/aiService';
@@ -322,6 +323,11 @@ export const ResultsView: React.FC = () => {
                                 <div className="ml-9">
                                     <div className="text-glass-primary text-sm mb-4">
                                         <MarkdownRenderer content={q.content} />
+                                        {q.diagram && (
+                                            <div className="mt-3 p-4 bg-white/5 rounded-2xl border border-indigo-500/10 flex justify-center max-w-2xl">
+                                                <QuestionDiagramRenderer diagram={q.diagram} />
+                                            </div>
+                                        )}
                                         {q.imageUrl && (
                                             <div className="mt-3 rounded-lg overflow-hidden max-w-sm">
                                                 <img src={q.imageUrl} alt={`Question ${idx + 1}`} className="max-w-full h-auto w-auto object-contain" />

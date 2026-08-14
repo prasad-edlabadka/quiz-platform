@@ -37,6 +37,8 @@ export interface Question {
   points?: number; // Score value for this question (default: 1)
   ibCriteria?: IBCriterion[]; // Dynamically assigned IB Criteria
   requiresDiagram?: boolean; // If true, rendering will include a drawing canvas
+  diagram?: string; // Optional diagram definition (e.g. Mermaid)
+  diagramType?: 'mermaid'; // Optional diagram type
 }
 
 export interface Option {

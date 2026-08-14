@@ -34,4 +34,26 @@ describe('MarkdownRenderer', () => {
         expect(img).toHaveAttribute('src', 'http://test.com/img.png');
         expect(img).toHaveClass('shadow-md');
     });
+
+    it('should keep LaTeX commands intact inside math mode and handle double-escape', () => {
+        // Test single escaped LaTeX inside math block:
+        // $q_1 = +4.0 \times 10^{-6}$ should NOT convert \times to ×.
+        const { container: container1 } = render(<MarkdownRenderer content="$q_1 = +4.0 \times 10^{-6}$" />);
+        expect(container1.querySelector('.katex')).toBeInTheDocument();
+        expect(container1.textContent).not.toContain('\\×');
+        expect(container1.querySelector('annotation')?.textContent).toBe('q_1 = +4.0 \\times 10^{-6}');
+
+        // Test double-escaped LaTeX inside math block:
+        // $q_1 = +4.0 \\times 10^{-6}$ should convert \\times to \times, which Katex parses correctly.
+        const { container: container2 } = render(<MarkdownRenderer content="$q_1 = +4.0 \\times 10^{-6}$" />);
+        expect(container2.querySelector('.katex')).toBeInTheDocument();
+        expect(container2.textContent).not.toContain('\\×');
+        expect(container2.querySelector('annotation')?.textContent).toBe('q_1 = +4.0 \\times 10^{-6}');
+    });
+
+    it('should replace math symbols with unicode symbols outside math mode', () => {
+        // Outside math mode, \times should convert to ×
+        render(<MarkdownRenderer content="2 \times 3 = 6" />);
+        expect(screen.getByText('2 × 3 = 6')).toBeInTheDocument();
+    });
 });

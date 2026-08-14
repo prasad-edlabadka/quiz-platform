@@ -2,6 +2,7 @@ import React from 'react';
 import { useTestStore } from '../store/testStore';
 import { ArrowLeft, Printer } from 'lucide-react';
 import { MarkdownRenderer } from './MarkdownRenderer';
+import { QuestionDiagramRenderer } from './QuestionDiagramRenderer';
 
 export const PrintableView: React.FC = () => {
   const { config, resetTest } = useTestStore();
@@ -113,6 +114,11 @@ const QuestionBlock = ({ question, index }: { question: any; index: number }) =>
         <div className="flex-1 min-w-0 pr-4">
           <div className="prose prose-sm max-w-none mb-4 print:prose-p:text-black">
             <MarkdownRenderer content={question.content} />
+            {question.diagram && (
+              <div className="mt-4 p-4 bg-gray-50 border border-gray-200 rounded-lg flex justify-center print:bg-white print:border-black print:p-0 print:mt-2">
+                <QuestionDiagramRenderer diagram={question.diagram} forceLightMode={true} />
+              </div>
+            )}
             {question.imageUrl && (
               <img
                 src={question.imageUrl}
