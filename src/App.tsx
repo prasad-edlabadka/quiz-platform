@@ -500,7 +500,7 @@ function App() {
             {/* Main Content Area */}
             <div className="flex-1 flex flex-col min-w-0 md:h-screen overflow-hidden relative">
               <main className="flex-1 overflow-y-auto px-6 lg:px-10 pb-24 md:pb-10 pt-8">
-                <div className={`w-full mx-auto grid grid-cols-1 gap-8 lg:gap-12 items-start md:h-full transition-all duration-500 max-w-[1280px]`}>
+                <div className={`w-full mx-auto grid grid-cols-1 gap-8 lg:gap-12 items-start min-h-full transition-all duration-500 max-w-[1280px]`}>
                   {activeTab === null && (<LandingFeatures />)}
 
                   {activeTab !== null && (
@@ -508,7 +508,7 @@ function App() {
                       initial={{ opacity: 0, x: 20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ duration: 0.5 }}
-                      className="flex flex-col h-full pt-2 lg:pt-0 pb-8 min-h-[500px]"
+                      className="flex flex-col min-h-full pt-2 lg:pt-0 pb-8"
                     >
                       <motion.div layoutId="app-header-title" className="mb-10 flex flex-col items-start justify-center h-14 md:h-16">
                         <div className="text-4xl lg:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 leading-none tracking-tight mb-2">
