@@ -55,21 +55,15 @@ describe('App Integration', () => {
         storeState = { ...initialStoreState };
     });
 
-    it('should render correct default tab initially', () => {
+    it('should render landing page initially', () => {
         render(<App />);
-        // Since AI is the default tab, Syllabus Input should be visible immediately
-        expect(screen.getByText(/Syllabus Input/i)).toBeInTheDocument();
+        expect(screen.getByText(/Ace Your Exams/i)).toBeInTheDocument();
     });
 
-    it('should switch tabs', () => {
+    it('should switch tabs to New Test and show test creation', () => {
         render(<App />);
         
-        // Switch to Dashboard tab and verify landing features
-        const buttons = screen.getAllByRole('button');
-        fireEvent.click(buttons[0]); // Dashboard is the first button in the sidebar nav
-        expect(screen.getByText(/Ace Your Exams/i)).toBeInTheDocument();
-        
-        // Switch back to AI tab
+        // Switch to New Test tab
         fireEvent.click(screen.getByText(/New Test/i));
         expect(screen.getByText(/Syllabus Input/i)).toBeInTheDocument();
     });

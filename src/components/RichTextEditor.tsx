@@ -29,13 +29,15 @@ interface RichTextEditorProps {
   onChange: (value: string) => void;
   placeholder?: string;
   readOnly?: boolean;
+  minHeight?: string;
 }
 
 export const RichTextEditor: React.FC<RichTextEditorProps> = React.memo(({
   value,
   onChange,
   placeholder,
-  readOnly = false
+  readOnly = false,
+  minHeight = '200px',
 }) => {
     return (
         <div className="ck-content">
@@ -88,7 +90,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = React.memo(({
             />
             <style>{`
                 .ck-editor__editable_inline {
-                    min-height: 200px;
+                    min-height: ${minHeight || '200px'};
                 }
                 
                 /* CKEditor 5 Dark Mode Variables Override */
@@ -134,17 +136,18 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = React.memo(({
                     filter: invert(0.92) hue-rotate(180deg);
                 }
                 :root[class~="dark"] .wrs_content_container {
-                     background: white; /* Ensure base is white before invert so it becomes black */
+                    background: white; /* Ensure base is white before invert so it becomes black */
                 }
             `}</style>
         </div>
     );
 }, (prevProps, nextProps) => {
     // Custom comparator: Ignore the inline onChange function pointer change, which triggers every second (Timer tick)
-    // Only re-render if the actual text data, readOnly state, or placeholder changes.
+    // Only re-render if the actual text data, readOnly state, minHeight, or placeholder changes.
     return (
         prevProps.value === nextProps.value &&
         prevProps.readOnly === nextProps.readOnly &&
-        prevProps.placeholder === nextProps.placeholder
+        prevProps.placeholder === nextProps.placeholder &&
+        prevProps.minHeight === nextProps.minHeight
     );
 });
